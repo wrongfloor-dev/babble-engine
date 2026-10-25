@@ -72,7 +72,7 @@ const STR={en:{
 'chk.play':'▶ Play','chk.pause':'❚❚ Pause','chk.prevPlay':'▶ Play example','chk.lineOk':'Recorded','chk.lineMiss':'Missing','chk.lineRedo':'Redo','chk.lineRec':'Record',
 'chk.linePlay':'Play','chk.partial':'Incomplete: {d} of {t} lines. Missing sounds borrow the closest one.',
 'chk.unlabeled':'This recording doesn’t follow the script, so sounds are picked at random. Read the script from this studio for the best result.',
-'chk.tooLittle':'Too little clear speech was found. Record again a bit closer to the microphone, or choose another file.','chk.badFile':'Your browser can’t read this file. Try mp3, m4a, wav or ogg.',
+'chk.tooLittle':'Too little clear speech was found. Record again a bit closer to the microphone, or choose another file.','chk.badFile':'Your browser can’t read this file. Try mp3, m4a, wav or ogg.','chk.tooBig':'This file is too long. Use a recording of up to 15 minutes.',
 'chk.saveFail':'Saving in this browser failed ({m}). Your recording is still here: try again, or use it for this session only.',
 'chk.nameDefault':'My voice','chk.noLines':'No lines were recorded.',
 'cf.leaveTitle':'Leave without saving?','cf.leaveText':'Your recording hasn’t been saved yet and will be lost.','cf.leaveYes':'Discard recording','cf.leaveNo':'Keep working',
@@ -145,7 +145,7 @@ nl:{
 'chk.play':'▶ Afspelen','chk.pause':'❚❚ Pauzeren','chk.prevPlay':'▶ Voorbeeld afspelen','chk.lineOk':'Opgenomen','chk.lineMiss':'Ontbreekt','chk.lineRedo':'Opnieuw','chk.lineRec':'Opnemen',
 'chk.linePlay':'Afspelen','chk.partial':'Onvolledig: {d} van {t} regels. Ontbrekende klanken lenen de dichtstbijzijnde.',
 'chk.unlabeled':'Deze opname volgt het script niet, dus klanken worden willekeurig gekozen. Lees voor het beste resultaat het script uit deze studio voor.',
-'chk.tooLittle':'Er is te weinig duidelijke spraak gevonden. Neem opnieuw op, iets dichter bij de microfoon, of kies een ander bestand.','chk.badFile':'Je browser kan dit bestand niet lezen. Probeer mp3, m4a, wav of ogg.',
+'chk.tooLittle':'Er is te weinig duidelijke spraak gevonden. Neem opnieuw op, iets dichter bij de microfoon, of kies een ander bestand.','chk.badFile':'Je browser kan dit bestand niet lezen. Probeer mp3, m4a, wav of ogg.','chk.tooBig':'Dit bestand is te lang. Gebruik een opname van hoogstens 15 minuten.',
 'chk.saveFail':'Opslaan in deze browser is mislukt ({m}). Je opname staat er nog: probeer het opnieuw, of gebruik hem alleen voor deze sessie.',
 'chk.nameDefault':'Mijn stem','chk.noLines':'Er zijn geen regels opgenomen.',
 'cf.leaveTitle':'Weggaan zonder op te slaan?','cf.leaveText':'Je opname is nog niet opgeslagen en gaat verloren.','cf.leaveYes':'Opname weggooien','cf.leaveNo':'Verder werken',
@@ -307,8 +307,18 @@ let HISS=1;try{const h=parseFloat(localStorage.getItem('bm.hiss'));if(h>=0&&h<=1
 let STEADY=1;try{const h=parseFloat(localStorage.getItem('bm.steady'));if(h>=0&&h<=1)STEADY=h}catch(e){}
 function defCfg(e){const k=Object.keys(ENGINES[e].voices)[0],v=ENGINES[e].voices[k];const s={};SLIDERS.forEach(x=>s[x]=v[x]);
   return {voice:k,mood:'neutraal',intent:'greet',len:'auto',anc:'auto',sl:s,take:Math.floor(Math.random()*1e6)}}
+const own=(o,k)=>o!=null&&typeof k==='string'&&Object.prototype.hasOwnProperty.call(o,k);
+const num=(v,d)=>typeof v==='number'&&isFinite(v)?v:d;
+// Saved settings come from localStorage: keep only known values, so an old or edited entry can't stop the app from starting.
+function cleanCfg(e,x){const d=defCfg(e),v=ENGINES[e].voices;if(!x||typeof x!=='object')return d;
+  if(typeof x.voice==='string'&&(x.voice.startsWith('own:')?EMETA[e].rec:own(v,x.voice)))d.voice=x.voice;
+  const pv=v[d.voice.startsWith('own:')?Object.keys(v)[0]:d.voice];SLIDERS.forEach(k=>d.sl[k]=pv[k]);
+  if(own(MOODS,x.mood))d.mood=x.mood;if(own(INTENTS,x.intent))d.intent=x.intent;
+  if(['auto','short','medium'].includes(x.len))d.len=x.len;if(x.anc==='auto'||own(ANCHORS,x.anc))d.anc=x.anc;
+  if(x.sl&&typeof x.sl==='object')SLIDERS.forEach(k=>{const n=num(x.sl[k]);if(n!==undefined)d.sl[k]=Math.min(+$(k).max,Math.max(+$(k).min,n))});
+  d.take=num(x.take,d.take);if('salt' in x)d.salt=num(x.salt,0);return d}
 ENGINE_ORDER.forEach(e=>st.cfg[e]=defCfg(e));
-try{const saved=JSON.parse(localStorage.getItem('bm.cfg')||'null');if(saved&&saved.cfg){for(const e of ENGINE_ORDER)if(saved.cfg[e])Object.assign(st.cfg[e],saved.cfg[e]);if(ENGINES[saved.engine])st.engine=saved.engine}}catch(e){}
+try{const saved=JSON.parse(localStorage.getItem('bm.cfg')||'null');if(saved&&saved.cfg){for(const e of ENGINE_ORDER)if(own(saved.cfg,e))st.cfg[e]=cleanCfg(e,saved.cfg[e]);if(own(ENGINES,saved.engine))st.engine=saved.engine}}catch(e){}
 const C=()=>st.cfg[st.engine];
 function saveCfg(){try{localStorage.setItem('bm.cfg',JSON.stringify({engine:st.engine,cfg:st.cfg}))}catch(e){}}
 const ownVoice=id=>st.voices.find(v=>v.id===id);
@@ -390,7 +400,7 @@ function renderTakes(){const box=$('takeChips');box.innerHTML='';if(!cur())retur
   const tip=document.createElement('button');tip.type='button';tip.className='tipbtn';tip.textContent='i';tip.setAttribute('aria-label',t('make.helpAria'));tip.setAttribute('aria-expanded',String(!$('takeHelp').hidden));tip.setAttribute('aria-controls','takeHelp');tip.title=t('make.saveHelp');
   tip.onclick=()=>{$('takeHelp').hidden=!$('takeHelp').hidden;tip.setAttribute('aria-expanded',String(!$('takeHelp').hidden))};box.appendChild(tip)}
 // ---------- characters: a saved variant ----------
-let CHARS=[];try{const a=JSON.parse(localStorage.getItem('bm.chars')||'[]');if(Array.isArray(a))CHARS=a.filter(x=>x&&ENGINES[x.engine])}catch(e){}
+let CHARS=[];try{const a=JSON.parse(localStorage.getItem('bm.chars')||'[]');if(Array.isArray(a))CHARS=a.filter(x=>x&&own(ENGINES,x.engine)).map(x=>({...x,...cleanCfg(x.engine,x),engine:x.engine,id:String(x.id||'c'+Math.random().toString(36).slice(2)),name:String(x.name||'?').slice(0,60),langSeed:num(x.langSeed,0),salt:num(x.salt,0)}))}catch(e){}
 function saveChars(){try{localStorage.setItem('bm.chars',JSON.stringify(CHARS))}catch(e){}}
 function charNow(){const c=C(),h=cur();return {engine:st.engine,voice:c.voice,mood:c.mood,intent:c.intent,len:c.len,anc:c.anc,sl:{...c.sl},salt:h?h.salt:(c.salt||0),take:h&&h.take!==undefined?h.take:c.take,langSeed:st.langSeed}}
 const charKey=x=>JSON.stringify([x.engine,x.voice,x.engine==='vemmo'?[x.intent,x.len,x.anc,x.take]:[x.mood,x.salt],x.sl,LANGSTYLE[x.engine]?x.langSeed:0]);
@@ -838,6 +848,11 @@ function analyzeRecording(){
 function showUpload(){$('upBox').hidden=false;$('checkBody').hidden=true;$('procErr').hidden=true;$('procBox').hidden=true;$('file').value='';$('file').focus()}
 $('file').addEventListener('change',async e=>{
   const f=e.target.files[0];if(!f)return;await ready();$('procErr').hidden=true;$('procBox').hidden=false;$('checkBody').hidden=true;
+  const tooLong=()=>{$('procBox').hidden=true;$('procErr').textContent=t('chk.tooBig');$('procErr').hidden=false};
+  if(f.size>200*1024*1024)return tooLong();
+  const dur=await new Promise(res=>{const u=URL.createObjectURL(f),a=new Audio();const done=d=>{URL.revokeObjectURL(u);res(d)};
+    a.preload='metadata';a.onloadedmetadata=()=>done(a.duration);a.onerror=()=>done(NaN);setTimeout(()=>done(NaN),5000);a.src=u});
+  if(isFinite(dur)&&dur>15*60)return tooLong();
   try{
     const b=await ctx.decodeAudioData(await f.arrayBuffer()),n=b.length,mono=new Float32Array(n);for(let c=0;c<b.numberOfChannels;c++){const d=b.getChannelData(c);for(let i=0;i<n;i++)mono[i]+=d[i]/b.numberOfChannels}
     setTimeout(()=>{
