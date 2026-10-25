@@ -1,0 +1,64 @@
+# Babble Engine
+
+Gibberish / fictional speech generator for games. Plain HTML + vanilla JS, no build step, no dependencies.
+
+## Layout
+Everything that goes online lives in `site/` (Cloudflare Workers static assets, `wrangler.jsonc`). `dossier/`, `metingen/`, `tests/` and this file stay out.
+- `site/index.html` – markup for all views (make, my voices, studio steps 1–3, dialogs)
+- `site/src/styles.css` – design tokens and styles (light by default with a dark variant, coral accent #E2553F / #F4705E in dark, a per-style accent, Figtree UI font, Bagel Fat One only for the logo). Fonts are self-hosted in `site/fonts/` (woff2, SIL OFL; license files next to them)
+- `site/src/engine.js` – all audio synthesis and analysis, no DOM. Also loadable in Node (`module.exports` at the bottom) for tests.
+  - `tokenize`, `prosody`, `renderSynth` (formant synthesis), `renderSample` (own-voice playback), `renderTone` (Soft Tones + Talking Instruments)
+  - Vemmo: `INTENTS`, `ANCHORS`, `vemmoClip`
+  - Extra voice styles: `PALETTES` + `paletteLang` (Grumble, Gizmo, Sprite, Babytalk), `babyfy`, `postFX` (grumble, gizmo, sprite, radio). Echo Folk mixes four renders in `app.js` → `render()`.
+  - Studio: `buildScript`, `studioSchedule`, `analyzeScriptRecording`, `splitChunk`, `estimateF0`, `makeAmbient`
+- `site/src/app.js` – UI: i18n (EN/NL in `STR`), make screen, voices storage (IndexedDB `babble-machine`/`voices`: the old name is kept on purpose so voices saved earlier stay available), studio (mic, prompter, recorder)
+
+## Rules
+- Don't change synthesis algorithms for visual work.
+- UI copy goes through `t()` with keys in both `STR.en` and `STR.nl`.
+- One audio player at a time: always play through `pPlay()` / stop with `pStop()`.
+- Own voices only work with engines where `EMETA[e].rec` is true (all voice styles; not Soft Tones or Talking Instruments).
+- WAV export: a plain `.wav` Blob download. Inside a claude.ai artifact (`window.claude` present) it goes through the `downloads` capability instead, zipped (that allowlist has zip, not wav).
+- Strict CSP (`site/_headers`, report-only for now): no inline `style`/`<script>`/`on…=` in HTML, no requests to other hosts. Setting `el.style.x` from JS is fine. JSON-LD (`application/ld+json`) is allowed.
+- `site/sitemap.xml` lists every public page; a page goes online only when its integration exists.
+
+## Run / test
+- Serve `site/` locally: `npx wrangler dev` (applies `_headers` and the 404 page) or `python3 -m http.server -d site`, then open http://localhost:8787 or :8000 (microphone needs http(s), not file://).
+- Build check, no dependencies: `node tests/check.mjs` (STR keys EN = NL, banned writing patterns, links, sitemap, strict-CSP readiness, headers). Engine render checks follow in phase 1.
+- Browser tests (Playwright, Chromium with a fake microphone): `tests/make_screen.py`, `tests/studio.py`. **Out of date** (2026-10-25): they target an older UI (`#voiceSel`, `brabbel.html`, `pw.py`) and a single-file `t2.html`; rewrite them against `site/` via a local server.
+- The fake microphone is a test tone, not a voice: real voice recording still needs a manual check.
+
+## Wrong Floor project
+
+Project folder following the Wrong Floor method. Research and decisions live in `dossier/`, measurements in `metingen/`. Read `dossier/000-kans.md` before planning work.
+
+| | |
+|---|---|
+| Working on | tool, public |
+| Goal | build further: integrations (web → Godot) as a free Wrong Floor product, distributed from one public GitHub repo, plus one link-only itch.io listing (no npm, no itch.io uploads, no Unity); usage by game developers leads, proof for pitches and later income follow |
+| Domain | babbleengine.wrongfloor.studio (Cloudflare; DNS record not yet created) |
+| Ownership confirmed | no |
+| Code | this folder; public repo https://github.com/wrongfloor-dev/babble-engine (public and still empty on 2026-10-25) |
+| Should deliver | usage: web engine use per week (jsDelivr) and Godot Asset Library downloads (`dossier/meting.md`) |
+| License | code MIT; generated audio free to use, also commercially |
+| Brand | own brand Babble Engine, credited "by Wrong Floor" |
+
+### Keep and may change
+
+| Keep | May change |
+|---|---|
+| Synthesis algorithms in `src/engine.js`. One approved extension (2026-10-25): an optional `seed` for the fine variation; without it the sound stays as it is | Integrations around the engine (web module, Godot addon) |
+| IndexedDB name `babble-machine`/`voices`, so saved voices keep working | Export step: a normal Blob download instead of the claude.ai capability |
+| EN/NL copy through `t()` | Font loading (self-host instead of Google Fonts) |
+| The 11 voice styles and the studio flow | The new design, only through a design review in step 4 |
+
+### Where the project stands
+
+| Step | Status | Where |
+|---|---|---|
+| 000 Is there something to win? | done (2026-10-25, verdict by Raoul: build pays off) | `dossier/000-kans.md` |
+| 0 Measurement | plan written (2026-10-25); set up before launch | `dossier/meting.md` |
+| 1 Design and build | build brief done (2026-10-25); design basis written | `dossier/bouwbrief.md`, `dossier/ontwerp.md` |
+| 2 Security, SEO, GEO, EU (domain scan; not a security review of the app) | open | `scans/` |
+| 3 Performance | open | `metingen/` |
+| 4 Text and design | open | `dossier/tekstcontrole.md`, `dossier/ontwerpronde.md` |

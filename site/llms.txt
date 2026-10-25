@@ -1,0 +1,23 @@
+# Babble Engine
+
+> Babble Engine turns a line of text into gibberish speech for game characters: made-up language, critter chatter, robot beeps and soft tones. It runs in the browser, is free, and is made by Wrong Floor.
+
+Babble Engine is for game developers who want characters to "talk" without voice acting. You type a line, pick a style and a voice, listen, and export a WAV file. You can also record your own voice in the studio and use it as the source for the babble. Recordings stay in the browser (IndexedDB); nothing is uploaded and there are no accounts.
+
+## Use it
+
+- [Babble Engine](https://babbleengine.wrongfloor.studio/): the tool, in English and Dutch
+- [Source code on GitHub](https://github.com/wrongfloor-dev/babble-engine): plain HTML and JavaScript, no dependencies
+
+## Styles
+
+11 styles. Voice styles (work with your own recorded voice): Critter Chatter, Babblish, Vemmo, Grumble, Gizmo, Sprite, Babytalk, Echo Folk, Mumble Radio. Sound styles (no voice): Soft Tones, Talking Instruments.
+
+## License
+
+- Code: MIT
+- Audio you make with Babble Engine is yours to use, also commercially.
+
+## Maker
+
+[Wrong Floor](https://wrongfloor.studio)
