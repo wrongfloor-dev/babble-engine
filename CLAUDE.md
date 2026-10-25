@@ -5,7 +5,7 @@ Gibberish / fictional speech generator for games. Plain HTML + vanilla JS, no bu
 ## Layout
 Everything that goes online lives in `site/` (Cloudflare Workers static assets, `wrangler.jsonc`). `dossier/`, `metingen/`, `tests/` and this file stay out.
 - `site/index.html` – markup for all views (make, my voices, studio steps 1–3, dialogs)
-- `site/src/styles.css` – design tokens and styles (light by default with a dark variant, coral accent #E2553F / #F4705E in dark, a per-style accent, Figtree UI font, Bagel Fat One only for the logo). Fonts are self-hosted in `site/fonts/` (woff2, SIL OFL; license files next to them)
+- `site/src/styles.css` – design tokens and styles. Look (redesign D, 2026-10-25, branch `redesign`): warm paper and ink outlines with a hard shadow, light by default with a dark variant; per style `body.e-*` sets `--accL/--accD` (accent, 5:1 or more with its text colour) and `--tintL/--tintD` (stage); Figtree UI font, Bagel Fat One for the logo, names and panel headings. Make screen: style cards with a mini critter (`MINI` in app.js), voices, then line and stage side by side at one height, player strip fixed at the bottom of the stage, settings below (this voice / all styles). Fonts are self-hosted in `site/fonts/` (woff2, SIL OFL; license files next to them)
 - `site/src/engine.js` – all audio synthesis and analysis, no DOM. Also loadable in Node (`module.exports` at the bottom) for tests.
   - `tokenize`, `prosody`, `renderSynth` (formant synthesis), `renderSample` (own-voice playback), `renderTone` (Soft Tones + Talking Instruments)
   - Vemmo: `INTENTS`, `ANCHORS`, `vemmoClip`
@@ -65,4 +65,4 @@ Project folder following the Wrong Floor method. Research and decisions live in 
 | 1 Design and build | build brief done (2026-10-25); design basis written | `dossier/bouwbrief.md`, `dossier/ontwerp.md` |
 | 2 Security, SEO, GEO, EU (domain scan; not a security review of the app) | open | `scans/` |
 | 3 Performance | open | `metingen/` |
-| 4 Text and design | open | `dossier/tekstcontrole.md`, `dossier/ontwerpronde.md` |
+| 4 Text and design | design round started 2026-10-25: usage and structure first, then visual redesign (logo fixed, rest free); before the integrations | `dossier/ontwerpronde.md`, `dossier/ontwerp-voor/` |

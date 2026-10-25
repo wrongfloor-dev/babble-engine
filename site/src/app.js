@@ -8,8 +8,8 @@ const $=id=>document.getElementById(id);
 
 // ---------- 1. i18n ----------
 const STR={en:{
-'nav.make':'Make babble','nav.voices':'My voices','make.title':'Make babble','make.lead':'Choose a sound style and voice. Then enter your text.',
-'make.style':'Sound style','make.gVoice':'Voice styles · work with your own voice','make.gSound':'Sound styles · no voice','make.text':'Text','make.examples':'Choose example text','make.result':'Result','make.emptyHint':'Nothing generated yet.',
+'nav.make':'Make babble','nav.voices':'Voices & characters','make.title':'Make babble','make.lead':'Choose a sound style and voice. Then enter your text.',
+'make.style':'Sound style','make.who':'Who speaks','make.say':'What does {name} say?','make.sayV':'What does {name} want to say?','make.tune':'Tune {name}','make.gVoice':'Voice styles','make.gSound':'Sound styles','make.text':'Text','make.examples':'Choose example text','make.result':'Result','make.emptyHint':'Nothing generated yet.',
 'make.generate':'Generate','make.speak':'▶ Speak','make.bubbleHint':'Click a voice, an emotion or press Speak.','side.record':'Record your voice','make.stale':'Text or settings changed. This result belongs to the previous settings.','make.regen':'Generate again',
 'make.takes':'Variants','make.saveChar':'Save as character','char.name':'Name of the character','char.save':'Save','char.cancel':'Cancel',
 'char.saved':'“{name}” saved.','char.title':'Characters',
@@ -28,9 +28,9 @@ const STR={en:{
 'adv.range':'Melody range','adv.rangeH':'How far the notes move from the base note.','adv.form':'Throat size','adv.formH':'Larger sounds deeper and fuller, smaller sounds brighter.',
 'adv.breath':'Breath','adv.breathH':'More breath sounds hoarser and softer.','adv.tilt':'Brightness','adv.tiltH':'Duller or brighter sound.','adv.steady':'Pitch steadiness','adv.steadyH':'For your own voice: holds every syllable on the melody. Lower it to keep more of how you read it.','adv.hiss':'Consonant hiss','adv.hissH':'The sss and kh of consonants, and the radio crackle. Lower it for a cleaner voice.',
 'adv.amb':'Background sound','adv.ambOff':'Off','adv.ambRain':'Rain','adv.ambBreeze':'Breeze','adv.ambWaves':'Waves','adv.ambLvl':'Background level',
-'adv.ambH':'Plays along while you listen. It is not part of the download.','adv.lang':'Language','adv.newLang':'New language',
+'adv.ambH':'Not in the download.','adv.allTitle':'All styles','adv.listen':'While listening','adv.lang':'Language','adv.newLang':'New language',
 'adv.langH':'Babblish turns every word into fixed made-up syllables. A new language changes which syllables it uses.',
-'voices.title':'My voices','voices.lead':'Recorded voices and characters. They stay in this browser only.',
+'voices.title':'Voices & characters','voices.own':'Recorded voices','voices.lead':'Recorded voices and characters. They stay in this browser only.',
 'voices.empty':'You don’t have any voices of your own yet. Add one to hear your text in your own voice.','voices.stored':'Saved in this browser only.',
 'voices.session':'This browser doesn’t allow saving, so voices only last for this session.','voices.use':'Use','voices.rename':'Rename','voices.delete':'Delete',
 'voices.save':'Save','voices.cancel':'Cancel','voices.info':'{n} sounds · {when}','voices.complete':'Complete','voices.partial':'Incomplete','voices.basis':'Basic round','voices.deep':'Basic + depth round','voices.old':'Older script',
@@ -81,8 +81,8 @@ const STR={en:{
 'prep.roundB':'Basic round: every consonant with every vowel.','prep.roundX':'Depth round for “{name}”: double vowels (ai, ow, ay).',
 'chk.saveX':'Add to “{name}”','side.savedX':'Depth round added to “{name}”.','side.depthTip':'Tip: add the depth round in My voices ({t}).','min':'{m} min','sec':'{s} s'},
 nl:{
-'nav.make':'Gebrabbel maken','nav.voices':'Mijn stemmen','make.title':'Gebrabbel maken','make.lead':'Kies een klankstijl en stem. Voer daarna je tekst in.',
-'make.style':'Klankstijl','make.gVoice':'Stemstijlen · werken met je eigen stem','make.gSound':'Klankstijlen · zonder stem','make.text':'Tekst','make.examples':'Voorbeeldtekst kiezen','make.result':'Resultaat','make.emptyHint':'Nog niets gegenereerd.',
+'nav.make':'Gebrabbel maken','nav.voices':'Stemmen en personages','make.title':'Gebrabbel maken','make.lead':'Kies een klankstijl en stem. Voer daarna je tekst in.',
+'make.style':'Klankstijl','make.who':'Wie spreekt','make.say':'Wat zegt {name}?','make.sayV':'Wat wil {name} zeggen?','make.tune':'{name} bijstellen','make.gVoice':'Stemstijlen','make.gSound':'Klankstijlen','make.text':'Tekst','make.examples':'Voorbeeldtekst kiezen','make.result':'Resultaat','make.emptyHint':'Nog niets gegenereerd.',
 'make.generate':'Genereer','make.speak':'▶ Spreek','make.bubbleHint':'Klik op een stem, een emotie of druk op Spreek.','side.record':'Neem je stem op','make.stale':'Tekst of instellingen zijn gewijzigd. Dit resultaat hoort bij de vorige instellingen.','make.regen':'Opnieuw genereren',
 'make.takes':'Varianten','make.saveChar':'Bewaar als personage','char.name':'Naam van het personage','char.save':'Bewaren','char.cancel':'Annuleren',
 'char.saved':'“{name}” bewaard.','char.title':'Personages',
@@ -101,9 +101,9 @@ nl:{
 'adv.range':'Melodiebereik','adv.rangeH':'Hoe ver de noten van de grondtoon af gaan.','adv.form':'Keelgrootte','adv.formH':'Groter klinkt dieper en voller, kleiner klinkt helderder.',
 'adv.breath':'Adem','adv.breathH':'Meer adem klinkt heser en zachter.','adv.tilt':'Helderheid','adv.tiltH':'Doffere of helderdere klank.','adv.steady':'Toonvastheid','adv.steadyH':'Voor je eigen stem: houdt elke lettergreep op de melodie. Lager laat meer horen van hoe je het insprak.','adv.hiss':'Medeklinkerruis','adv.hissH':'De sss en kh van medeklinkers, en het geknetter van de radio. Lager geeft een schonere stem.',
 'adv.amb':'Achtergrondgeluid','adv.ambOff':'Uit','adv.ambRain':'Regen','adv.ambBreeze':'Wind','adv.ambWaves':'Golven','adv.ambLvl':'Niveau achtergrond',
-'adv.ambH':'Speelt mee tijdens het luisteren. Het zit niet in de download.','adv.lang':'Taal','adv.newLang':'Nieuwe taal',
+'adv.ambH':'Niet in de download.','adv.allTitle':'Alle stijlen','adv.listen':'Tijdens het luisteren','adv.lang':'Taal','adv.newLang':'Nieuwe taal',
 'adv.langH':'Babblish maakt van elk woord vaste verzonnen lettergrepen. Een nieuwe taal verandert welke lettergrepen dat zijn.',
-'voices.title':'Mijn stemmen','voices.lead':'Opgenomen stemmen en personages. Ze staan alleen in deze browser.',
+'voices.title':'Stemmen en personages','voices.own':'Opgenomen stemmen','voices.lead':'Opgenomen stemmen en personages. Ze staan alleen in deze browser.',
 'voices.empty':'Je hebt nog geen eigen stemmen. Voeg er een toe om je tekst in je eigen stem te horen.','voices.stored':'Alleen bewaard in deze browser.',
 'voices.session':'Deze browser staat bewaren niet toe, dus stemmen blijven alleen deze sessie bestaan.','voices.use':'Gebruiken','voices.rename':'Hernoemen','voices.delete':'Verwijderen',
 'voices.save':'Opslaan','voices.cancel':'Annuleren','voices.info':'{n} klanken · {when}','voices.complete':'Volledig','voices.partial':'Onvolledig','voices.basis':'Basisronde','voices.deep':'Basis + verdieping','voices.old':'Ouder script',
@@ -371,6 +371,7 @@ const SV=()=>st.savedBy[st.engine]||(st.savedBy[st.engine]=[]);
 function showResult(){
   const r=cur();$('playerRow').hidden=!r;$('takes').hidden=!r;renderTakes();$('dlBtn').hidden=!r;$('dlOk').hidden=true;$('bubbleHint').hidden=!!r;
   const el=$('sounds');el.innerHTML='';if(!r){setPlayLabel(false);return}
+  const n=r.toks.reduce((a,k)=>a+k.text.length,0);el.dataset.len=n>220?'l':n>120?'m':'s';
   r.toks.forEach(k=>{const s=document.createElement('span');s.className='s'+(k.lex?' lex':'');s.textContent=k.text;k.el=s;el.appendChild(s)});
   $('dur').textContent=fmtDur(r.buf.duration);$('resMeta').textContent=r.meta;
   setPlayLabel(false);drawWave($('wave'),r.pcm,0);checkStale();
@@ -409,10 +410,10 @@ $('charForm').addEventListener('submit',e=>{e.preventDefault();const name=$('cha
   const c=C();c.salt=x.salt;if(x.take!==undefined)c.take=x.take;saveCfg(); // the saved variant is now the current one
   closeCharForm();refreshSide();renderChars();$('voiceMsg').textContent=t('char.saved',{name});$('voiceMsg').hidden=false;say($('voiceMsg').textContent)});
 function renderChars(){const l=$('clist');l.innerHTML='';$('cEmpty').hidden=CHARS.length>0;
-  CHARS.forEach(x=>{const row=document.createElement('div');row.className='vrow';const info=document.createElement('div');info.className='vinfo';
+  CHARS.forEach(x=>{const row=document.createElement('div');row.className='ccard s-'+x.engine;row.insertAdjacentHTML('beforeend','<svg viewBox="0 0 40 40" aria-hidden="true">'+MINI[x.engine]+'</svg>');const info=document.createElement('div');info.className='vinfo';
     const b=document.createElement('b');b.textContent=x.name;const p=document.createElement('span');p.className='hint';p.textContent=charInfo(x);info.appendChild(b);info.appendChild(p);row.appendChild(info);
     const act=document.createElement('div');act.className='vact';const mk=(lab,fn,cls)=>{const y=document.createElement('button');y.type='button';y.className='btn'+(cls?' '+cls:'');y.textContent=lab;y.onclick=fn;act.appendChild(y)};
-    mk(t('char.use'),()=>useChar(x));
+    mk(t('char.use'),()=>useChar(x),'primary');
     mk(t('voices.rename'),()=>{info.innerHTML='';const inp=document.createElement('input');inp.type='text';inp.value=x.name;inp.setAttribute('aria-label',t('char.name'));info.appendChild(inp);act.innerHTML='';
       mk(t('voices.save'),()=>{x.name=inp.value.trim()||x.name;saveChars();renderChars();refreshSide()},'primary');mk(t('voices.cancel'),renderChars);inp.focus()});
     mk(t('voices.delete'),()=>confirmDlg(t('voices.delTitle',{name:x.name}),'',t('cf.del'),t('voices.cancel')).then(ok=>{if(!ok)return;CHARS=CHARS.filter(y=>y!==x);saveChars();renderChars();refreshSide()}));
@@ -488,14 +489,25 @@ function ambDown(fade){
 }
 
 // ---------- make screen UI ----------
+// one small critter per style on the style cards (static markup, no user data)
+const MINI={animal:'<ellipse class="b" cx="11" cy="9" rx="4" ry="7"/><ellipse class="b" cx="29" cy="9" rx="4" ry="7"/><circle class="b" cx="20" cy="23" r="15"/><circle class="e" cx="15" cy="21" r="2"/><circle class="e" cx="25" cy="21" r="2"/>',
+  sim:'<circle class="b" cx="20" cy="22" r="16"/><circle class="e" cx="15" cy="20" r="2"/><circle class="e" cx="25" cy="20" r="2"/>',
+  vemmo:'<circle class="b" cx="20" cy="22" r="16"/><path class="h" d="M5 19 C5 3 35 3 35 19 Z"/><circle class="e" cx="15" cy="23" r="2"/><circle class="e" cx="25" cy="23" r="2"/>',
+  grumble:'<ellipse class="b" cx="9" cy="12" rx="4" ry="6"/><ellipse class="b" cx="31" cy="12" rx="4" ry="6"/><circle class="b" cx="20" cy="23" r="15"/><path class="e" d="M12 19h6M22 19h6" stroke-width="2.5"/>',
+  gizmo:'<line class="a" x1="20" y1="8" x2="20" y2="2"/><circle class="h" cx="20" cy="3" r="2.5"/><rect class="b" x="5" y="8" width="30" height="28" rx="8"/><circle class="e" cx="14" cy="21" r="2.5"/><circle class="e" cx="26" cy="21" r="2.5"/>',
+  sprite:'<ellipse class="b" cx="10" cy="10" rx="3" ry="8"/><ellipse class="b" cx="30" cy="10" rx="3" ry="8"/><circle class="b" cx="20" cy="24" r="13"/><circle class="e" cx="15" cy="23" r="2"/><circle class="e" cx="25" cy="23" r="2"/>',
+  echo:'<circle class="b" cx="12" cy="24" r="9"/><circle class="b" cx="28" cy="24" r="9"/><circle class="b" cx="20" cy="17" r="10"/><circle class="e" cx="16" cy="16" r="1.8"/><circle class="e" cx="24" cy="16" r="1.8"/>',
+  radio:'<circle class="b" cx="20" cy="23" r="14"/><path class="a" d="M6 22 C6 6 34 6 34 22"/><rect class="h" x="2" y="19" width="6" height="10" rx="2"/><rect class="h" x="32" y="19" width="6" height="10" rx="2"/><circle class="e" cx="15" cy="22" r="2"/><circle class="e" cx="25" cy="22" r="2"/>',
+  baby:'<circle class="b" cx="20" cy="22" r="16"/><circle class="e" cx="14" cy="21" r="2.6"/><circle class="e" cx="26" cy="21" r="2.6"/><circle class="h" cx="20" cy="6" r="2.5"/>',
+  tone:'<circle class="b" cx="20" cy="20" r="11"/><circle class="a" cx="20" cy="20" r="16"/>',
+  instr:'<rect class="b" x="9" y="6" width="22" height="28" rx="11"/><line class="a" x1="20" y1="12" x2="20" y2="28"/>'};
 function buildEngines(){const box=$('engines');box.innerHTML='';
   [['voice',ENGINE_ORDER.filter(e=>EMETA[e].rec)],['sound',ENGINE_ORDER.filter(e=>!EMETA[e].rec)]].forEach(([g,list],gi)=>{
-    const wrap=document.createElement('div');wrap.className='egroup';const lab=document.createElement('span');lab.className='glabel';lab.id='eg'+gi;lab.textContent=t(g==='voice'?'make.gVoice':'make.gSound');
-    const grid=document.createElement('div');grid.className='seg engines';grid.setAttribute('role','group');grid.setAttribute('aria-labelledby','eg'+gi);
-    list.forEach(e=>{const b=document.createElement('button');b.type='button';b.dataset.e=e;b.setAttribute('aria-pressed',String(e===st.engine));
-      const n=document.createElement('b');n.textContent=EMETA[e].name;const s=document.createElement('small');s.textContent=SHORT[e][LI()];b.append(n,s);
-      b.onclick=()=>{setEngine(e);generate(false)};grid.appendChild(b)});
-    wrap.append(lab,grid);box.appendChild(wrap)})}
+    const grp=document.createElement('div');grp.className='sgroup g'+gi;grp.setAttribute('role','group');grp.setAttribute('aria-label',t(g==='voice'?'make.gVoice':'make.gSound'));
+    list.forEach(e=>{const b=document.createElement('button');b.type='button';b.dataset.e=e;b.className='s-'+e;b.setAttribute('aria-pressed',String(e===st.engine));b.title=SHORT[e][LI()];
+      b.innerHTML='<svg viewBox="0 0 40 40" aria-hidden="true">'+MINI[e]+'</svg>';b.append(EMETA[e].name);
+      b.onclick=()=>{setEngine(e);generate(false)};grp.appendChild(b)});
+    box.appendChild(grp)})}
 function setBodyEngine(){ENGINE_ORDER.forEach(x=>document.body.classList.toggle('e-'+x,x===st.engine))}
 function setEngine(e){
   if(e===st.engine)return;pStop();st.engine=e;saveCfg();setBodyEngine();
@@ -512,11 +524,13 @@ function refreshSide(){
   const vc=$('voiceChips');vc.innerHTML='';
   const chip=(box,label,pressed,fn,cls,title)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-pressed',String(pressed));if(cls)b.className=cls;if(title)b.title=title;b.onclick=fn;box.appendChild(b);return b};
   Object.entries(ENGINES[e].voices).forEach(([k,v])=>chip(vc,v.name,c.voice===k,()=>pickVoice(k),'',v.d[LANGUI]));
-  if(m.rec&&st.voices.length){const sp=document.createElement('span');sp.className='sep';vc.appendChild(sp);st.voices.forEach(v=>chip(vc,v.name,c.voice==='own:'+v.id,()=>pickVoice('own:'+v.id),'own',t('side.own')))}
-  const mine=CHARS.filter(x=>x.engine===e);if(mine.length){const sp=document.createElement('span');sp.className='sep';vc.appendChild(sp);mine.forEach(x=>chip(vc,x.name,charActive(x),()=>useChar(x),'char',t('char.tag')+' · '+charInfo(x)))}
+  if(m.rec&&st.voices.length){st.voices.forEach(v=>chip(vc,v.name,c.voice==='own:'+v.id,()=>pickVoice('own:'+v.id),'own',t('side.own')))}
+  const cc=$('charChips');cc.innerHTML='';$('charRow').hidden=!CHARS.length;CHARS.forEach(x=>chip(cc,x.name,charActive(x),()=>useChar(x),'char',charInfo(x)));
   const vo=voiceObj();$('voiceDesc').textContent=vo.own?t('side.own'):vo.preset.d[LANGUI];$('voiceNote').hidden=!vo.own;
   if(vo.own)$('voiceNote').textContent=vo.own.complete?t('side.ownLabel',{n:vo.own.grains.length}):t('side.ownPartial',{d:vo.own.linesDone,t:vo.own.linesTotal});
-  $('speaker').textContent=vo.own?vo.own.name:vo.preset.name;
+  const who=vo.own?vo.own.name:vo.preset.name;$('speaker').textContent=who;
+  $('sayLbl').textContent=t(e==='vemmo'?'make.sayV':'make.say',{name:who});$('tuneLbl').textContent=t('make.tune',{name:who});
+  if(e==='vemmo'&&c.len==='auto')c.len='short';$('fTxt').hidden=e==='vemmo';
   $('fIntent').hidden=e!=='vemmo';$('fMood').hidden=e==='vemmo';$('fLen').hidden=e!=='vemmo';$('dAnchors').hidden=e!=='vemmo';
   const ic=$('intentChips');ic.innerHTML='';Object.keys(INTENTS).forEach(k=>chip(ic,INTENTNAME[k][LI()],c.intent===k,()=>{c.intent=k;c.take=Math.floor(Math.random()*1e6);refreshSide();onSetting();generate(false)}));
   $('intentDesc').textContent=INTENTNAME[c.intent][2+LI()];

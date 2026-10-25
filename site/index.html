@@ -43,13 +43,27 @@
 <!-- ===== Screen 1: make ===== -->
 <section id="viewMake">
   <h1 class="sr" data-t="make.title">Make babble</h1>
-  <section aria-labelledby="hStyle"><h2 id="hStyle" class="sr" data-t="make.style">Sound style</h2><div id="engines" class="egroups"></div></section>
-  <div class="layout">
-    <div class="col-main">
-      <section class="panel" id="pResult" aria-labelledby="hRes">
-        <h2 id="hRes" class="sr" data-t="make.result">Result</h2>
-        <div class="scene">
-          <svg class="critter" viewBox="0 0 110 130" aria-hidden="true">
+  <section class="cast" aria-labelledby="hWho">
+    <h2 id="hWho" class="sr" data-t="make.who">Who speaks</h2>
+    <div id="engines" class="styles"></div>
+    <p class="sr" id="engineDesc"></p>
+    <div class="crow" id="charRow" hidden><span class="lbl" id="charLbl" data-t="char.title">Characters</span><div class="chips" id="charChips" role="group" aria-labelledby="charLbl"></div></div>
+    <div class="crow"><span class="lbl" id="voiceLbl">Voice</span><div class="chips" id="voiceChips" role="group" aria-labelledby="voiceLbl"></div><span class="vdesc" id="voiceDesc"></span><span class="vdesc" id="voiceNote" hidden></span></div>
+    <p class="note" id="voiceMsg" hidden role="status"></p>
+  </section>
+  <div class="work">
+    <section class="panel compose" aria-labelledby="sayLbl">
+      <h2 class="disp" id="sayLbl">What does it say?</h2>
+      <div class="field" id="fTxt"><textarea id="txt" aria-labelledby="sayLbl"></textarea><button class="link" id="exBtn" aria-haspopup="dialog" data-t="make.examples">Choose example text</button></div>
+      <div class="field" id="fMood"><span class="lbl" id="moodLbl" data-t="side.emotion">Emotion</span><div class="chips" id="moodChips" role="group" aria-labelledby="moodLbl"></div></div>
+      <div class="field" id="fIntent"><span class="lbl" id="intentLbl" data-t="side.intent">Intent</span><div class="chips" id="intentChips" role="group" aria-labelledby="intentLbl"></div><p class="hint" id="intentDesc"></p></div>
+      <div class="field" id="fLen"><span class="lbl" id="lenLbl" data-t="side.length">Length</span>
+        <div class="seg" role="group" aria-labelledby="lenLbl"><button data-len="short" data-t="side.short">Short</button><button data-len="medium" data-t="side.medium">Medium</button></div></div>
+    </section>
+    <section class="stage" id="pResult" aria-labelledby="hRes">
+      <h2 id="hRes" class="sr" data-t="make.result">Result</h2>
+      <div class="scene">
+        <svg class="critter" viewBox="0 0 110 130" aria-hidden="true">
             <g class="xtone"><circle class="acc" id="orb" cx="55" cy="72" r="34" opacity=".85"/><circle class="accs" id="orbRing" cx="55" cy="72" r="42" opacity=".4"/></g>
             <g class="face" transform="translate(0,10)">
               <g class="xears"><ellipse class="b" cx="26" cy="22" rx="10" ry="16"/><ellipse class="b" cx="84" cy="22" rx="10" ry="16"/></g>
@@ -62,45 +76,28 @@
               <ellipse class="m" id="mouth" cx="55" cy="86" rx="9" ry="1.5"/>
             </g>
           </svg>
-          <div class="bubble"><div class="speaker" id="speaker"></div><p class="sounds" id="sounds"></p><p class="bhint" id="bubbleHint" data-t="make.bubbleHint">Click a voice or press Speak.</p></div>
-        </div>
-        <p class="stale" id="stale" hidden><span data-t="make.stale">Text or settings changed. This result belongs to the previous settings.</span><button class="link" id="regen" data-t="make.regen">Generate again</button></p>
+        <div class="bubble"><div class="speaker" id="speaker"></div><p class="sounds" id="sounds"></p><p class="bhint" id="bubbleHint" data-t="make.bubbleHint">Click a voice or press Speak.</p></div>
+      </div>
+      <p class="stale" id="stale" hidden><span data-t="make.stale">Text or settings changed. This result belongs to the previous settings.</span><button class="link" id="regen" data-t="make.regen">Generate again</button></p>
+      <div class="transport">
+        <button class="btn primary" id="genBtn" data-t="make.speak">▶ Speak</button>
         <div class="player" id="playerRow" hidden><canvas id="wave" aria-hidden="true"></canvas><span class="dur" id="dur"></span></div>
-        <div class="takes" id="takes" hidden><span class="flabel" id="takesLbl" data-t="make.takes">Variants</span><div class="chips takechips" id="takeChips" role="group" aria-labelledby="takesLbl"></div></div>
-        <p class="hint" id="takeHelp" hidden data-t="make.saveHelp">Save a variant to keep your settings and quickly compare variants.</p>
-        <form class="charform" id="charForm" hidden><label for="charName" class="flabel" data-t="char.name">Name of the character</label><input type="text" id="charName" maxlength="40" autocomplete="off"><button class="btn primary" type="submit" data-t="char.save">Save</button><button class="btn" type="button" id="charCancel" data-t="char.cancel">Cancel</button></form>
-        <label for="txt" data-t="make.text">Text</label>
-        <textarea id="txt"></textarea>
-        <div class="acts">
-          <button class="btn primary big" id="genBtn" data-t="make.speak">▶ Speak</button>
-          <button class="btn" id="playBtn" hidden></button>
-          <button class="btn" id="dlBtn" hidden data-t="make.download">Download WAV (.zip)</button>
-          <button class="link" id="exBtn" aria-haspopup="dialog" data-t="make.examples">Choose example text</button>
-        </div>
-        <p class="hint" id="dlOk" hidden role="status"></p>
-        <p class="err" id="dlErr" hidden role="alert"></p>
-        <p class="meta" id="resMeta"></p>
         <p class="busy" id="busy" hidden><span class="spin" aria-hidden="true"></span><span data-t="make.busy">Generating…</span></p>
-        <p class="hint" id="engineDesc"></p>
-      </section>
-    </div>
-    <aside class="col-side panel" aria-labelledby="voiceLbl">
-      <div class="field"><h2 class="disp" id="voiceLbl">Voice</h2><div class="chips" id="voiceChips" role="group" aria-labelledby="voiceLbl"></div><p class="hint" id="voiceDesc"></p><p class="hint" id="voiceNote" hidden></p></div>
-      <p class="note" id="voiceMsg" hidden role="status"></p>
-      <div class="field" id="fIntent"><h2 class="disp" id="intentLbl" data-t="side.intent">Intent</h2><div class="chips" id="intentChips" role="group" aria-labelledby="intentLbl"></div><p class="hint" id="intentDesc"></p></div>
-      <div class="field" id="fMood"><h2 class="disp" id="moodLbl" data-t="side.emotion">Emotion</h2><div class="chips" id="moodChips" role="group" aria-labelledby="moodLbl"></div></div>
-      <div class="field" id="fLen"><span class="flabel" id="lenLbl" data-t="side.length">Length</span>
-        <div class="seg" role="group" aria-labelledby="lenLbl"><button data-len="auto" data-t="side.auto">Auto</button><button data-len="short" data-t="side.short">Short</button><button data-len="medium" data-t="side.medium">Medium</button></div>
-        <p class="hint" data-t="side.lenHint">Auto picks short or medium based on the length of your text.</p></div>
-      <details id="dAnchors"><summary data-t="side.anchors">Fixed phrases</summary>
-        <div class="dbody">
-          <div class="field"><label for="ancSel" data-t="side.ancUse">Use in the clip</label><select id="ancSel"><option value="auto" data-t="side.ancAuto">Sometimes</option><option value="always" data-t="side.ancAlways">Always</option><option value="never" data-t="side.ancNever">Never</option></select></div>
-          <p class="hint" data-t="side.ancHint">Click a phrase to hear it with the selected voice.</p>
-          <div class="anchors" id="anchors"></div>
-        </div>
-      </details>
-      <details id="dAdv"><summary data-t="side.adv">Advanced</summary>
-        <div class="dbody">
+        <button class="btn" id="dlBtn" hidden data-t="make.download">Download WAV (.zip)</button>
+        <button class="btn" id="playBtn" hidden></button>
+      </div>
+      <div class="takes" id="takes" hidden><span class="lbl" id="takesLbl" data-t="make.takes">Variants</span><div class="chips takechips" id="takeChips" role="group" aria-labelledby="takesLbl"></div></div>
+      <p class="hint" id="takeHelp" hidden data-t="make.saveHelp">Save a variant to keep your settings and quickly compare variants.</p>
+      <form class="charform" id="charForm" hidden><label for="charName" class="flabel" data-t="char.name">Name of the character</label><input type="text" id="charName" maxlength="40" autocomplete="off"><button class="btn primary" type="submit" data-t="char.save">Save</button><button class="btn" type="button" id="charCancel" data-t="char.cancel">Cancel</button></form>
+      <p class="hint" id="dlOk" hidden role="status"></p>
+      <p class="err" id="dlErr" hidden role="alert"></p>
+      <p class="sr" id="resMeta"></p>
+    </section>
+  </div>
+  <section class="panel tune" aria-label="Settings">
+    <div class="tgroup">
+      <h2 class="disp" id="tuneLbl">Tune</h2>
+      <div class="sgrid">
           <div class="field rng"><div class="top2"><label for="pitch" id="lPitch">Pitch</label><output id="oPitch"></output></div><input type="range" id="pitch" min="60" max="800" step="1"><p class="hint" id="hPitch"></p></div>
           <div class="field rng"><div class="top2"><label for="speed" data-t="adv.speed">Tempo</label><output id="oSpeed"></output></div><input type="range" id="speed" min="0.5" max="2.4" step="0.05"><p class="hint" data-t="adv.speedH">How fast the line is spoken.</p></div>
           <div class="field rng"><div class="top2"><label for="expr" id="lExpr">Expression</label><output id="oExpr"></output></div><input type="range" id="expr" min="0" max="1" step="0.01"><p class="hint" id="hExpr"></p></div>
@@ -108,28 +105,40 @@
           <div class="field rng" id="fBreath"><div class="top2"><label for="breath" data-t="adv.breath">Breath</label><output id="oBreath"></output></div><input type="range" id="breath" min="0" max="0.6" step="0.01"><p class="hint" data-t="adv.breathH">More breath sounds hoarser and softer.</p></div>
           <div class="field rng"><div class="top2"><label for="tilt" data-t="adv.tilt">Brightness</label><output id="oTilt"></output></div><input type="range" id="tilt" min="0.15" max="0.9" step="0.01"><p class="hint" data-t="adv.tiltH">Duller or brighter sound.</p></div>
           <div class="field rng" id="fSteady"><div class="top2"><label for="steady" data-t="adv.steady">Pitch steadiness</label><output id="oSteady"></output></div><input type="range" id="steady" min="0" max="1" step="0.05"><p class="hint" data-t="adv.steadyH">For your own voice: holds every syllable on the melody. Lower it to keep more of how you read it.</p></div>
-          <div class="field rng" id="fHiss"><div class="top2"><label for="hiss" data-t="adv.hiss">Consonant hiss</label><output id="oHiss"></output></div><input type="range" id="hiss" min="0" max="1" step="0.05"><p class="hint" data-t="adv.hissH">The sss and kh of consonants, and the radio crackle. Lower it for a cleaner voice.</p></div>
-          <div class="field"><label for="ambSel" data-t="adv.amb">Background sound</label><select id="ambSel"><option value="off" data-t="adv.ambOff">Off</option><option value="rain" data-t="adv.ambRain">Rain</option><option value="breeze" data-t="adv.ambBreeze">Breeze</option><option value="waves" data-t="adv.ambWaves">Waves</option></select>
-            <div class="rng"><div class="top2"><label for="ambLvl" class="mini" data-t="adv.ambLvl">Background level</label><output id="oAmb"></output></div><input type="range" id="ambLvl" min="0" max="1" step="0.01" value="0.5"></div>
-            <p class="hint" data-t="adv.ambH">Plays along while you listen. It is not part of the download.</p></div>
-          <div class="field" id="fLang"><span class="flabel" data-t="adv.lang">Language</span><p class="hint" id="langName"></p><button class="btn" id="dice" data-t="adv.newLang">New language</button><p class="hint" data-t="adv.langH">Babblish turns every word into fixed made-up syllables. A new language changes which syllables it uses.</p></div>
+      </div>
+      <details id="dAnchors"><summary data-t="side.anchors">Fixed phrases</summary>
+        <div class="dbody">
+          <div class="field"><label for="ancSel" data-t="side.ancUse">Use in the clip</label><select id="ancSel"><option value="auto" data-t="side.ancAuto">Sometimes</option><option value="always" data-t="side.ancAlways">Always</option><option value="never" data-t="side.ancNever">Never</option></select></div>
+          <p class="hint" data-t="side.ancHint">Click a phrase to hear it with the selected voice.</p>
+          <div class="anchors" id="anchors"></div>
         </div>
       </details>
-    </aside>
-  </div>
+    </div>
+    <div class="tgroup side">
+      <h2 class="disp" data-t="adv.allTitle">All styles</h2>
+      <div class="field rng" id="fHiss"><div class="top2"><label for="hiss" data-t="adv.hiss">Consonant hiss</label><output id="oHiss"></output></div><input type="range" id="hiss" min="0" max="1" step="0.05"><p class="hint" data-t="adv.hissH">The sss and kh of consonants, and the radio crackle. Lower it for a cleaner voice.</p></div>
+      <div class="field" id="fLang"><span class="flabel" data-t="adv.lang">Language</span><p class="hint" id="langName"></p><button class="btn" id="dice" data-t="adv.newLang">New language</button></div>
+      <div class="field"><label for="ambSel" data-t="adv.listen">While listening</label><select id="ambSel"><option value="off" data-t="adv.ambOff">Off</option><option value="rain" data-t="adv.ambRain">Rain</option><option value="breeze" data-t="adv.ambBreeze">Breeze</option><option value="waves" data-t="adv.ambWaves">Waves</option></select>
+        <div class="rng"><div class="top2"><label for="ambLvl" class="mini" data-t="adv.ambLvl">Background level</label><output id="oAmb"></output></div><input type="range" id="ambLvl" min="0" max="1" step="0.01" value="0.5"></div>
+        <p class="hint" data-t="adv.ambH">Not in the download.</p></div>
+    </div>
+  </section>
 </section>
 
-<!-- ===== My voices ===== -->
+<!-- ===== Voices and characters ===== -->
 <section id="viewVoices" hidden>
-  <h1 data-t="voices.title">My voices</h1>
-  <p class="lead" data-t="voices.lead">Voices you recorded yourself. They work with Critter Chatter, Babblish and Vemmo.</p>
-  <div class="panel vpanel">
-    <div class="vhead"><p class="hint" id="storeNote"></p><button class="btn" id="addVoice2">+ <span data-t="side.add">Add your own voice</span></button></div>
-    <div class="vlist" id="vlist"></div>
-    <p class="hint" id="vEmpty" hidden data-t="voices.empty">You don't have any voices of your own yet. Add one to hear your text in your own voice.</p>
-  </div>
-  <h2 class="disp ctitle" data-t="char.title">Characters</h2>
-  <div class="panel vpanel"><div class="vlist" id="clist"></div><p class="hint" id="cEmpty" hidden data-t="char.empty">No characters yet.</p></div>
+  <h1 data-t="voices.title">Voices &amp; characters</h1>
+  <p class="lead" data-t="voices.lead">Recorded voices and characters. They stay in this browser only.</p>
+  <section class="vsec" aria-labelledby="hChars">
+    <h2 class="disp" id="hChars" data-t="char.title">Characters</h2>
+    <div class="cgrid" id="clist"></div>
+    <p class="hint" id="cEmpty" hidden data-t="char.empty">No characters yet.</p>
+  </section>
+  <section class="vsec" aria-labelledby="hOwn">
+    <div class="shead"><h2 class="disp" id="hOwn" data-t="voices.own">Recorded voices</h2><button class="btn" id="addVoice2">+ <span data-t="side.add">Add your own voice</span></button></div>
+    <p class="hint" id="storeNote"></p>
+    <div class="panel"><div class="vlist" id="vlist"></div><p class="hint" id="vEmpty" hidden data-t="voices.empty">You don't have any voices of your own yet. Add one to hear your text in your own voice.</p></div>
+  </section>
 </section>
 
 <!-- ===== Studio (screens 2–4) ===== -->
