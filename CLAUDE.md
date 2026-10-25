@@ -40,7 +40,7 @@ Project folder following the Wrong Floor method. Research and decisions live in 
 |---|---|
 | Working on | tool, public |
 | Goal | build further: integrations (web → Godot) as a free Wrong Floor product, distributed from one public GitHub repo, plus one link-only itch.io listing (no npm, no itch.io uploads, no Unity); usage by game developers leads, proof for pitches and later income follow |
-| Domain | babbleengine.wrongfloor.studio (Cloudflare custom domain via `wrangler.jsonc`) |
+| Domain | babble.wrongfloor.studio (Cloudflare custom domain via `wrangler.jsonc`); the first address babbleengine.wrongfloor.studio redirects there (301, Cloudflare Redirect Rule) |
 | Ownership confirmed | yes (2026-10-25, Raoul) |
 | Code | this folder; public repo https://github.com/wrongfloor-dev/babble-engine (public and still empty on 2026-10-25) |
 | Should deliver | usage: web engine use per week (jsDelivr) and Godot Asset Library downloads (`dossier/meting.md`) |
@@ -70,5 +70,5 @@ Project folder following the Wrong Floor method. Research and decisions live in 
 | 0 Measurement | plan written (2026-10-25); set up before launch | `dossier/meting.md` |
 | 1 Design and build | build brief done (2026-10-25); design basis written | `dossier/bouwbrief.md`, `dossier/ontwerp.md` |
 | 2 Security, SEO, GEO, EU (domain scan; not a security review of the app) | app security review done; live since 2026-10-25 with enforced CSP; first domain scan 2026-10-25: attention, 3 points (http without redirect, AI training not reserved, no privacy note) | `dossier/beveiliging.md`, `scans/2026-10-25.md` |
-| 3 Performance | open | `metingen/` |
+| 3 Performance | first lab measurement 2026-10-25: green, 1 small point (render-blocking scripts, advised to leave); no real-visitor data yet | `metingen/snelheid-2026-10-25.md` |
 | 4 Text and design | done (2026-10-25): redesign D, text check and accessibility check applied | `dossier/ontwerpronde.md`, `dossier/tekstcontrole.md` |

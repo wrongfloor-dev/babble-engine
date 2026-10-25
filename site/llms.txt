@@ -6,7 +6,7 @@ Babble Engine is for game developers who want characters to "talk" without voice
 
 ## Use it
 
-- [Babble Engine](https://babbleengine.wrongfloor.studio/): the tool, in English and Dutch
+- [Babble Engine](https://babble.wrongfloor.studio/): the tool, in English and Dutch
 - [Source code on GitHub](https://github.com/wrongfloor-dev/babble-engine): plain HTML and JavaScript, no dependencies
 
 ## Styles

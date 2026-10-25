@@ -17,4 +17,4 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
-Sitemap: https://babbleengine.wrongfloor.studio/sitemap.xml
+Sitemap: https://babble.wrongfloor.studio/sitemap.xml

@@ -68,7 +68,7 @@ for (const f of html) {
     const t = (h.match(/<title>([^<]*)<\/title>/) || [])[1] || '', d = (h.match(/<meta name="description" content="([^"]*)"/) || [])[1] || '';
     if (t.length < 50 || t.length > 60) fail('seo', `${rel}: title is ${t.length} chars (50 to 60)`);
     if (d.length < 140 || d.length > 155) fail('seo', `${rel}: description is ${d.length} chars (140 to 155)`);
-    if (!/<link rel="canonical" href="https:\/\/babbleengine\.wrongfloor\.studio\/[^"]*">/.test(h)) fail('seo', `${rel}: no canonical`);
+    if (!/<link rel="canonical" href="https:\/\/babble.wrongfloor\.studio\/[^"]*">/.test(h)) fail('seo', `${rel}: no canonical`);
   }
 }
 for (const f of files.filter(f => /\.(css|js)$/.test(f))) {
@@ -82,10 +82,10 @@ for (const f of ['llms.txt', 'robots.txt']) scan(f, read(path.join(SITE, f)));
 const sitemap = read(path.join(SITE, 'sitemap.xml'));
 const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
 const pages = html.map(f => path.relative(SITE, f).replace(/\\/g, '/')).filter(p => p !== '404.html');
-const pageUrls = pages.map(p => 'https://babbleengine.wrongfloor.studio/' + p.replace(/(^|\/)index\.html$/, '$1').replace(/\.html$/, ''));
+const pageUrls = pages.map(p => 'https://babble.wrongfloor.studio/' + p.replace(/(^|\/)index\.html$/, '$1').replace(/\.html$/, ''));
 if (locs.length !== pages.length) fail('sitemap', `${locs.length} URLs in sitemap.xml, ${pages.length} pages`);
 pageUrls.filter(u => !locs.includes(u)).forEach(u => fail('sitemap', `missing ${u}`));
-if (!/Sitemap: https:\/\/babbleengine\.wrongfloor\.studio\/sitemap\.xml/.test(read(path.join(SITE, 'robots.txt')))) fail('sitemap', 'robots.txt does not name sitemap.xml');
+if (!/Sitemap: https:\/\/babble.wrongfloor\.studio\/sitemap\.xml/.test(read(path.join(SITE, 'robots.txt')))) fail('sitemap', 'robots.txt does not name sitemap.xml');
 
 // ---------- headers ----------
 const headers = read(path.join(SITE, '_headers'));

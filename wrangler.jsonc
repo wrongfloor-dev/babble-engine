@@ -2,8 +2,12 @@
 {
   "name": "babble-engine",
   "compatibility_date": "2026-10-01",
-  // Custom domain: on deploy Cloudflare creates the DNS record itself if wrongfloor.studio is a zone in this account.
-  "routes": [{ "pattern": "babbleengine.wrongfloor.studio", "custom_domain": true }],
+  // Custom domains: on deploy Cloudflare creates the DNS records itself (wrongfloor.studio is a zone in this account).
+  // babbleengine.* was the first address (2026-10-25); a Cloudflare Redirect Rule sends it to babble.* with a 301.
+  "routes": [
+    { "pattern": "babble.wrongfloor.studio", "custom_domain": true },
+    { "pattern": "babbleengine.wrongfloor.studio", "custom_domain": true }
+  ],
   "assets": {
     "directory": "./site",
     "not_found_handling": "404-page",
