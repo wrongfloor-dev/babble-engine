@@ -23,7 +23,7 @@ Everything that goes online lives in `site/` (Cloudflare Workers static assets, 
 - Studio capture runs on the audio thread (`site/src/rec-worklet.js`, AudioWorkletNode); `ScriptProcessorNode` is only a fallback. It dropped and repeated samples on a busy page (crackle, measured 2026-10-25). The mic is taken raw: `echoCancellation`, `noiseSuppression` and `autoGainControl` off. "Your recording" plays dry (straight to `ctx.destination`).
 - Own voices only work with engines where `EMETA[e].rec` is true (all voice styles; not Soft Tones or Talking Instruments).
 - WAV export: a plain `.wav` Blob download. Inside a claude.ai artifact (`window.claude` present) it goes through the `downloads` capability instead, zipped (that allowlist has zip, not wav).
-- Strict CSP (`site/_headers`, report-only for now): no inline `style`/`<script>`/`on…=` in HTML, no requests to other hosts. Setting `el.style.x` from JS is fine. JSON-LD (`application/ld+json`) is allowed.
+- Strict CSP (`site/_headers`, enforced since 2026-10-25): no inline `style`/`<script>`/`on…=` in HTML, no requests to other hosts. Setting `el.style.x` from JS is fine. JSON-LD (`application/ld+json`) is allowed.
 - `site/sitemap.xml` lists every public page; a page goes online only when its integration exists.
 
 ## Run / test
@@ -40,8 +40,8 @@ Project folder following the Wrong Floor method. Research and decisions live in 
 |---|---|
 | Working on | tool, public |
 | Goal | build further: integrations (web → Godot) as a free Wrong Floor product, distributed from one public GitHub repo, plus one link-only itch.io listing (no npm, no itch.io uploads, no Unity); usage by game developers leads, proof for pitches and later income follow |
-| Domain | babbleengine.wrongfloor.studio (Cloudflare; DNS record not yet created) |
-| Ownership confirmed | no |
+| Domain | babbleengine.wrongfloor.studio (Cloudflare custom domain via `wrangler.jsonc`) |
+| Ownership confirmed | yes (2026-10-25, Raoul) |
 | Code | this folder; public repo https://github.com/wrongfloor-dev/babble-engine (public and still empty on 2026-10-25) |
 | Should deliver | usage: web engine use per week (jsDelivr) and Godot Asset Library downloads (`dossier/meting.md`) |
 | License | code MIT; generated audio free to use, also commercially |

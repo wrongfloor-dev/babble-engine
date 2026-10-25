@@ -2,6 +2,8 @@
 {
   "name": "babble-engine",
   "compatibility_date": "2026-10-01",
+  // Custom domain: on deploy Cloudflare creates the DNS record itself if wrongfloor.studio is a zone in this account.
+  "routes": [{ "pattern": "babbleengine.wrongfloor.studio", "custom_domain": true }],
   "assets": {
     "directory": "./site",
     "not_found_handling": "404-page",
