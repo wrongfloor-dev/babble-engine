@@ -60,7 +60,8 @@ for (const f of html) {
     const u = m[1];
     if (/^(https?:|mailto:|data:|blob:)/.test(u) || u === '') continue;
     const target = u.startsWith('/') ? path.join(SITE, u) : path.join(path.dirname(f), u);
-    const ok = fs.existsSync(target) && (fs.statSync(target).isFile() || fs.existsSync(path.join(target, 'index.html')));
+    // /page resolves to page.html, as Cloudflare html_handling does
+    const ok = (fs.existsSync(target) && (fs.statSync(target).isFile() || fs.existsSync(path.join(target, 'index.html')))) || fs.existsSync(target + '.html');
     if (!ok) fail('links', `${rel}: ${u} does not resolve`);
   }
   if (rel !== '404.html') {

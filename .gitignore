@@ -11,5 +11,6 @@ Thumbs.db
 # research and measurements stay local (Raoul, 2026-10-25)
 dossier/
 metingen/
+scans/
 # test recordings may contain a real voice
 tests/*.wav

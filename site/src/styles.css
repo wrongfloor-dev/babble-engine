@@ -328,4 +328,9 @@ body.e-tone .xtone,body.e-instr .xtone{display:inline} body.e-tone .face,body.e-
 .nf{max-width:640px;display:flex;flex-direction:column;gap:14px;padding-top:56px}
 .nf .logo{text-decoration:none;margin-bottom:12px}
 .nf p{margin:0}
+.legal{padding-bottom:40px}
+.legal section{display:flex;flex-direction:column;gap:14px}
+.legal h2{font-size:20px;margin:14px 0 0}
+.legal ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.legal a:not(.btn):not(.logo){color:var(--text);text-underline-offset:3px}
 a.btn{text-decoration:none;color:inherit}

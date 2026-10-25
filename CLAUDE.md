@@ -56,6 +56,12 @@ Project folder following the Wrong Floor method. Research and decisions live in 
 | EN/NL copy through `t()` | Font loading (self-host instead of Google Fonts) |
 | The 11 voice styles and the studio flow | The new design, only through a design review in step 4 |
 
+### Keuzes
+
+| Date | Scan item | Decision |
+|---|---|---|
+| 2026-10-25 | ai-training | AI training allowed on purpose: being known to AI assistants helps game makers find the tool; code is MIT anyway (Raoul) |
+
 ### Where the project stands
 
 | Step | Status | Where |
@@ -63,6 +69,6 @@ Project folder following the Wrong Floor method. Research and decisions live in 
 | 000 Is there something to win? | done (2026-10-25, verdict by Raoul: build pays off) | `dossier/000-kans.md` |
 | 0 Measurement | plan written (2026-10-25); set up before launch | `dossier/meting.md` |
 | 1 Design and build | build brief done (2026-10-25); design basis written | `dossier/bouwbrief.md`, `dossier/ontwerp.md` |
-| 2 Security, SEO, GEO, EU (domain scan; not a security review of the app) | app security review done (2026-10-25; CSP to enforced at go-live); domain scan open until live | `dossier/beveiliging.md`, `scans/` |
+| 2 Security, SEO, GEO, EU (domain scan; not a security review of the app) | app security review done; live since 2026-10-25 with enforced CSP; first domain scan 2026-10-25: attention, 3 points (http without redirect, AI training not reserved, no privacy note) | `dossier/beveiliging.md`, `scans/2026-10-25.md` |
 | 3 Performance | open | `metingen/` |
 | 4 Text and design | done (2026-10-25): redesign D, text check and accessibility check applied | `dossier/ontwerpronde.md`, `dossier/tekstcontrole.md` |
