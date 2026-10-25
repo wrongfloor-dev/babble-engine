@@ -22,19 +22,19 @@
 <header class="top" id="mainTop">
   <div class="top-in">
     <button class="logo" id="logoMain" aria-label="Babble Engine">Babble<span>Engine</span></button>
-    <nav class="nav" aria-label="Main">
+    <nav class="nav" aria-label="Main" data-t-aria="aria.main">
       <button id="navMake" aria-current="page" data-t="nav.make">Make babble</button>
       <button id="navVoices" data-t="nav.voices">My voices</button>
     </nav>
     <button class="topcta" id="addVoiceTop"><span class="rd" aria-hidden="true"></span><span data-t="side.record">Record your voice</span></button>
-    <div class="lang" role="group" aria-label="Language"><button data-lang="en" aria-pressed="true">EN</button><button data-lang="nl" aria-pressed="false">NL</button></div>
+    <div class="lang" role="group" aria-label="Language" data-t-aria="aria.lang"><button data-lang="en" aria-pressed="true">EN</button><button data-lang="nl" aria-pressed="false">NL</button></div>
   </div>
 </header>
 <!-- ===== Studio header ===== -->
 <header class="top" id="studioTop" hidden>
   <div class="top-in">
     <button class="logo" id="logoStudio" aria-label="Babble Engine">Babble<span>Engine</span></button>
-    <div class="lang" role="group" aria-label="Language"><button data-lang="en" aria-pressed="true">EN</button><button data-lang="nl" aria-pressed="false">NL</button></div>
+    <div class="lang" role="group" aria-label="Language" data-t-aria="aria.lang"><button data-lang="en" aria-pressed="true">EN</button><button data-lang="nl" aria-pressed="false">NL</button></div>
     <button class="back" id="stBack">‹ <span data-t="st.back">Back to babble</span></button>
   </div>
 </header>
@@ -94,7 +94,7 @@
       <p class="sr" id="resMeta"></p>
     </section>
   </div>
-  <section class="panel tune" aria-label="Settings">
+  <section class="panel tune" aria-label="Settings" data-t-aria="aria.settings">
     <div class="tgroup">
       <h2 class="disp" id="tuneLbl">Tune</h2>
       <div class="sgrid">
@@ -135,7 +135,7 @@
     <p class="hint" id="cEmpty" hidden data-t="char.empty">No characters yet.</p>
   </section>
   <section class="vsec" aria-labelledby="hOwn">
-    <div class="shead"><h2 class="disp" id="hOwn" data-t="voices.own">Recorded voices</h2><button class="btn" id="addVoice2">+ <span data-t="side.add">Add your own voice</span></button></div>
+    <div class="shead"><h2 class="disp" id="hOwn" data-t="voices.own">Recorded voices</h2><button class="btn" id="addVoice2">+ <span data-t="side.add">Record your voice</span></button></div>
     <p class="hint" id="storeNote"></p>
     <div class="panel"><div class="vlist" id="vlist"></div><p class="hint" id="vEmpty" hidden data-t="voices.empty">You don't have any voices of your own yet. Add one to hear your text in your own voice.</p></div>
   </section>

@@ -231,7 +231,7 @@ details>summary .sumwrap{display:flex;flex-direction:column}
 .compose h2{font-size:20px;line-height:1.15}
 #fTxt{flex:1}
 #fTxt textarea{flex:1;min-height:150px;resize:none}
-#fTxt .link{align-self:flex-end;font-size:13px}
+#fTxt .link{align-self:flex-end;font-size:13px;padding:4px 0;min-height:28px}
 .stage{display:flex;flex-direction:column;overflow:hidden;background:var(--tint);border:2px solid var(--ink);border-radius:22px;box-shadow:4px 4px 0 var(--shadow);min-width:0}
 .scene{flex:1;display:flex;align-items:center;gap:16px;padding:20px 22px;min-height:0}
 .critter{flex:0 0 auto;width:110px;height:130px}
