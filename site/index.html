@@ -66,18 +66,19 @@
         </div>
         <p class="stale" id="stale" hidden><span data-t="make.stale">Text or settings changed. This result belongs to the previous settings.</span><button class="link" id="regen" data-t="make.regen">Generate again</button></p>
         <div class="player" id="playerRow" hidden><canvas id="wave" aria-hidden="true"></canvas><span class="dur" id="dur"></span></div>
+        <div class="takes" id="takes" hidden><span class="flabel" id="takesLbl" data-t="make.takes">Variants</span><div class="chips takechips" id="takeChips" role="group" aria-labelledby="takesLbl"></div></div>
+        <p class="hint" id="takeHelp" hidden data-t="make.saveHelp">Save a variant to keep your settings and quickly compare variants.</p>
+        <form class="charform" id="charForm" hidden><label for="charName" class="flabel" data-t="char.name">Name of the character</label><input type="text" id="charName" maxlength="40" autocomplete="off"><button class="btn primary" type="submit" data-t="char.save">Save</button><button class="btn" type="button" id="charCancel" data-t="char.cancel">Cancel</button></form>
         <label for="txt" data-t="make.text">Text</label>
         <textarea id="txt"></textarea>
         <div class="acts">
           <button class="btn primary big" id="genBtn" data-t="make.speak">▶ Speak</button>
           <button class="btn" id="playBtn" hidden></button>
-          <button class="btn" id="varBtn" hidden data-t="make.variant">New variant</button>
           <button class="btn" id="dlBtn" hidden data-t="make.download">Download WAV (.zip)</button>
           <button class="link" id="exBtn" aria-haspopup="dialog" data-t="make.examples">Choose example text</button>
         </div>
         <p class="hint" id="dlOk" hidden role="status"></p>
         <p class="err" id="dlErr" hidden role="alert"></p>
-        <div class="vnav" id="vnav" hidden><button id="vPrev" data-t-aria="make.prev" aria-label="Previous variant">‹</button><span id="vLabel"></span><button id="vNext" data-t-aria="make.next" aria-label="Next variant">›</button></div>
         <p class="meta" id="resMeta"></p>
         <p class="busy" id="busy" hidden><span class="spin" aria-hidden="true"></span><span data-t="make.busy">Generating…</span></p>
         <p class="hint" id="engineDesc"></p>
@@ -91,7 +92,6 @@
       <div class="field" id="fLen"><span class="flabel" id="lenLbl" data-t="side.length">Length</span>
         <div class="seg" role="group" aria-labelledby="lenLbl"><button data-len="auto" data-t="side.auto">Auto</button><button data-len="short" data-t="side.short">Short</button><button data-len="medium" data-t="side.medium">Medium</button></div>
         <p class="hint" data-t="side.lenHint">Auto picks short or medium based on the length of your text.</p></div>
-      <button class="btn wide" id="addVoice">+ <span data-t="side.add">Add your own voice</span></button>
       <details id="dAnchors"><summary data-t="side.anchors">Fixed phrases</summary>
         <div class="dbody">
           <div class="field"><label for="ancSel" data-t="side.ancUse">Use in the clip</label><select id="ancSel"><option value="auto" data-t="side.ancAuto">Sometimes</option><option value="always" data-t="side.ancAlways">Always</option><option value="never" data-t="side.ancNever">Never</option></select></div>
@@ -107,6 +107,7 @@
           <div class="field rng" id="fForm"><div class="top2"><label for="form" data-t="adv.form">Throat size</label><output id="oForm"></output></div><input type="range" id="form" min="0.7" max="1.6" step="0.01"><p class="hint" data-t="adv.formH">Larger sounds deeper and fuller, smaller sounds brighter.</p></div>
           <div class="field rng" id="fBreath"><div class="top2"><label for="breath" data-t="adv.breath">Breath</label><output id="oBreath"></output></div><input type="range" id="breath" min="0" max="0.6" step="0.01"><p class="hint" data-t="adv.breathH">More breath sounds hoarser and softer.</p></div>
           <div class="field rng"><div class="top2"><label for="tilt" data-t="adv.tilt">Brightness</label><output id="oTilt"></output></div><input type="range" id="tilt" min="0.15" max="0.9" step="0.01"><p class="hint" data-t="adv.tiltH">Duller or brighter sound.</p></div>
+          <div class="field rng" id="fSteady"><div class="top2"><label for="steady" data-t="adv.steady">Pitch steadiness</label><output id="oSteady"></output></div><input type="range" id="steady" min="0" max="1" step="0.05"><p class="hint" data-t="adv.steadyH">For your own voice: holds every syllable on the melody. Lower it to keep more of how you read it.</p></div>
           <div class="field rng" id="fHiss"><div class="top2"><label for="hiss" data-t="adv.hiss">Consonant hiss</label><output id="oHiss"></output></div><input type="range" id="hiss" min="0" max="1" step="0.05"><p class="hint" data-t="adv.hissH">The sss and kh of consonants, and the radio crackle. Lower it for a cleaner voice.</p></div>
           <div class="field"><label for="ambSel" data-t="adv.amb">Background sound</label><select id="ambSel"><option value="off" data-t="adv.ambOff">Off</option><option value="rain" data-t="adv.ambRain">Rain</option><option value="breeze" data-t="adv.ambBreeze">Breeze</option><option value="waves" data-t="adv.ambWaves">Waves</option></select>
             <div class="rng"><div class="top2"><label for="ambLvl" class="mini" data-t="adv.ambLvl">Background level</label><output id="oAmb"></output></div><input type="range" id="ambLvl" min="0" max="1" step="0.01" value="0.5"></div>
@@ -127,12 +128,15 @@
     <div class="vlist" id="vlist"></div>
     <p class="hint" id="vEmpty" hidden data-t="voices.empty">You don't have any voices of your own yet. Add one to hear your text in your own voice.</p>
   </div>
+  <h2 class="disp ctitle" data-t="char.title">Characters</h2>
+  <div class="panel vpanel"><div class="vlist" id="clist"></div><p class="hint" id="cEmpty" hidden data-t="char.empty">No characters yet.</p></div>
 </section>
 
 <!-- ===== Studio (screens 2–4) ===== -->
 <section id="viewStudio" hidden>
   <div class="studio-col">
     <h1 data-t="st.title">Add your own voice</h1>
+    <p class="lead center" id="stRound"></p>
     <p class="private center" data-t="st.private">Your recording stays in this browser. Nothing is uploaded.</p>
     <ol class="stepper" id="stepper"><li data-s="1"><span class="n">1</span><span data-t="st.s1">Prepare</span></li><li data-s="2"><span class="n">2</span><span data-t="st.s2">Record</span></li><li data-s="3"><span class="n">3</span><span data-t="st.s3">Check</span></li></ol>
 
@@ -152,7 +156,7 @@
       <details id="dRecSet"><summary><span class="sumwrap"><span data-t="prep.settings">Recording settings</span><span class="sum" id="recSum"></span></span></summary>
         <div class="dbody">
           <div class="setgrid">
-            <div class="field"><label for="setScript" data-t="prep.script">Script</label><select id="setScript"><option value="algemeen" data-t="prep.scriptGen">General</option><option value="vemmo">Vemmo</option></select></div>
+            
             <div class="field"><label for="setTempo" data-t="prep.tempo">Tempo</label><select id="setTempo"><option value="relaxed" data-t="prep.relaxed">Relaxed</option><option value="normal" data-t="prep.normal">Normal</option></select></div>
             <div class="field"><label for="setNote" data-t="prep.note">Your note</label><select id="setNote"><option value="low" data-t="prep.low">Low</option><option value="mid" data-t="prep.mid">Medium</option><option value="high" data-t="prep.high">High</option></select><button class="link" id="playNote" data-t="prep.playNote">Play this note</button></div>
             <div class="field"><label for="setGuide" data-t="prep.guide">Guide tone</label><select id="setGuide"><option value="on" data-t="prep.on">On</option><option value="off" data-t="prep.off">Off</option></select></div>
@@ -187,7 +191,7 @@
         <p class="sr" id="sylSr"></p>
         <p class="nextl" id="nextLine"></p>
         <div id="recMeterWrap" class="meterrow"><span class="mini" data-t="prep.micLabel">Microphone</span><div class="meter" id="meter2" aria-hidden="true"></div></div>
-        <div class="prog"><div class="pbar"><div id="pfill"></div></div><span id="premain"></span></div>
+        <div class="prog"><div class="pbar"><div id="pfill"></div></div></div>
         <div class="recctl"><button class="btn" id="pauseBtn"></button><button class="btn" id="redoBtn">↺ <span data-t="rec.redo">Redo line</span></button><button class="danger" id="stopBtn" data-t="rec.stop">Stop</button></div>
         <p class="hint center" id="recHint"></p>
       </div>
@@ -219,7 +223,7 @@
           <div class="player"><button class="btn" id="prevPlay"></button><canvas id="prevWave" aria-hidden="true"></canvas><span class="dur" id="prevDur"></span></div>
           <p class="sounds" id="prevText"></p>
         </div>
-        <div class="field"><label for="voiceName" data-t="chk.name">Name of your voice</label><input type="text" id="voiceName"></div>
+        <div class="field" id="fVoiceName"><label for="voiceName" data-t="chk.name">Name of your voice</label><input type="text" id="voiceName"></div>
         <p class="err" id="saveErr" hidden role="alert"></p>
         <div class="duo"><button class="btn" id="again" data-t="chk.again">Record again</button><button class="btn primary" id="saveVoice" data-t="chk.save">Save and use</button></div>
         <button class="link" id="sessionOnly" hidden data-t="chk.session">Use for this session only</button>

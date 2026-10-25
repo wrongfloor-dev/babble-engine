@@ -109,10 +109,6 @@ details[open]>summary::after{transform:rotate(-135deg)}
 .player canvas{flex:1;min-width:0;height:48px;display:block}
 .dur{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px;flex:0 0 auto}
 .actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.vnav{display:flex;align-items:center;justify-content:center;gap:12px}
-.vnav button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line2);background:none;cursor:pointer;font-size:18px;line-height:1}
-.vnav button:disabled{opacity:.35;cursor:not-allowed}
-.vnav span{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:110px;text-align:center}
 .stale{background:var(--surface2);border:1px solid var(--line2);border-left:3px solid var(--warn);border-radius:8px;padding:10px 12px;margin:0;font-size:14px}
 .stale .link{margin-left:6px}
 .meta{font-size:13px;color:var(--muted);margin:0}
@@ -183,7 +179,7 @@ details>summary .sumwrap{display:flex;flex-direction:column}
 .sylls span{font-size:clamp(34px,8.5vw,76px);font-weight:800;line-height:1.05;padding:6px 14px;border-radius:10px;color:#6E7889;border:2px solid transparent}
 .sylls span.done{color:var(--text)}
 .sylls span.on{background:var(--coral);color:var(--on-coral);border-color:var(--coral)}
-.nextl{text-align:center;color:var(--muted);font-size:16px;margin:0}
+.nextl{text-align:center;color:var(--muted);font-size:18px;font-weight:600;margin:0;font-variant-numeric:tabular-nums}
 .nextl b{color:var(--text);font-weight:600}
 .prog{display:flex;align-items:center;gap:14px}
 .pbar{flex:1;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
@@ -226,6 +222,20 @@ body.e-tone .xtone,body.e-instr .xtone{display:inline} body.e-tone .face,body.e-
 .chips button:hover{border-color:var(--text)}
 .chips button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
 .chips .own{border-style:dashed}
+.takes{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.takechips button{min-width:38px;font-variant-numeric:tabular-nums}
+.takechips .take{display:inline-flex;align-items:center}
+.takechips .take button[aria-pressed]{border-top-right-radius:0;border-bottom-right-radius:0}
+.takechips .take .del{min-width:0;padding:0 9px;margin-left:-1px;border-top-left-radius:0;border-bottom-left-radius:0;color:var(--muted)}
+.takechips .take.old button{border-style:dashed;color:var(--muted)}
+.takechips .tipbtn{min-width:0;width:28px;height:28px;padding:0;border-radius:50%;font-weight:700;font-style:italic}
+.takechips .add{border-style:dashed}
+.takechips .savechar{margin-left:auto}
+.charform{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.charform input{flex:1;min-width:160px}
+.chips .char{font-style:italic}
+.ctitle{margin-top:32px}
+.takechips button:disabled{opacity:.45;cursor:not-allowed}
 .chips .sep{flex-basis:100%;height:0}
 .acts{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .acts .link{margin-left:auto;align-self:center}

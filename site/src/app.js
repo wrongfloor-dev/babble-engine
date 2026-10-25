@@ -11,8 +11,10 @@ const STR={en:{
 'nav.make':'Make babble','nav.voices':'My voices','make.title':'Make babble','make.lead':'Choose a sound style and voice. Then enter your text.',
 'make.style':'Sound style','make.gVoice':'Voice styles · work with your own voice','make.gSound':'Sound styles · no voice','make.text':'Text','make.examples':'Choose example text','make.result':'Result','make.emptyHint':'Nothing generated yet.',
 'make.generate':'Generate','make.speak':'▶ Speak','make.bubbleHint':'Click a voice, an emotion or press Speak.','side.record':'Record your voice','make.stale':'Text or settings changed. This result belongs to the previous settings.','make.regen':'Generate again',
-'make.variant':'New variant','make.download':'Download WAV','make.downloadZip':'Download WAV (.zip)','make.prev':'Previous variant','make.next':'Next variant','make.busy':'Generating…',
-'make.play':'▶ Play','make.stopPlay':'■ Stop','make.variantOf':'Variant {i} of {n}','make.ready':'Result ready, {s} seconds.',
+'make.takes':'Variants','make.saveChar':'Save as character','char.name':'Name of the character','char.save':'Save','char.cancel':'Cancel',
+'char.saved':'“{name}” saved.','char.title':'Characters',
+'char.empty':'No characters yet.','char.use':'Use','char.tag':'Character','make.takeN':'Variant {i}','make.takeOld':'earlier settings','make.addTake':'+ Save variant','make.delTake':'Remove variant {i}','make.saveHelp':'Save a variant to keep your settings and quickly compare variants. Save your variant as a character once you are happy with the result.','make.helpAria':'About variants and characters','make.download':'Download WAV','make.downloadZip':'Download WAV (.zip)','make.busy':'Generating…',
+'make.play':'▶ Play','make.stopPlay':'■ Stop','make.ready':'Result ready, {s} seconds.',
 'make.dlErr':'The download didn’t work ({m}). Try again, or generate the line again.','make.dlDeclined':'Download cancelled.','make.dlDone':'Saved as {f}.',
 'foot.audio':'Audio you make with Babble Engine is yours to use, also commercially.','foot.code':'Source code (MIT)',
 'side.title':'Voice and delivery','side.voice':'Voice','side.sound':'Sound','side.instrument':'Instrument','side.add':'Add your own voice',
@@ -24,14 +26,15 @@ const STR={en:{
 'adv.pitch':'Pitch','adv.pitchH':'Higher or lower voice.','adv.note':'Base note','adv.noteH':'The note the melody starts from.',
 'adv.speed':'Tempo','adv.speedH':'How fast the line is spoken.','adv.expr':'Expression','adv.exprH':'How much the melody moves up and down.',
 'adv.range':'Melody range','adv.rangeH':'How far the notes move from the base note.','adv.form':'Throat size','adv.formH':'Larger sounds deeper and fuller, smaller sounds brighter.',
-'adv.breath':'Breath','adv.breathH':'More breath sounds hoarser and softer.','adv.tilt':'Brightness','adv.tiltH':'Duller or brighter sound.','adv.hiss':'Consonant hiss','adv.hissH':'The sss and kh of consonants, and the radio crackle. Lower it for a cleaner voice.',
+'adv.breath':'Breath','adv.breathH':'More breath sounds hoarser and softer.','adv.tilt':'Brightness','adv.tiltH':'Duller or brighter sound.','adv.steady':'Pitch steadiness','adv.steadyH':'For your own voice: holds every syllable on the melody. Lower it to keep more of how you read it.','adv.hiss':'Consonant hiss','adv.hissH':'The sss and kh of consonants, and the radio crackle. Lower it for a cleaner voice.',
 'adv.amb':'Background sound','adv.ambOff':'Off','adv.ambRain':'Rain','adv.ambBreeze':'Breeze','adv.ambWaves':'Waves','adv.ambLvl':'Background level',
 'adv.ambH':'Plays along while you listen. It is not part of the download.','adv.lang':'Language','adv.newLang':'New language',
 'adv.langH':'Babblish turns every word into fixed made-up syllables. A new language changes which syllables it uses.',
-'voices.title':'My voices','voices.lead':'Voices you recorded yourself. They work with every voice style (not with Soft Tones or Talking Instruments).',
+'voices.title':'My voices','voices.lead':'Recorded voices and characters. They stay in this browser only.',
 'voices.empty':'You don’t have any voices of your own yet. Add one to hear your text in your own voice.','voices.stored':'Saved in this browser only.',
 'voices.session':'This browser doesn’t allow saving, so voices only last for this session.','voices.use':'Use','voices.rename':'Rename','voices.delete':'Delete',
-'voices.save':'Save','voices.cancel':'Cancel','voices.info':'{n} sounds · {script} script · {when}','voices.complete':'Complete','voices.partial':'Incomplete',
+'voices.save':'Save','voices.cancel':'Cancel','voices.info':'{n} sounds · {when}','voices.complete':'Complete','voices.partial':'Incomplete','voices.basis':'Basic round','voices.deep':'Basic + depth round','voices.old':'Older script',
+'voices.deepen':'Add depth round ({t})',
 'voices.sessionTag':'This session','voices.delTitle':'Delete “{name}”?','voices.delText':'The recording is removed from this browser. This can’t be undone.',
 'voices.inUseIncompat':'“{name}” works with voice styles only. Switch away from Soft Tones or Talking Instruments to use it.',
 'st.title':'Add your own voice','st.private':'Your recording stays in this browser. Nothing is uploaded.','st.s1':'Prepare','st.s2':'Record','st.s3':'Check','st.back':'Back to babble','st.close':'Close recording',
@@ -44,10 +47,10 @@ const STR={en:{
 'prep.micUnsupported':'This browser or environment doesn’t offer microphone access. Upload a recording below instead.',
 'prep.how':'How it works','prep.h1':'Listen to the example.','prep.h2':'Say the four sounds in one breath.','prep.h3':'During the recording, follow the highlighted sounds.',
 'prep.listen':'Listen to an example','prep.headphones':'Use headphones so the guide tone isn’t recorded.','prep.settings':'Recording settings',
-'prep.script':'Script','prep.scriptGen':'General','prep.tempo':'Tempo','prep.relaxed':'Relaxed','prep.normal':'Normal','prep.note':'Your note',
+'prep.tempo':'Tempo','prep.relaxed':'Relaxed','prep.normal':'Normal','prep.note':'Your note',
 'prep.low':'Low','prep.mid':'Medium','prep.high':'High','prep.playNote':'Play this note','prep.guide':'Guide tone','prep.on':'On','prep.off':'Off',
-'prep.showScript':'Show full script','prep.hideScript':'Hide script','prep.sum':'{script} script · {tempo} tempo · note {note} · guide tone {guide}',
-'prep.calc':'{n} lines · about {s} seconds of speaking','prep.practice':'Practice two lines','prep.toRecord':'Go to recording',
+'prep.showScript':'Show full script','prep.hideScript':'Hide script','prep.sum':'{tempo} tempo · note {note} · guide tone {guide}',
+'prep.calc':'{n} lines, {k} sounds · about {t} in total','prep.practice':'Practice two lines','prep.toRecord':'Go to recording',
 'prep.needMic':'Allow the microphone first to record here.','prep.altTitle':'No microphone here?',
 'prep.altText':'Record with your phone or another app, then upload the file. The reading guide shows the script at the right pace while you record elsewhere.',
 'prep.upload':'Upload a recording','prep.guideOnly':'Start reading guide','prep.guideNote':'Reading guide only. Nothing is recorded.',
@@ -57,8 +60,8 @@ const STR={en:{
 'rec.readyPractice':'Two lines to get the feel for the pace. Nothing is recorded.','rec.readyGuide':'Start your own recorder first. Then start the guide and read along. Nothing is recorded here.',
 'rec.readyRedo':'You will record {what}. A count-in plays first.','rec.oneLine':'line {i}','rec.someLines':'{n} lines',
 'rec.start':'● Start recording','rec.startPractice':'Start practice','rec.startGuide':'Start reading guide','rec.listen':'Listen','rec.speak':'Speak now',
-'rec.wait':'Wait a moment','rec.next':'Next:','rec.last':'Last line','rec.pause':'❚❚ Pause','rec.resume':'▶ Resume','rec.redo':'Redo line','rec.stop':'Stop',
-'rec.remaining':'About {t} left','rec.hintRest':'The next line starts after the rest.','rec.hintPaused':'Paused. The current line starts over when you resume.',
+'rec.wait':'Wait a moment','rec.left':'{t} to go','rec.lastLeft':'Last line · {t} to go','rec.pause':'❚❚ Pause','rec.resume':'▶ Resume','rec.redo':'Redo line','rec.stop':'Stop',
+'rec.hintRest':'The next line starts after the rest.','rec.hintPaused':'Paused. The current line starts over when you resume.',
 'rec.micLost':'The microphone stopped. What was recorded so far is kept.','rec.started':'Recording started.','rec.pausedSr':'Recording paused.',
 'chk.title':'Listen to your voice','chk.lead':'Check your recording and try the result as babble.','chk.upLabel':'Choose a recording',
 'chk.upHint':'Ideally you read the script from this studio. Any audio format your browser plays works (mp3, m4a, wav, ogg).','chk.proc':'Processing your recording…',
@@ -74,13 +77,17 @@ const STR={en:{
 'chk.nameDefault':'My voice','chk.noLines':'No lines were recorded.',
 'cf.leaveTitle':'Leave without saving?','cf.leaveText':'Your recording hasn’t been saved yet and will be lost.','cf.leaveYes':'Discard recording','cf.leaveNo':'Keep working',
 'cf.del':'Delete','ex.title':'Choose example text','ex.close':'Close','ex.general':'General','ex.vemmo':'Vemmo · De Workshopbende',
-'scriptG':'General','scriptV':'Vemmo','min':'{m} min','sec':'{s} s'},
+'scriptG':'General','scriptV':'Vemmo',
+'prep.roundB':'Basic round: every consonant with every vowel.','prep.roundX':'Depth round for “{name}”: double vowels (ai, ow, ay).',
+'chk.saveX':'Add to “{name}”','side.savedX':'Depth round added to “{name}”.','side.depthTip':'Tip: add the depth round in My voices ({t}).','min':'{m} min','sec':'{s} s'},
 nl:{
 'nav.make':'Gebrabbel maken','nav.voices':'Mijn stemmen','make.title':'Gebrabbel maken','make.lead':'Kies een klankstijl en stem. Voer daarna je tekst in.',
 'make.style':'Klankstijl','make.gVoice':'Stemstijlen · werken met je eigen stem','make.gSound':'Klankstijlen · zonder stem','make.text':'Tekst','make.examples':'Voorbeeldtekst kiezen','make.result':'Resultaat','make.emptyHint':'Nog niets gegenereerd.',
 'make.generate':'Genereer','make.speak':'▶ Spreek','make.bubbleHint':'Klik op een stem, een emotie of druk op Spreek.','side.record':'Neem je stem op','make.stale':'Tekst of instellingen zijn gewijzigd. Dit resultaat hoort bij de vorige instellingen.','make.regen':'Opnieuw genereren',
-'make.variant':'Nieuwe variant','make.download':'Download WAV','make.downloadZip':'Download WAV (.zip)','make.prev':'Vorige variant','make.next':'Volgende variant','make.busy':'Bezig met genereren…',
-'make.play':'▶ Afspelen','make.stopPlay':'■ Stoppen','make.variantOf':'Variant {i} van {n}','make.ready':'Resultaat klaar, {s} seconden.',
+'make.takes':'Varianten','make.saveChar':'Bewaar als personage','char.name':'Naam van het personage','char.save':'Bewaren','char.cancel':'Annuleren',
+'char.saved':'“{name}” bewaard.','char.title':'Personages',
+'char.empty':'Nog geen personages.','char.use':'Gebruiken','char.tag':'Personage','make.takeN':'Variant {i}','make.takeOld':'eerdere instellingen','make.addTake':'+ Variant opslaan','make.delTake':'Variant {i} weggooien','make.saveHelp':'Sla een variant op om je instellingen te bewaren en snel varianten te kunnen vergelijken. Sla je variant definitief op als personage als je tevreden bent met het resultaat.','make.helpAria':'Over varianten en personages','make.download':'Download WAV','make.downloadZip':'Download WAV (.zip)','make.busy':'Bezig met genereren…',
+'make.play':'▶ Afspelen','make.stopPlay':'■ Stoppen','make.ready':'Resultaat klaar, {s} seconden.',
 'make.dlErr':'Downloaden lukte niet ({m}). Probeer het opnieuw, of genereer de regel opnieuw.','make.dlDeclined':'Download geannuleerd.','make.dlDone':'Opgeslagen als {f}.',
 'foot.audio':'Geluid dat je met Babble Engine maakt, mag je vrij gebruiken, ook commercieel.','foot.code':'Broncode (MIT)',
 'side.title':'Stem en uitspraak','side.voice':'Stem','side.sound':'Geluid','side.instrument':'Instrument','side.add':'Eigen stem toevoegen',
@@ -92,14 +99,15 @@ nl:{
 'adv.pitch':'Toonhoogte','adv.pitchH':'Hogere of lagere stem.','adv.note':'Grondtoon','adv.noteH':'De noot waar de melodie vanuit gaat.',
 'adv.speed':'Tempo','adv.speedH':'Hoe snel de regel wordt uitgesproken.','adv.expr':'Expressie','adv.exprH':'Hoeveel de melodie op en neer gaat.',
 'adv.range':'Melodiebereik','adv.rangeH':'Hoe ver de noten van de grondtoon af gaan.','adv.form':'Keelgrootte','adv.formH':'Groter klinkt dieper en voller, kleiner klinkt helderder.',
-'adv.breath':'Adem','adv.breathH':'Meer adem klinkt heser en zachter.','adv.tilt':'Helderheid','adv.tiltH':'Doffere of helderdere klank.','adv.hiss':'Medeklinkerruis','adv.hissH':'De sss en kh van medeklinkers, en het geknetter van de radio. Lager geeft een schonere stem.',
+'adv.breath':'Adem','adv.breathH':'Meer adem klinkt heser en zachter.','adv.tilt':'Helderheid','adv.tiltH':'Doffere of helderdere klank.','adv.steady':'Toonvastheid','adv.steadyH':'Voor je eigen stem: houdt elke lettergreep op de melodie. Lager laat meer horen van hoe je het insprak.','adv.hiss':'Medeklinkerruis','adv.hissH':'De sss en kh van medeklinkers, en het geknetter van de radio. Lager geeft een schonere stem.',
 'adv.amb':'Achtergrondgeluid','adv.ambOff':'Uit','adv.ambRain':'Regen','adv.ambBreeze':'Wind','adv.ambWaves':'Golven','adv.ambLvl':'Niveau achtergrond',
 'adv.ambH':'Speelt mee tijdens het luisteren. Het zit niet in de download.','adv.lang':'Taal','adv.newLang':'Nieuwe taal',
 'adv.langH':'Babblish maakt van elk woord vaste verzonnen lettergrepen. Een nieuwe taal verandert welke lettergrepen dat zijn.',
-'voices.title':'Mijn stemmen','voices.lead':'Stemmen die je zelf hebt opgenomen. Ze werken met elke stemstijl (niet met Soft Tones of Talking Instruments).',
+'voices.title':'Mijn stemmen','voices.lead':'Opgenomen stemmen en personages. Ze staan alleen in deze browser.',
 'voices.empty':'Je hebt nog geen eigen stemmen. Voeg er een toe om je tekst in je eigen stem te horen.','voices.stored':'Alleen bewaard in deze browser.',
 'voices.session':'Deze browser staat bewaren niet toe, dus stemmen blijven alleen deze sessie bestaan.','voices.use':'Gebruiken','voices.rename':'Hernoemen','voices.delete':'Verwijderen',
-'voices.save':'Opslaan','voices.cancel':'Annuleren','voices.info':'{n} klanken · script {script} · {when}','voices.complete':'Volledig','voices.partial':'Onvolledig',
+'voices.save':'Opslaan','voices.cancel':'Annuleren','voices.info':'{n} klanken · {when}','voices.complete':'Volledig','voices.partial':'Onvolledig','voices.basis':'Basisronde','voices.deep':'Basis + verdieping','voices.old':'Ouder script',
+'voices.deepen':'Verdieping opnemen ({t})',
 'voices.sessionTag':'Deze sessie','voices.delTitle':'“{name}” verwijderen?','voices.delText':'De opname wordt uit deze browser verwijderd. Dit kan niet ongedaan worden gemaakt.',
 'voices.inUseIncompat':'“{name}” werkt alleen met stemstijlen. Kies een andere stijl dan Soft Tones of Talking Instruments om hem te gebruiken.',
 'st.title':'Eigen stem toevoegen','st.private':'Je opname blijft in deze browser. Er wordt niets geüpload.','st.s1':'Voorbereiden','st.s2':'Opnemen','st.s3':'Controleren','st.back':'Terug naar gebrabbel','st.close':'Opname afsluiten',
@@ -112,10 +120,10 @@ nl:{
 'prep.micUnsupported':'Deze browser of omgeving biedt geen toegang tot een microfoon. Upload hieronder een opname.',
 'prep.how':'Zo werkt het','prep.h1':'Luister naar het voorbeeld.','prep.h2':'Spreek de vier klanken in één adem uit.','prep.h3':'Volg tijdens de opname de gemarkeerde klanken.',
 'prep.listen':'Luister naar een voorbeeld','prep.headphones':'Gebruik een koptelefoon zodat de voorbeeldtoon niet wordt mee opgenomen.','prep.settings':'Opname-instellingen',
-'prep.script':'Script','prep.scriptGen':'Algemeen','prep.tempo':'Tempo','prep.relaxed':'Rustig','prep.normal':'Normaal','prep.note':'Jouw toon',
+'prep.tempo':'Tempo','prep.relaxed':'Rustig','prep.normal':'Normaal','prep.note':'Jouw toon',
 'prep.low':'Laag','prep.mid':'Midden','prep.high':'Hoog','prep.playNote':'Speel deze toon','prep.guide':'Voorbeeldtoon','prep.on':'Aan','prep.off':'Uit',
-'prep.showScript':'Volledig script tonen','prep.hideScript':'Script verbergen','prep.sum':'Script {script} · tempo {tempo} · toon {note} · voorbeeldtoon {guide}',
-'prep.calc':'{n} regels · ongeveer {s} seconden spreektijd','prep.practice':'Oefen twee regels','prep.toRecord':'Naar opname',
+'prep.showScript':'Volledig script tonen','prep.hideScript':'Script verbergen','prep.sum':'Tempo {tempo} · toon {note} · voorbeeldtoon {guide}',
+'prep.calc':'{n} regels, {k} klanken · ongeveer {t} in totaal','prep.practice':'Oefen twee regels','prep.toRecord':'Naar opname',
 'prep.needMic':'Sta eerst de microfoon toe om hier op te nemen.','prep.altTitle':'Geen microfoon hier?',
 'prep.altText':'Neem op met je telefoon of een andere app en upload daarna het bestand. De voorleeshulp toont het script in het juiste tempo terwijl je elders opneemt.',
 'prep.upload':'Opname uploaden','prep.guideOnly':'Voorleeshulp starten','prep.guideNote':'Alleen voorleeshulp. Er wordt niet opgenomen.',
@@ -125,8 +133,8 @@ nl:{
 'rec.readyPractice':'Twee regels om het tempo te voelen. Er wordt niets opgenomen.','rec.readyGuide':'Start eerst je eigen recorder. Start daarna de voorleeshulp en lees mee. Hier wordt niets opgenomen.',
 'rec.readyRedo':'Je neemt {what} op. Eerst klinkt een aftelling.','rec.oneLine':'regel {i}','rec.someLines':'{n} regels',
 'rec.start':'● Start opname','rec.startPractice':'Start oefening','rec.startGuide':'Start voorleeshulp','rec.listen':'Luister','rec.speak':'Spreek nu',
-'rec.wait':'Even wachten','rec.next':'Volgende:','rec.last':'Laatste regel','rec.pause':'❚❚ Pauzeren','rec.resume':'▶ Hervatten','rec.redo':'Regel opnieuw','rec.stop':'Stoppen',
-'rec.remaining':'Nog ongeveer {t}','rec.hintRest':'De volgende regel begint na de rustpauze.','rec.hintPaused':'Gepauzeerd. De huidige regel begint opnieuw als je hervat.',
+'rec.wait':'Even wachten','rec.left':'Nog {t}','rec.lastLeft':'Laatste regel · nog {t}','rec.pause':'❚❚ Pauzeren','rec.resume':'▶ Hervatten','rec.redo':'Regel opnieuw','rec.stop':'Stoppen',
+'rec.hintRest':'De volgende regel begint na de rustpauze.','rec.hintPaused':'Gepauzeerd. De huidige regel begint opnieuw als je hervat.',
 'rec.micLost':'De microfoon is gestopt. Wat al is opgenomen, blijft bewaard.','rec.started':'Opname gestart.','rec.pausedSr':'Opname gepauzeerd.',
 'chk.title':'Beluister je stem','chk.lead':'Controleer je opname en probeer het resultaat als gebrabbel.','chk.upLabel':'Kies een opname',
 'chk.upHint':'Het beste is als je het script uit deze studio hebt voorgelezen. Elk audioformaat dat je browser afspeelt werkt (mp3, m4a, wav, ogg).','chk.proc':'Bezig met verwerken van je opname…',
@@ -142,7 +150,9 @@ nl:{
 'chk.nameDefault':'Mijn stem','chk.noLines':'Er zijn geen regels opgenomen.',
 'cf.leaveTitle':'Weggaan zonder op te slaan?','cf.leaveText':'Je opname is nog niet opgeslagen en gaat verloren.','cf.leaveYes':'Opname weggooien','cf.leaveNo':'Verder werken',
 'cf.del':'Verwijderen','ex.title':'Voorbeeldtekst kiezen','ex.close':'Sluiten','ex.general':'Algemeen','ex.vemmo':'Vemmo · De Workshopbende',
-'scriptG':'Algemeen','scriptV':'Vemmo','min':'{m} min','sec':'{s} s'}};
+'scriptG':'Algemeen','scriptV':'Vemmo',
+'prep.roundB':'Basisronde: elke medeklinker met elke klinker.','prep.roundX':'Verdieping voor “{name}”: tweeklanken (ai, ow, ay).',
+'chk.saveX':'Toevoegen aan “{name}”','side.savedX':'Verdieping toegevoegd aan “{name}”.','side.depthTip':'Tip: voeg de verdieping toe in Mijn stemmen ({t}).','min':'{m} min','sec':'{s} s'}};
 let LANGUI='en';try{const l=localStorage.getItem('bm.lang');if(l==='nl'||l==='en')LANGUI=l}catch(e){}
 function t(k,v){let s=(STR[LANGUI]&&STR[LANGUI][k])||STR.en[k]||k;if(v)for(const x in v)s=s.split('{'+x+'}').join(v[x]);return s}
 const say=msg=>{const r=$('sr');r.textContent='';setTimeout(()=>r.textContent=msg,30)};
@@ -289,10 +299,12 @@ function drawWave(cv,pcm,progress){
 const fmtDur=s=>{s=Math.max(0,s);const m=Math.floor(s/60),r=Math.round(s-m*60);return m+':'+String(r===60?59:r).padStart(2,'0')};
 
 // ---------- 2b. make screen state ----------
-const st={engine:'animal',view:'make',cfg:{},langSeed:Math.floor(Math.random()*1e6),hist:[],hi:-1,busy:false,voices:[],storeOK:null};
+const st={engine:'animal',view:'make',cfg:{},langSeed:Math.floor(Math.random()*1e6),resBy:{},savedBy:{},busy:false,voices:[],storeOK:null};
 let LANG=makeLang(st.langSeed);
 // consonant hiss: one setting for all styles and voices (1 = the original sound)
 let HISS=1;try{const h=parseFloat(localStorage.getItem('bm.hiss'));if(h>=0&&h<=1)HISS=h}catch(e){}
+// pitch steadiness for own voices: follows each syllable's own pitch so it lands on the melody (0 = per-syllable correction only)
+let STEADY=1;try{const h=parseFloat(localStorage.getItem('bm.steady'));if(h>=0&&h<=1)STEADY=h}catch(e){}
 function defCfg(e){const k=Object.keys(ENGINES[e].voices)[0],v=ENGINES[e].voices[k];const s={};SLIDERS.forEach(x=>s[x]=v[x]);
   return {voice:k,mood:'neutraal',intent:'greet',len:'auto',anc:'auto',sl:s,take:Math.floor(Math.random()*1e6)}}
 ENGINE_ORDER.forEach(e=>st.cfg[e]=defCfg(e));
@@ -302,26 +314,27 @@ function saveCfg(){try{localStorage.setItem('bm.cfg',JSON.stringify({engine:st.e
 const ownVoice=id=>st.voices.find(v=>v.id===id);
 function voiceObj(){const c=C();if(c.voice.startsWith('own:')){const ov=ownVoice(c.voice.slice(4));if(ov)return {own:ov,preset:ENGINES[st.engine].voices[Object.keys(ENGINES[st.engine].voices)[0]]};c.voice=Object.keys(ENGINES[st.engine].voices)[0]}
   return {preset:ENGINES[st.engine].voices[c.voice]}}
-function settingsKey(){const c=C();return JSON.stringify([st.engine,c.voice,st.engine==='vemmo'?c.intent:c.mood,st.engine==='vemmo'?[c.len,c.anc]:0,c.sl,$('txt').value,st.engine==='sim'?st.langSeed:0,HISS])}
+function settingsKey(){const c=C();return JSON.stringify([st.engine,c.voice,st.engine==='vemmo'?c.intent:c.mood,st.engine==='vemmo'?[c.len,c.anc]:0,c.sl,$('txt').value,st.engine==='sim'?st.langSeed:0,HISS,STEADY])}
 function lenFor(){const c=C();return c.len!=='auto'?c.len:($('txt').value.trim().length<=45?'short':'medium')}
 function opts(){
   const c=C(),vo=voiceObj(),pv=vo.preset;
   const o={engine:st.engine,mood:st.engine==='vemmo'?c.intent:c.mood,P:c.sl.pitch,S:c.sl.speed,E:c.sl.expr,F:c.sl.form,breath:c.sl.breath,tilt:c.sl.tilt,
     hiss:HISS,oq:pv.oq,jit:pv.jit,rate:pv.rate||1,vib:!!pv.vib,quant:!!pv.quant,whisper:!!pv.whisper,tone:pv.tone,base:pv.pitch};
-  if(vo.own){o.recF0=vo.own.median;o.base=ENGINES[st.engine].voices[Object.keys(ENGINES[st.engine].voices)[0]].pitch}
+  if(vo.own){o.recF0=vo.own.median;o.steady=STEADY;o.base=ENGINES[st.engine].voices[Object.keys(ENGINES[st.engine].voices)[0]].pitch}
   return o;
 }
 // ---------- generation ----------
 function buildTokens(variant){
   const c=C();
   if(st.engine==='vemmo'){
-    let clip,guard=0;const prev=st.hist.length?st.hist[st.hist.length-1].text:'';
+    let clip,guard=0;const prev=cur()?cur().text:'';
     do{clip=vemmoClip(c.intent,lenFor(),c.take+guard*7919,c.anc);guard++}while(variant&&clip.map(x=>x.text).join('')===prev&&guard<8);
     return clip;
   }
   let toks=tokenize($('txt').value,st.engine,st.langSeed,paletteLang(st.engine)||LANG);
   if(st.engine==='baby')toks=babyfy(toks);
-  if(variant){const salt=Math.random();toks.forEach(k=>{if(k.jit!==undefined)k.jit=(k.jit+salt)%1})} // a new take on the same syllables
+  const c2=C();if(variant)c2.salt=Math.random(); // a new take on the same syllables; it stays when you change a setting
+  if(c2.salt)toks.forEach(k=>{if(k.jit!==undefined)k.jit=(k.jit+c2.salt)%1});
   return toks;
 }
 function render(toks){
@@ -339,40 +352,82 @@ function render(toks){
 }
 async function generate(variant){
   if(st.busy)return;await ready();pStop();
-  if(variant&&st.engine==='vemmo')C().take=Math.floor(Math.random()*1e6);
+  if(variant&&st.engine==='vemmo')C().take=Math.floor(Math.random()*1e6);saveCfg();
   setBusy(true);
   setTimeout(()=>{ // let the busy state paint before the synchronous render
     try{
       const toks=buildTokens(variant),r=render(toks),buf=bufFrom(r.pcm,ctx.sampleRate);
       const vo=voiceObj(),c=C();
       const meta=[EMETA[st.engine].name,vo.own?vo.own.name:vo.preset.name,st.engine==='vemmo'?INTENTNAME[c.intent][LI()]:MOODNAME[c.mood][LI()]].join(' · ');
-      st.hist.push({toks,pcm:r.pcm,buf,marks:r.marks,key:settingsKey(),engine:st.engine,meta,wet:wetFor(st.engine),text:toks.map(x=>x.text).join('')});
-      if(st.hist.length>8)st.hist.shift();st.hi=st.hist.length-1;
+      st.resBy[st.engine]={toks,pcm:r.pcm,buf,marks:r.marks,key:settingsKey(),engine:st.engine,meta,salt:c.salt||0,take:c.take,cfg:JSON.parse(JSON.stringify(c)),langSeed:st.langSeed,wet:wetFor(st.engine),text:toks.map(x=>x.text).join('')};
       setBusy(false);showResult();say(t('make.ready',{s:buf.duration.toFixed(1)}));playCur();
     }catch(err){setBusy(false);console.error(err)}
   },30);
 }
-function setBusy(b){st.busy=b;$('busy').hidden=!b;$('pResult').setAttribute('aria-busy',b?'true':'false');['genBtn','varBtn','playBtn','regen','vPrev','vNext','dlBtn'].forEach(id=>{const el=$(id);if(el)el.disabled=b||(id==='vPrev'&&st.hi<=0)||(id==='vNext'&&st.hi>=st.hist.length-1)})}
-function cur(){return st.hist[st.hi]}
+function setBusy(b){st.busy=b;$('busy').hidden=!b;$('pResult').setAttribute('aria-busy',b?'true':'false');['genBtn','playBtn','regen','dlBtn'].forEach(id=>{const el=$(id);if(el)el.disabled=b});$('takeChips').querySelectorAll('button').forEach(x=>x.disabled=b)}
+// results and saved variants are kept per style
+function cur(){return st.resBy[st.engine]}
+const SV=()=>st.savedBy[st.engine]||(st.savedBy[st.engine]=[]);
 function showResult(){
-  const r=cur();$('playerRow').hidden=!r;$('varBtn').hidden=!r;$('dlBtn').hidden=!r;$('dlOk').hidden=true;$('bubbleHint').hidden=!!r;
+  const r=cur();$('playerRow').hidden=!r;$('takes').hidden=!r;renderTakes();$('dlBtn').hidden=!r;$('dlOk').hidden=true;$('bubbleHint').hidden=!!r;
   const el=$('sounds');el.innerHTML='';if(!r){setPlayLabel(false);return}
   r.toks.forEach(k=>{const s=document.createElement('span');s.className='s'+(k.lex?' lex':'');s.textContent=k.text;k.el=s;el.appendChild(s)});
   $('dur').textContent=fmtDur(r.buf.duration);$('resMeta').textContent=r.meta;
-  $('vnav').hidden=st.hist.length<2;$('vLabel').textContent=t('make.variantOf',{i:st.hi+1,n:st.hist.length});
-  $('vPrev').disabled=st.hi<=0;$('vNext').disabled=st.hi>=st.hist.length-1;
   setPlayLabel(false);drawWave($('wave'),r.pcm,0);checkStale();
 }
+// variants: results you saved on purpose; clicking one plays it and brings its settings back, × removes it
+function useTake(h){if(h.engine!==st.engine)setEngine(h.engine);Object.assign(C(),JSON.parse(JSON.stringify(h.cfg)));
+  if(h.langSeed!==st.langSeed){st.langSeed=h.langSeed;LANG=makeLang(st.langSeed)}st.resBy[st.engine]=h;refreshSide();saveCfg();showResult()}
+function renderTakes(){const box=$('takeChips');box.innerHTML='';if(!cur())return;const key=settingsKey();
+  SV().forEach((h,i)=>{const w=document.createElement('span');w.className='take';const b=document.createElement('button');b.type='button';b.textContent=i+1;b.setAttribute('aria-pressed',String(h===cur()));
+    const old=h.key!==key&&h!==cur();if(old)w.classList.add('old');b.title=h.meta+(old?' · '+t('make.takeOld'):'');b.setAttribute('aria-label',t('make.takeN',{i:i+1})+' · '+b.title);
+    b.onclick=async()=>{if(st.busy)return;await ready();useTake(h);playCur()};
+    const x=document.createElement('button');x.type='button';x.className='del';x.textContent='×';x.setAttribute('aria-label',t('make.delTake',{i:i+1}));x.title=x.getAttribute('aria-label');
+    x.onclick=()=>{st.savedBy[st.engine]=SV().filter(y=>y!==h);renderTakes()};w.appendChild(b);w.appendChild(x);box.appendChild(w)});
+  const add=document.createElement('button');add.type='button';add.className='add';add.textContent=t('make.addTake');add.hidden=SV().includes(cur());add.onclick=()=>{if(!st.busy&&cur()&&!SV().includes(cur())){SV().push(cur());if(SV().length>12)SV().shift();renderTakes()}};box.appendChild(add);
+  const sv=document.createElement('button');sv.type='button';sv.className='savechar';sv.textContent=t('make.saveChar');sv.onclick=openCharForm;sv.hidden=!$('charForm').hidden;box.appendChild(sv);
+  const tip=document.createElement('button');tip.type='button';tip.className='tipbtn';tip.textContent='i';tip.setAttribute('aria-label',t('make.helpAria'));tip.setAttribute('aria-expanded',String(!$('takeHelp').hidden));tip.setAttribute('aria-controls','takeHelp');tip.title=t('make.saveHelp');
+  tip.onclick=()=>{$('takeHelp').hidden=!$('takeHelp').hidden;tip.setAttribute('aria-expanded',String(!$('takeHelp').hidden))};box.appendChild(tip)}
+// ---------- characters: a saved variant ----------
+let CHARS=[];try{const a=JSON.parse(localStorage.getItem('bm.chars')||'[]');if(Array.isArray(a))CHARS=a.filter(x=>x&&ENGINES[x.engine])}catch(e){}
+function saveChars(){try{localStorage.setItem('bm.chars',JSON.stringify(CHARS))}catch(e){}}
+function charNow(){const c=C(),h=cur();return {engine:st.engine,voice:c.voice,mood:c.mood,intent:c.intent,len:c.len,anc:c.anc,sl:{...c.sl},salt:h?h.salt:(c.salt||0),take:h&&h.take!==undefined?h.take:c.take,langSeed:st.langSeed}}
+const charKey=x=>JSON.stringify([x.engine,x.voice,x.engine==='vemmo'?[x.intent,x.len,x.anc,x.take]:[x.mood,x.salt],x.sl,LANGSTYLE[x.engine]?x.langSeed:0]);
+const LANGSTYLE={sim:1,echo:1,radio:1}; // styles that speak the made-up language
+function charActive(x){const c=C();return x.engine===st.engine&&charKey(x)===charKey({engine:st.engine,voice:c.voice,mood:c.mood,intent:c.intent,len:c.len,anc:c.anc,sl:c.sl,salt:c.salt||0,take:c.take,langSeed:st.langSeed})}
+function charInfo(x){const vn=x.voice.startsWith('own:')?(ownVoice(x.voice.slice(4))||{name:'?'}).name:ENGINES[x.engine].voices[x.voice].name;
+  return [EMETA[x.engine].name,vn,x.engine==='vemmo'?INTENTNAME[x.intent][LI()]:MOODNAME[x.mood][LI()]].join(' · ')}
+function useChar(x){showView('make');if(x.engine!==st.engine)setEngine(x.engine);const c=C();
+  Object.assign(c,{voice:x.voice,mood:x.mood,intent:x.intent,len:x.len,anc:x.anc,sl:{...x.sl},salt:x.salt,take:x.take});
+  if(x.langSeed!==st.langSeed){st.langSeed=x.langSeed;LANG=makeLang(st.langSeed)}
+  $('voiceMsg').hidden=true;refreshSide();saveCfg();generate(false)}
+function openCharForm(){$('charForm').hidden=false;$('charName').value='';renderTakes();$('charName').focus()}
+function closeCharForm(){$('charForm').hidden=true;renderTakes()}
+$('charCancel').onclick=closeCharForm;
+$('charForm').addEventListener('submit',e=>{e.preventDefault();const name=$('charName').value.trim()||EMETA[st.engine].name+' '+(CHARS.length+1);
+  const x={id:'c'+Date.now().toString(36),name,created:Date.now(),...charNow()};CHARS.push(x);saveChars();
+  const c=C();c.salt=x.salt;if(x.take!==undefined)c.take=x.take;saveCfg(); // the saved variant is now the current one
+  closeCharForm();refreshSide();renderChars();$('voiceMsg').textContent=t('char.saved',{name});$('voiceMsg').hidden=false;say($('voiceMsg').textContent)});
+function renderChars(){const l=$('clist');l.innerHTML='';$('cEmpty').hidden=CHARS.length>0;
+  CHARS.forEach(x=>{const row=document.createElement('div');row.className='vrow';const info=document.createElement('div');info.className='vinfo';
+    const b=document.createElement('b');b.textContent=x.name;const p=document.createElement('span');p.className='hint';p.textContent=charInfo(x);info.appendChild(b);info.appendChild(p);row.appendChild(info);
+    const act=document.createElement('div');act.className='vact';const mk=(lab,fn,cls)=>{const y=document.createElement('button');y.type='button';y.className='btn'+(cls?' '+cls:'');y.textContent=lab;y.onclick=fn;act.appendChild(y)};
+    mk(t('char.use'),()=>useChar(x));
+    mk(t('voices.rename'),()=>{info.innerHTML='';const inp=document.createElement('input');inp.type='text';inp.value=x.name;inp.setAttribute('aria-label',t('char.name'));info.appendChild(inp);act.innerHTML='';
+      mk(t('voices.save'),()=>{x.name=inp.value.trim()||x.name;saveChars();renderChars();refreshSide()},'primary');mk(t('voices.cancel'),renderChars);inp.focus()});
+    mk(t('voices.delete'),()=>confirmDlg(t('voices.delTitle',{name:x.name}),'',t('cf.del'),t('voices.cancel')).then(ok=>{if(!ok)return;CHARS=CHARS.filter(y=>y!==x);saveChars();renderChars();refreshSide()}));
+    row.appendChild(act);l.appendChild(row)})}
 function setPlayLabel(playing){$('genBtn').textContent=playing?t('make.stopPlay'):t('make.speak')}
 function playCur(){
   const r=cur();if(!r)return;if(wet)wet.gain.value=r.wet;
-  setPlayLabel(true);ambUp(r.buf.duration);
+  setPlayLabel(true);
   pPlay(r.buf,'result',{onTick:pos=>{drawWave($('wave'),r.pcm,pos/r.buf.duration);
       let on=-1;for(const [tt,i] of r.marks){if(tt<=pos)on=i;else break}
       r.toks.forEach((k,i)=>k.el&&k.el.classList.toggle('on',i===on&&pos<r.buf.duration-.05))},
     onend:()=>{setPlayLabel(false);r.toks.forEach(k=>k.el&&k.el.classList.remove('on'));drawWave($('wave'),r.pcm,0)}});
+  ambUp(r.buf.duration); // after pPlay: pPlay stops the previous player first, which also fades the background out
 }
-function checkStale(){const r=cur();$('stale').hidden=!r||r.key===settingsKey()}
+function checkStale(){const r=cur();$('stale').hidden=!r||r.key===settingsKey();renderTakes()}
 // ---------- WAV export: a plain .wav download; inside a claude.ai artifact via the downloads capability, zipped (its allowlist has zip, not wav) ----------
 let DL=null;
 (async()=>{try{if(window.claude&&window.claude.use){DL=await window.claude.use('downloads')}}catch(e){DL=null}if(DL){$('dlBtn').dataset.t='make.downloadZip';$('dlBtn').textContent=t('make.downloadZip')}})();
@@ -446,7 +501,7 @@ function setEngine(e){
   if(e===st.engine)return;pStop();st.engine=e;saveCfg();setBodyEngine();
   document.querySelectorAll('#engines button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.e===e)));
   if(wet)wet.gain.value=wetFor(e);
-  $('voiceMsg').hidden=true;refreshSide();checkStale();
+  $('voiceMsg').hidden=true;refreshSide();showResult();
 }
 function refreshSide(){
   const e=st.engine,c=C(),m=EMETA[e],nv=e==='tone'||e==='instr';
@@ -458,42 +513,43 @@ function refreshSide(){
   const chip=(box,label,pressed,fn,cls,title)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-pressed',String(pressed));if(cls)b.className=cls;if(title)b.title=title;b.onclick=fn;box.appendChild(b);return b};
   Object.entries(ENGINES[e].voices).forEach(([k,v])=>chip(vc,v.name,c.voice===k,()=>pickVoice(k),'',v.d[LANGUI]));
   if(m.rec&&st.voices.length){const sp=document.createElement('span');sp.className='sep';vc.appendChild(sp);st.voices.forEach(v=>chip(vc,v.name,c.voice==='own:'+v.id,()=>pickVoice('own:'+v.id),'own',t('side.own')))}
+  const mine=CHARS.filter(x=>x.engine===e);if(mine.length){const sp=document.createElement('span');sp.className='sep';vc.appendChild(sp);mine.forEach(x=>chip(vc,x.name,charActive(x),()=>useChar(x),'char',t('char.tag')+' · '+charInfo(x)))}
   const vo=voiceObj();$('voiceDesc').textContent=vo.own?t('side.own'):vo.preset.d[LANGUI];$('voiceNote').hidden=!vo.own;
   if(vo.own)$('voiceNote').textContent=vo.own.complete?t('side.ownLabel',{n:vo.own.grains.length}):t('side.ownPartial',{d:vo.own.linesDone,t:vo.own.linesTotal});
   $('speaker').textContent=vo.own?vo.own.name:vo.preset.name;
-  $('addVoice').hidden=!m.rec;
   $('fIntent').hidden=e!=='vemmo';$('fMood').hidden=e==='vemmo';$('fLen').hidden=e!=='vemmo';$('dAnchors').hidden=e!=='vemmo';
   const ic=$('intentChips');ic.innerHTML='';Object.keys(INTENTS).forEach(k=>chip(ic,INTENTNAME[k][LI()],c.intent===k,()=>{c.intent=k;c.take=Math.floor(Math.random()*1e6);refreshSide();onSetting();generate(false)}));
   $('intentDesc').textContent=INTENTNAME[c.intent][2+LI()];
   const mc=$('moodChips');mc.innerHTML='';Object.keys(MOODS).forEach(k=>chip(mc,MOODNAME[k][LI()],c.mood===k,()=>{c.mood=k;refreshSide();onSetting();generate(false)}));
   document.querySelectorAll('[data-len]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.len===c.len)));$('ancSel').value=c.anc;
   const an=$('anchors');an.innerHTML='';Object.entries(ANCHORS).forEach(([k,A])=>{const b=document.createElement('button');b.type='button';b.innerHTML='<b></b><span></span>';b.querySelector('b').textContent=A.text;b.querySelector('span').textContent=A.pron+' · '+ANCNAME[k][LI()];b.onclick=()=>playAnchor(k);an.appendChild(b)});
-  SLIDERS.forEach(x=>$(x).value=c.sl[x]);$('hiss').value=HISS;
+  SLIDERS.forEach(x=>$(x).value=c.sl[x]);$('hiss').value=HISS;$('steady').value=STEADY;
   $('lPitch').textContent=nv?t('adv.note'):t('adv.pitch');$('hPitch').textContent=nv?t('adv.noteH'):t('adv.pitchH');
   $('lExpr').textContent=nv?t('adv.range'):t('adv.expr');$('hExpr').textContent=nv?t('adv.rangeH'):t('adv.exprH');
-  $('fForm').hidden=nv||!!vo.own;$('fBreath').hidden=nv||!!vo.own;$('fHiss').hidden=nv||(!!vo.own&&e!=='radio');$('fLang').hidden=e!=='sim'&&e!=='echo'&&e!=='radio';$('langName').textContent=LANG.name+' · '+LANG.cons.join(' ')+' / '+LANG.vow.join(' ');
+  $('fForm').hidden=nv||!!vo.own;$('fBreath').hidden=nv||!!vo.own;$('fHiss').hidden=nv||(!!vo.own&&e!=='radio');$('fSteady').hidden=nv||!vo.own;$('fLang').hidden=e!=='sim'&&e!=='echo'&&e!=='radio';$('langName').textContent=LANG.name+' · '+LANG.cons.join(' ')+' / '+LANG.vow.join(' ');
   outs();
 }
 function outs(){const c=C();$('oPitch').textContent=Math.round(c.sl.pitch)+' Hz';$('oSpeed').textContent='×'+(+c.sl.speed).toFixed(2);$('oExpr').textContent=Math.round(c.sl.expr*100)+'%';
-  $('oForm').textContent='×'+(+c.sl.form).toFixed(2);$('oBreath').textContent=Math.round(c.sl.breath*100)+'%';$('oTilt').textContent=Math.round((c.sl.tilt-.15)/.75*100)+'%';$('oHiss').textContent=Math.round(HISS*100)+'%';$('oAmb').textContent=Math.round(AMB.lvl*100)+'%'}
+  $('oForm').textContent='×'+(+c.sl.form).toFixed(2);$('oBreath').textContent=Math.round(c.sl.breath*100)+'%';$('oTilt').textContent=Math.round((c.sl.tilt-.15)/.75*100)+'%';$('oHiss').textContent=Math.round(HISS*100)+'%';$('oSteady').textContent=Math.round(STEADY*100)+'%';$('oAmb').textContent=Math.round(AMB.lvl*100)+'%'}
 async function playAnchor(k){await ready();const t2=anchorToks(k,rng(7)),o=opts();o.mood=ANC_INT[k];const vo=voiceObj(),tk=t2.map(x=>({...x}));
   const r=vo.own?renderSample(tk,vo.own.grains,o,ctx.sampleRate):renderSynth(tk,o,ctx.sampleRate);pPlay(bufFrom(r.pcm,ctx.sampleRate),'anchor')}
 function onSetting(){saveCfg();checkStale()}
-function pickVoice(v){const c=C();c.voice=v;
+function pickVoice(v){const c=C();c.voice=v;c.salt=0;
   const p=v.startsWith('own:')?ENGINES[st.engine].voices[Object.keys(ENGINES[st.engine].voices)[0]]:ENGINES[st.engine].voices[v];SLIDERS.forEach(x=>c.sl[x]=p[x]);
   $('voiceMsg').hidden=true;refreshSide();onSetting();generate(false)}
 document.querySelectorAll('[data-len]').forEach(b=>b.addEventListener('click',()=>{C().len=b.dataset.len;document.querySelectorAll('[data-len]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));onSetting()}));
 $('ancSel').addEventListener('change',e=>{C().anc=e.target.value;onSetting()});
 SLIDERS.forEach(x=>$(x).addEventListener('input',e=>{C().sl[x]=+e.target.value;outs();onSetting()}));
+$('steady').addEventListener('input',e=>{STEADY=+e.target.value;try{localStorage.setItem('bm.steady',String(STEADY))}catch(er){}outs();onSetting()});
 $('hiss').addEventListener('input',e=>{HISS=+e.target.value;try{localStorage.setItem('bm.hiss',String(HISS))}catch(er){}outs();onSetting()});
-$('ambSel').addEventListener('change',e=>{AMB.type=e.target.value;if(AMB.type==='off')ambDown(.4)});
+$('ambSel').addEventListener('change',e=>{AMB.type=e.target.value;if(AMB.type==='off')ambDown(.4);else if(P.owner==='result'&&P.buf)ambUp(Math.max(0,P.buf.duration-pPos()))}); // join a line that is already playing
 $('ambLvl').addEventListener('input',e=>{AMB.lvl=+e.target.value;outs();if(AMB.gain&&AMB.src)AMB.gain.gain.setTargetAtTime(AMB.lvl*.55,ctx.currentTime,.05)});
 $('dice').addEventListener('click',()=>{st.langSeed=Math.floor(Math.random()*1e6);LANG=makeLang(st.langSeed);refreshSide();checkStale()});
 $('txt').addEventListener('input',checkStale);
 $('txt').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();$('genBtn').click()}});
-$('genBtn').onclick=async()=>{if(st.busy)return;if(P.owner==='result'){pStop();return}if(cur()&&cur().key===settingsKey()){await ready();playCur()}else generate(false)};$('regen').onclick=()=>generate(false);$('varBtn').onclick=()=>generate(true);
+$('genBtn').onclick=async()=>{if(st.busy)return;if(P.owner==='result'){pStop();return}if(cur()&&cur().key===settingsKey()){await ready();playCur()}else generate(false)};$('regen').onclick=()=>generate(false);
 $('playBtn').onclick=async()=>{await ready();if(P.owner==='result'){pStop()}else playCur()};
-$('vPrev').onclick=()=>{if(st.hi>0){pStop();st.hi--;showResult()}};$('vNext').onclick=()=>{if(st.hi<st.hist.length-1){pStop();st.hi++;showResult()}};
+
 $('dlBtn').onclick=()=>exportWav();
 // examples dialog
 function openExamples(){const l=$('exList');l.innerHTML='';[['general',t('ex.general')],['vemmo',t('ex.vemmo')]].forEach(([g,label])=>{const h=document.createElement('h3');h.textContent=label;l.appendChild(h);
@@ -509,22 +565,24 @@ function dbOpen(){return new Promise((res,rej)=>{try{const r=indexedDB.open('bab
 async function dbAll(){const db=DB.db;return new Promise((res,rej)=>{const q=db.transaction('voices').objectStore('voices').getAll();q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
 async function dbPut(v){const db=DB.db;if(!db)throw new Error('no storage');return new Promise((res,rej)=>{const tx=db.transaction('voices','readwrite');tx.objectStore('voices').put(v);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error||new Error('aborted'))})}
 async function dbDel(id){const db=DB.db;if(!db)return;return new Promise((res,rej)=>{const tx=db.transaction('voices','readwrite');tx.objectStore('voices').delete(id);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}
-const toStore=v=>({id:v.id,name:v.name,created:v.created,script:v.script,median:v.median,labeled:v.labeled,complete:v.complete,linesDone:v.linesDone,linesTotal:v.linesTotal,
+const toStore=v=>({id:v.id,name:v.name,created:v.created,script:v.script,median:v.median,labeled:v.labeled,complete:v.complete,linesDone:v.linesDone,linesTotal:v.linesTotal,extra:!!v.extra,
   grains:v.grains.map(g=>({d:g,c:g.c,v:g.v,pos:g.pos,f0:g.f0}))});
 const fromStore=r=>({...r,grains:r.grains.map(x=>{const g=x.d instanceof Float32Array?x.d:new Float32Array(x.d);g.c=x.c;g.v=x.v;g.pos=x.pos;g.f0=x.f0;return g})});
-(async()=>{try{DB.db=await dbOpen();const all=await dbAll();st.voices=all.map(fromStore).sort((a,b)=>a.created-b.created);st.storeOK=true}catch(e){st.storeOK=false}refreshSide();renderVoices()})();
+(async()=>{try{DB.db=await dbOpen();const all=await dbAll();st.voices=all.map(fromStore).sort((a,b)=>a.created-b.created);st.storeOK=true}catch(e){st.storeOK=false}refreshSide();renderVoices();renderChars()})();
 function renderVoices(){
-  $('storeNote').textContent=st.storeOK===false?t('voices.session'):t('voices.stored');
+  $('storeNote').textContent=st.storeOK===false?t('voices.session'):'';
   const l=$('vlist');l.innerHTML='';$('vEmpty').hidden=st.voices.length>0;
   st.voices.forEach(v=>{const row=document.createElement('div');row.className='vrow';
     const info=document.createElement('div');info.className='vinfo';const b=document.createElement('b');b.textContent=v.name;
-    const tg=document.createElement('span');tg.className='tag';tg.textContent=v.complete?t('voices.complete'):t('voices.partial');b.appendChild(tg);
+    const tag=x=>{const s=document.createElement('span');s.className='tag';s.textContent=x;b.appendChild(s)};
+    tag(v.script==='basis'?(v.extra?t('voices.deep'):t('voices.basis')):t('voices.old'));if(!v.complete)tag(t('voices.partial'));
     if(v.session){const t2=document.createElement('span');t2.className='tag';t2.textContent=t('voices.sessionTag');b.appendChild(t2)}
-    const p=document.createElement('span');p.className='hint';p.textContent=t('voices.info',{n:v.grains.length,script:v.script==='vemmo'?t('scriptV'):t('scriptG'),when:new Date(v.created).toLocaleDateString(LANGUI==='nl'?'nl-NL':'en-GB',{day:'numeric',month:'short',year:'numeric'})});
+    const p=document.createElement('span');p.className='hint';p.textContent=t('voices.info',{n:v.grains.length,when:new Date(v.created).toLocaleDateString(LANGUI==='nl'?'nl-NL':'en-GB',{day:'numeric',month:'short',year:'numeric'})});
     info.appendChild(b);info.appendChild(p);row.appendChild(info);
     const act=document.createElement('div');act.className='vact';
     const mk=(lab,fn,cls)=>{const x=document.createElement('button');x.type='button';x.className='btn'+(cls?' '+cls:'');x.textContent=lab;x.onclick=fn;act.appendChild(x);return x};
     mk(t('voices.use'),()=>useVoice(v));
+    if(v.script==='basis'&&!v.extra)mk(t('voices.deepen',{t:roundTime('extra')}),()=>openStudio(v.id),'primary');
     mk(t('voices.rename'),()=>{info.innerHTML='';const inp=document.createElement('input');inp.type='text';inp.value=v.name;inp.setAttribute('aria-label',t('chk.name'));info.appendChild(inp);act.innerHTML='';
       mk(t('voices.save'),async()=>{const nm=inp.value.trim()||v.name;v.name=nm;try{if(!v.session)await dbPut(toStore(v))}catch(e){}renderVoices();refreshSide()},'primary');mk(t('voices.cancel'),()=>renderVoices());inp.focus()});
     mk(t('voices.delete'),()=>confirmDlg(t('voices.delTitle',{name:v.name}),t('voices.delText'),t('cf.del'),t('voices.cancel')).then(async ok=>{if(!ok)return;try{await dbDel(v.id)}catch(e){}st.voices=st.voices.filter(x=>x!==v);
@@ -543,11 +601,11 @@ function showView(v){
   if(v==='voices')renderVoices();window.scrollTo(0,0);
 }
 $('navMake').onclick=()=>showView('make');$('navVoices').onclick=()=>showView('voices');$('logoMain').onclick=()=>showView('make');
-$('addVoice').onclick=()=>openStudio();$('addVoice2').onclick=()=>openStudio();
+$('addVoice2').onclick=()=>openStudio();
 
 // ---------- 4. studio ----------
 const NOTES={low:130.8,mid:196,high:261.6};
-const SS={step:1,script:'algemeen',tempo:'relaxed',note:'mid',guide:true,
+const SS={step:1,script:'basis',target:null,tempo:'relaxed',note:'mid',guide:true,
   mic:{status:'idle',stream:null,deviceId:'',src:null,an:null,raf:0},
   rec:null,       // {sr, chunks:[], n, lines:[{a,b}|null], script}
   run:null,       // active prompter/recorder run
@@ -555,7 +613,10 @@ const SS={step:1,script:'algemeen',tempo:'relaxed',note:'mid',guide:true,
   upload:null,    // {pcm,sr} from a file
   dirty:false,saveMode:null};
 function sc(){return buildScript(SS.script)}
-function openStudio(){showView('studio');SS.script=st.engine==='vemmo'?'vemmo':SS.script;$('setScript').value=SS.script;stStep(1);refreshPrep();$('stBack').focus()}
+// basic round for a new voice; the depth round (target = a saved voice) is added to that voice
+function openStudio(target){showView('studio');const tg=target&&st.voices.find(v=>v.id===target)?target:null;if(tg!==SS.target||SS.script!==(tg?'extra':'basis')){SS.rec=null;SS.result=null}
+  SS.target=tg;SS.script=tg?'extra':'basis';stStep(1);refreshPrep();$('stBack').focus()}
+const roundTime=kind=>{const s=buildScript(kind),sch=studioSchedule(1,'relaxed'),e0=sch.events[0];return fmtDur(sch.count*sch.beat+s.length*((e0.read-e0.guide+sch.guide)+4*sch.I+1))};
 function stStep(n){SS.step=n;$('spPrep').hidden=n!==1;$('spRec').hidden=n!==2;$('spCheck').hidden=n!==3;
   document.querySelectorAll('#stepper li').forEach(li=>{const s=+li.dataset.s;li.classList.toggle('cur',s===n);li.classList.toggle('done',s<n);if(s===n)li.setAttribute('aria-current','step');else li.removeAttribute('aria-current')});
   $('stBack').innerHTML='';const sp=document.createElement('span');const recording=n===2&&SS.run&&!SS.run.done;sp.textContent=recording?'× '+t('st.close'):'‹ '+t('st.back');$('stBack').appendChild(sp)}
@@ -563,8 +624,10 @@ function refreshPrep(){
   const s=sc(),sch=studioSchedule(s.length,SS.tempo);
   $('exChunk').textContent=s[0].map(x=>x.show).join(' · ');
   const tn={relaxed:t('prep.relaxed'),normal:t('prep.normal')}[SS.tempo],nn={low:t('prep.low'),mid:t('prep.mid'),high:t('prep.high')}[SS.note];
-  $('recSum').textContent=t('prep.sum',{script:SS.script==='vemmo'?t('scriptV'):t('scriptG'),tempo:tn.toLowerCase(),note:nn.toLowerCase(),guide:(SS.guide?t('prep.on'):t('prep.off')).toLowerCase()});
-  $('recCalc').textContent=t('prep.calc',{n:s.length,s:Math.round(sch.total)});
+  const tv=SS.target&&st.voices.find(v=>v.id===SS.target);$('stRound').textContent=tv?t('prep.roundX',{name:tv.name}):t('prep.roundB');
+  $('recSum').textContent=t('prep.sum',{tempo:tn.toLowerCase(),note:nn.toLowerCase(),guide:(SS.guide?t('prep.on'):t('prep.off')).toLowerCase()});
+  const e0=sch.events[0],per=(SS.guide?e0.read-e0.guide+sch.guide:.5)+4*sch.I+1; // same sum as lineDur() during the run
+  $('recCalc').textContent=t('prep.calc',{n:s.length,k:s.flat().length,t:fmtDur(sch.count*sch.beat+s.length*per)});
   const sl=$('scriptList');sl.innerHTML='';s.forEach((ch,i)=>{const sp=document.createElement('span');sp.innerHTML='<i></i>';sp.querySelector('i').textContent=i+1;sp.appendChild(document.createTextNode(ch.map(x=>x.show).join('-')));sl.appendChild(sp)});
   micUI();
 }
@@ -604,7 +667,6 @@ function meterLoop(){const m=SS.mic;if(!m.an)return;const d=new Float32Array(m.a
 $('micAsk').onclick=()=>micStart();
 $('micSel').addEventListener('change',e=>{SS.mic.deviceId=e.target.value;micStart()});
 // --- settings ---
-$('setScript').addEventListener('change',e=>{SS.script=e.target.value;refreshPrep()});
 $('setTempo').addEventListener('change',e=>{SS.tempo=e.target.value;refreshPrep()});
 $('setNote').addEventListener('change',e=>{SS.note=e.target.value;refreshPrep()});
 $('setGuide').addEventListener('change',e=>{SS.guide=e.target.value==='on';refreshPrep()});
@@ -678,7 +740,7 @@ function scheduleLine(idx,at){
 function ctxToSample(tt){const run=SS.run;return run.sessBase+Math.round((tt-run.sessStart)*SS.rec.sr)}
 function drawLine(idx){const s=sc(),q=SS.run.queue,box=$('sylls');box.innerHTML='';s[idx].forEach(x=>{const sp=document.createElement('span');sp.textContent=x.show;box.appendChild(sp)});
   $('sylSr').textContent=s[idx].map(x=>x.show).join(' ');
-  const nx=q[SS.run.qi+1];$('nextLine').innerHTML='';if(nx!==undefined){const a=document.createElement('span');a.textContent=t('rec.next')+' ';const b=document.createElement('b');b.textContent=s[nx].map(x=>x.show).join(' · ');$('nextLine').append(a,b)}else $('nextLine').textContent=t('rec.last');
+
   $('recLine').textContent=t('rec.line',{i:idx+1,n:s.length});say(t('rec.line',{i:idx+1,n:s.length}))}
 function lineDur(){const r=SS.run;return (SS.guide?r.guideDur+r.gap:.5)+4*r.I+r.rest}
 function loop(){
@@ -701,7 +763,7 @@ function loop(){
     }
     const remainLines=run.queue.length-run.qi-1,inLine=Math.max(0,(run.cur.end+run.rest)-tt),remain=remainLines*lineDur()+inLine+(tt<run.countEnd?run.countEnd-tt:0);
     const total=run.queue.length*lineDur();$('pfill').style.width=Math.min(100,Math.max(0,(1-remain/total)*100))+'%';
-    $('premain').textContent=t('rec.remaining',{t:remain>=60?t('min',{m:Math.ceil(remain/60)}):t('sec',{s:Math.ceil(remain)})});
+    $('nextLine').textContent=t(remainLines?'rec.left':'rec.lastLeft',{t:fmtDur(remain)});
   }
   run.raf=requestAnimationFrame(loop);
 }
@@ -763,7 +825,7 @@ $('file').addEventListener('change',async e=>{
     const b=await ctx.decodeAudioData(await f.arrayBuffer()),n=b.length,mono=new Float32Array(n);for(let c=0;c<b.numberOfChannels;c++){const d=b.getChannelData(c);for(let i=0;i<n;i++)mono[i]+=d[i]/b.numberOfChannels}
     setTimeout(()=>{
       let script=SS.script,res=analyzeScriptRecording(mono,b.sampleRate,script,null);
-      if(!res.ok){const other=script==='vemmo'?'algemeen':'vemmo',r2=analyzeScriptRecording(mono,b.sampleRate,other,null);if(r2.ok){res=r2;script=other}}
+      if(!res.ok&&!SS.target)for(const other of ['algemeen','vemmo']){const r2=analyzeScriptRecording(mono,b.sampleRate,other,null);if(r2.ok){res=r2;script=other;break}}
       $('procBox').hidden=true;
       if(res.ok){SS.result={ok:true,grains:res.grains,chunkF0:res.chunkF0,median:res.median,linesDone:res.expected,linesTotal:res.expected,labeled:true,pcm:mono,sr:b.sampleRate,script,source:'file',lines:new Array(res.expected).fill(true)}}
       else{const g=analyzeGrains(mono,b.sampleRate);
@@ -776,7 +838,8 @@ $('file').addEventListener('change',async e=>{
 });
 // --- check screen ---
 function showCheck(){
-  const R=SS.result;$('checkBody').hidden=false;$('upBox').hidden=R.source!=='file'?true:false;
+  const R=SS.result;$('checkBody').hidden=false;const tv=SS.target&&st.voices.find(v=>v.id===SS.target);
+  $('fVoiceName').hidden=!!tv;$('saveVoice').textContent=tv?t('chk.saveX',{name:tv.name}):t('chk.save');if(tv)$('sessionOnly').hidden=true;$('upBox').hidden=R.source!=='file'?true:false;
   const partial=R.labeled&&R.linesDone<R.linesTotal;
   $('partialNote').hidden=!(partial||!R.labeled);$('partialNote').textContent=!R.labeled?t('chk.unlabeled'):t('chk.partial',{d:R.linesDone,t:R.linesTotal});
   $('recDur').textContent=fmtDur(R.pcm.length/R.sr);$('recPlay').textContent=t('chk.play');drawWave($('recWave'),R.pcm,0);
@@ -807,15 +870,23 @@ $('prevPlay').onclick=async()=>{
   await ready();const R=SS.result,e=$('prevEngine').value,sr=ctx.sampleRate,base=ENGINES[e].voices[Object.keys(ENGINES[e].voices)[0]];
   let toks;if(e==='vemmo')toks=vemmoClip(st.cfg.vemmo.intent,'medium',Math.floor(Math.random()*1e6),'auto');
   else{toks=tokenize($('txt').value||EXAMPLES[0].text[LANGUI],e,st.langSeed,paletteLang(e)||LANG);if(e==='baby')toks=babyfy(toks)}
-  const o={engine:e,mood:e==='vemmo'?st.cfg.vemmo.intent:'neutraal',P:base.pitch,S:base.speed,E:base.expr,F:1,breath:0,tilt:base.tilt,oq:base.oq,jit:base.jit,rate:base.rate||1,base:base.pitch,recF0:R.median};
-  let r=renderSample(toks.map(x=>({...x})),R.grains,o,sr);if(FX[e]){const f=postFX(FX[e],r.pcm,sr,HISS);let m=0;for(const v of f.pcm)m=Math.max(m,Math.abs(v));if(m>0)for(let i=0;i<f.pcm.length;i++)f.pcm[i]*=.85/m;r={pcm:f.pcm,marks:r.marks}}
+  const o={engine:e,mood:e==='vemmo'?st.cfg.vemmo.intent:'neutraal',P:base.pitch,S:base.speed,E:base.expr,F:1,breath:0,tilt:base.tilt,oq:base.oq,jit:base.jit,rate:base.rate||1,base:base.pitch,recF0:R.median,steady:STEADY};
+  const tv=SS.target&&st.voices.find(v=>v.id===SS.target),gr=tv?tv.grains.concat(R.grains):R.grains;if(tv)o.recF0=tv.median; // depth round: hear the whole voice
+  let r=renderSample(toks.map(x=>({...x})),gr,o,sr);if(FX[e]){const f=postFX(FX[e],r.pcm,sr,HISS);let m=0;for(const v of f.pcm)m=Math.max(m,Math.abs(v));if(m>0)for(let i=0;i<f.pcm.length;i++)f.pcm[i]*=.85/m;r={pcm:f.pcm,marks:r.marks}}
   const buf=bufFrom(r.pcm,sr);
   $('prevText').textContent=toks.map(x=>x.text).join('');$('prevDur').textContent=fmtDur(buf.duration);if(wet)wet.gain.value=wetFor(e);
   $('prevPlay').textContent=t('make.stopPlay');pPlay(buf,'preview',{onTick:pos=>drawWave($('prevWave'),r.pcm,pos/buf.duration),onend:()=>{$('prevPlay').textContent=t('chk.prevPlay');drawWave($('prevWave'),r.pcm,0)}});
 };
 $('again').onclick=()=>{pStop();SS.result=null;SS.rec=null;stStep(1);refreshPrep()};
 async function saveVoice(sessionOnly){
-  const R=SS.result;if(!R)return;const name=$('voiceName').value.trim()||uniqueName();
+  const R=SS.result;if(!R)return;
+  const tv=SS.target&&st.voices.find(v=>v.id===SS.target);
+  if(tv){ // depth round: add the new sounds to the existing voice
+    const all=tv.grains.concat(R.grains),fs=all.map(g=>g.f0).filter(Boolean).sort((a,b)=>a-b);
+    const nv={...tv,grains:all,extra:true,median:fs.length?fs[fs.length>>1]:tv.median};
+    if(!tv.session){try{if(!DB.db)throw new Error(LANGUI==='nl'?'geen opslag beschikbaar':'no storage available');await dbPut(toStore(nv))}catch(e){$('saveErr').textContent=t('chk.saveFail',{m:(e&&e.message)||'?'});$('saveErr').hidden=false;return}}
+    Object.assign(tv,nv);SS.dirty=false;SS.result=null;SS.rec=null;SS.target=null;SS.script='basis';showView('make');refreshSide();renderVoices();
+    $('voiceMsg').textContent=t('side.savedX',{name:tv.name});$('voiceMsg').hidden=false;checkStale();say($('voiceMsg').textContent);return}const name=$('voiceName').value.trim()||uniqueName();
   const v={id:'v'+Date.now().toString(36)+Math.floor(Math.random()*1e4),name,created:Date.now(),script:R.script,median:R.median,labeled:R.labeled,
     complete:!R.labeled||R.linesDone>=R.linesTotal,linesDone:R.linesDone,linesTotal:R.linesTotal,grains:R.grains};
   if(!R.labeled)v.complete=true;
@@ -825,6 +896,7 @@ async function saveVoice(sessionOnly){
   showView('make');
   if(EMETA[st.engine].rec){const c=C();c.voice='own:'+v.id;const p=ENGINES[st.engine].voices[Object.keys(ENGINES[st.engine].voices)[0]];SLIDERS.forEach(x=>c.sl[x]=p[x]);saveCfg();refreshSide();
     $('voiceMsg').textContent=t('side.savedSel',{name});}else{refreshSide();$('voiceMsg').textContent=t('side.saved',{name})}
+  if(v.script==='basis')$('voiceMsg').textContent+=' '+t('side.depthTip',{t:roundTime('extra')});renderVoices();
   $('voiceMsg').hidden=false;checkStale();say($('voiceMsg').textContent);
 }
 $('saveVoice').onclick=()=>saveVoice(false);$('sessionOnly').onclick=()=>saveVoice(true);
@@ -845,7 +917,7 @@ function applyLang(){
   document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.dataset.t));
   document.querySelectorAll('[data-t-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.tAria)));
   document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===LANGUI)));
-  buildEngines();refreshSide();renderVoices();if(cur())showResult();refreshPrep();stStep(SS.step);
+  buildEngines();refreshSide();renderVoices();renderChars();if(cur())showResult();refreshPrep();stStep(SS.step);
   if(SS.result&&!$('checkBody').hidden)showCheck();
   if(!$('txt').value||EXAMPLES.some(x=>x.text.en===$('txt').value||x.text.nl===$('txt').value)){const ex=EXAMPLES.find(x=>x.text.en===$('txt').value||x.text.nl===$('txt').value)||EXAMPLES[0];$('txt').value=ex.text[LANGUI];checkStale()}
 }

@@ -11,6 +11,9 @@ Everything that goes online lives in `site/` (Cloudflare Workers static assets, 
   - Vemmo: `INTENTS`, `ANCHORS`, `vemmoClip`
   - Extra voice styles: `PALETTES` + `paletteLang` (Grumble, Gizmo, Sprite, Babytalk), `babyfy`, `postFX` (grumble, gizmo, sprite, radio). Echo Folk mixes four renders in `app.js` → `render()`.
   - Studio: `buildScript`, `studioSchedule`, `analyzeScriptRecording`, `splitChunk`, `estimateF0`, `makeAmbient`
+  - Recording rounds (2026-10-25): `basis` (every consonant × a/e/i/o/u, 23 lines, 92 sounds, ~1:35) for a new voice, `extra` (diphthongs ai/ou/ay, 10 lines, ~0:42) added later to the same voice from My voices. Together they cover every sound the voice styles ask for. `algemeen`/`vemmo` stay only so older voices and uploads keep working. Vowels with the same `VSPEC` (a=ah, i=ee, u=oo, ay=ei) count as the same sound in `pickGrain`.
+  - Own voice pitch: `pitchTrack` follows each syllable's pitch every 10 ms; `renderSample` option `steady` (0–1, slider "Pitch steadiness", `bm.steady`) holds it on the melody. Without it the output is unchanged.
+- Variants and characters (2026-10-25): per style, `cur()` is the latest result and `SV()` the variants saved with "+ Save variant" (each keeps its settings; clicking one plays it and restores them, × removes it; session only). "Save as character" stores style, voice, emotion, sliders, variation (`salt`/`take`) and language seed in `localStorage` `bm.chars`; characters show under Voice and in My voices. Keep UI copy short.
 - `site/src/app.js` – UI: i18n (EN/NL in `STR`), make screen, voices storage (IndexedDB `babble-machine`/`voices`: the old name is kept on purpose so voices saved earlier stay available), studio (mic, prompter, recorder)
 
 ## Rules

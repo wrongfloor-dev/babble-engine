@@ -389,7 +389,7 @@ function segmentBySilence(pcm,sr,target){ // for the script: each sound between 
 }
 function renderSample(toks,grains,o,sr){
   prosody(toks,o);
-  const animal=o.engine==='animal',base=(o.P/(o.base||200))*(animal?o.rate:1);
+  const animal=o.engine==='animal',base=(o.P/(o.base||200))*(animal?o.rate:1),sd=Math.min(1,Math.max(0,o.steady||0)); // steady: optional, 0 = unchanged
   const items=[],marks=[];let t=0;
   toks.forEach((k,i)=>{
     if(k.type==='gap'){t+=(animal?.035:.04)/o.S;return}
@@ -399,7 +399,8 @@ function renderSample(toks,grains,o,sr){
     for(let r=0;r<reps;r++){
       const g=k.type==='laugh'?grains[hash('l'+i+r)%grains.length]:pickGrain(grains,k,(k.text||'')+i+r);
       const semi=k.type==='laugh'?4-r:(k.semiA||0);
-      let rate;
+      let rate,pc=null;
+      if(g.f0&&o.recF0&&sd){if(g._pt===undefined||g._ptr!==o.recF0){g._pt=pitchTrack(g,sr,o.recF0);g._ptr=o.recF0}pc=g._pt}
       if(g.f0&&o.recF0){const target=(animal?o.P:o.recF0*(o.P/(o.base||200)))*Math.pow(2,semi/12);rate=Math.min(3.2,Math.max(.45,target/g.f0))} // every syllable lands on the intended pitch, whatever pitch it was read at
       else rate=base*Math.pow(2,semi/12);
       const end=Math.pow(2,((k.semiB??k.semiA??0)-(k.semiA||0))/12);
@@ -407,8 +408,8 @@ function renderSample(toks,grains,o,sr){
       if(animal)len=Math.min(len,.075/o.S*(k.last?1.5:1));
       else len=Math.min(len,(k.last?.42:.26)/o.S);
       if(k.type==='laugh')len=Math.min(len,.1);
-      const top=rate*Math.max(1,end);const gg=top>1.12?(g._lp&&g._lp[0]===Math.round(top*10)?g._lp[1]:(g._lp=[Math.round(top*10),lowpass(g,.46/top)])[1]):g;
-      items.push({g:gg,t,rate,end,len,amp:k.amp||1});
+      let top=rate*Math.max(1,end);if(pc){let mn=Infinity;for(const v of pc.f)mn=Math.min(mn,v);top*=Math.max(1,Math.pow(g.f0/mn,sd))}const gg=top>1.12?(g._lp&&g._lp[0]===Math.round(top*10)?g._lp[1]:(g._lp=[Math.round(top*10),lowpass(g,.46/top)])[1]):g;
+      items.push({g:gg,t,rate,end,len,amp:k.amp||1,pc,g0:g.f0});
       t+=animal?len*.92:len*.82;
     }
   });
@@ -417,7 +418,10 @@ function renderSample(toks,grains,o,sr){
     const n=Math.floor(it.len*sr),s0=Math.floor(it.t*sr),fade=Math.min(Math.floor(sr*.012),n>>2);
     let x=0;
     for(let i=0;i<n&&s0+i<N;i++){
-      const r=it.rate*(1+(it.end-1)*(i/n));x+=r;const a=Math.floor(x);if(a+1>=it.g.length)break;
+      let r=it.rate*(1+(it.end-1)*(i/n));
+      if(it.pc){const p=it.pc,L=p.f.length-1,fi=Math.min(L,Math.max(0,(x-p.off)/p.hop)),a=Math.floor(fi),b=Math.min(L,a+1),src=p.f[a]+(p.f[b]-p.f[a])*(fi-a);
+        r=Math.min(3.2,Math.max(.45,r*Math.pow(it.g0/src,sd)))} // follow the syllable's own pitch, so every moment lands on the note
+      x+=r;const a=Math.floor(x);if(a+1>=it.g.length)break;
       const v=it.g[a]*(1-(x-a))+it.g[a+1]*(x-a);
       const w=i<fade?i/fade:(i>n-fade?(n-i)/fade:1);
       out[s0+i]+=v*w*it.amp;
@@ -427,7 +431,13 @@ function renderSample(toks,grains,o,sr){
 }
 
 // ===== recording studio: chunks of 4 syllables in one breath, fixed order -> every syllable gets a label =====
+// basis: every consonant with a, e, i, o, u (89 sounds, 23 lines); extra: the diphthongs ai, ou, ay (10 lines), recorded later
+// into the same voice. Together they cover every sound the voice styles ask for (measured 2026-10-25). Lines: "c.v c.v c.v c.v".
+const SCRIPT_BASIS=['n.e m.i r.u sh.o','t.e d.i b.u p.a','r.e d.o s.i t.a','s.e p.i f.a m.o','p.e n.a g.u sh.i','d.e g.a w.u s.o','v.e b.a n.u g.i','h.a g.e p.o v.i','k.a m.ou z.e s.u','m.a .u b.e n.i','v.a h.o f.i j.e','z.a .o l.ai v.u','w.a g.o z.u sh.e','d.a r.o f.u v.ai','sh.a n.o t.u w.i','sh.u b.o s.a .i','l.a k.o t.i p.u','v.o z.i m.e h.u','b.i f.o k.e r.a','z.o .e k.i l.u','w.o r.i k.u l.e','w.e t.o l.i m.u','l.o f.e d.u .a'];
+const SCRIPT_EXTRA=['n.ai r.ou w.ai z.ou','s.ai k.ou sh.ay g.ou','g.ai v.ou k.ai .ou','d.ai s.ou k.ay j.ai','p.ai d.ou v.ay t.o','n.ou z.ai p.ou f.ai','b.ou t.u n.ay f.ou','r.ai w.ou t.ay m.ai','sh.ou .ai h.ou m.ay','l.ou b.ai d.ay sh.ai'];
+const SHOWC={j:'y'},SHOWV={a:'ah',e:'eh',i:'ee',o:'oh',u:'oo',ai:'ai',ou:'ow',ay:'ay'};
 function buildScript(kind){
+  if(kind==='basis'||kind==='extra')return (kind==='basis'?SCRIPT_BASIS:SCRIPT_EXTRA).map(l=>l.split(' ').map(s=>{const [c,v]=s.split('.');return {show:(SHOWC[c]??c)+SHOWV[v],c,v}}));
   const mk=list=>list.map(ch=>ch.split('-').map(t=>{const x=sylFromText(t.replace(/^y/,'j').replace(/^eye$/,'ai').replace(/^ow$/,'ou'));return {show:t,c:x.c,v:x.v}}));
   if(kind==='vemmo')return mk(['ve-sha-do-ka','va-shi-di-ta','vo-she-ke-nu','na-ma-mo-vay','shay-tay-kay-nay','voo-noo-doo-shoo','vi-ni-mi-ki','da-ko-to-sho','a-o-i-oo','ay-e-ve-di']);
   const pairs=[['p','t'],['k','b'],['d','g'],['f','v'],['s','z'],['sh','h'],['m','n'],['l','r'],['w','j']];
@@ -507,9 +517,35 @@ function analyzeScriptRecording(pcm,sr,kind,sched){
   return {ok:true,grains,chunkF0,median,fixed:ranges.fixed||0,expected:n};
 }
 function labelGrains(grains,script){const flat=script.flat();if(grains.length!==flat.length)return false;grains.forEach((g,i)=>{g.c=flat[i].c;g.v=flat[i].v});return true}
+// own voice: pitch every 10 ms, so a syllable that glides can be held on the intended note (renderSample, o.steady).
+// Analysed at ~12 kHz, searched within an octave of the voice's median (ref) to avoid octave and noise errors.
+function pitchTrack(g,sr,ref){
+  const D=Math.max(1,Math.floor(sr/12000)),fs=sr/D,n=Math.floor(g.length/D),x=new Float32Array(n);
+  for(let i=0;i<n;i++){let s=0;for(let j=0;j<D;j++)s+=g[i*D+j];x[i]=s/D}
+  const hop=Math.round(fs*.01),W=Math.round(fs*.04),lo=Math.max(2,Math.floor(fs/Math.min(700,ref*2))),hi=Math.ceil(fs/Math.max(55,ref/2));
+  const F=Math.floor((n-W-hi)/hop)+1;if(F<1)return null;
+  const f=new Float32Array(F),en=new Float32Array(F);let emax=0;
+  for(let k=0;k<F;k++){const o=k*hop;let e0=0;for(let i=0;i<W;i++)e0+=x[o+i]*x[o+i];en[k]=e0;emax=Math.max(emax,e0);if(!e0)continue;
+    let el=0;for(let i=0;i<W;i++)el+=x[o+lo+i]*x[o+lo+i];
+    const r=new Float32Array(hi+2);let bl=0,bv=0;
+    for(let lag=lo;lag<=hi;lag++){let s=0;for(let i=0;i<W;i++)s+=x[o+i]*x[o+i+lag];r[lag]=el>0?s/Math.sqrt(e0*el):0;if(r[lag]>bv){bv=r[lag];bl=lag}
+      el+=x[o+lag+W]*x[o+lag+W]-x[o+lag]*x[o+lag]}
+    if(bv<.6||bl<=lo||bl>=hi)continue;
+    const a=r[bl-1],b=r[bl],d=r[bl+1],den=a-2*b+d,p=den?.5*(a-d)/den:0;let hz=fs/(bl+p);
+    const st=12*Math.log2(hz/ref);if(Math.abs(st)>7){const h2=12*Math.log2(hz*2/ref),h1=12*Math.log2(hz/2/ref);hz=Math.abs(h2)<=7?hz*2:Math.abs(h1)<=7?hz/2:0}
+    f[k]=hz}
+  for(let k=0;k<F;k++)if(en[k]<emax*.05)f[k]=0; // too soft: consonant or silence
+  const v=[];for(let k=0;k<F;k++)if(f[k])v.push(k);if(!v.length)return null;
+  const lf=new Float32Array(F);for(let k=0;k<F;k++)lf[k]=f[k]?Math.log(f[k]):0;
+  const med=new Float32Array(F);for(let k=0;k<F;k++){if(!f[k])continue;const w=[];for(let j=k-2;j<=k+2;j++)if(j>=0&&j<F&&f[j])w.push(lf[j]);w.sort((p,q)=>p-q);med[k]=w[w.length>>1]}
+  let last=med[v[0]];for(let k=0;k<F;k++){if(med[k])last=med[k];else med[k]=last} // hold through unvoiced frames
+  const out=new Float32Array(F);for(let k=0;k<F;k++){let s=0,m=0;for(let j=k-1;j<=k+1;j++)if(j>=0&&j<F){s+=med[j];m++}out[k]=Math.exp(s/m)}
+  return {hop:hop*D,off:(W>>1)*D,f:out};
+}
 function pickGrain(grains,k,salt){
   const c=k.c||'',v=k.v||'a',vb=(VSPEC[v]||[v])[0];
   let pool=grains.filter(g=>g.v!==undefined&&g.c===c&&g.v===v);
+  const sp=(VSPEC[v]||[v]).join();if(!pool.length)pool=grains.filter(g=>g.v!==undefined&&g.c===c&&(VSPEC[g.v]||[g.v]).join()===sp); // same pronunciation: a = ah, i = ee, u = oo, ay = ei
   if(!pool.length)pool=grains.filter(g=>g.v!==undefined&&g.c===c&&(VSPEC[g.v]||[g.v])[0]===vb);
   if(!pool.length&&c)pool=grains.filter(g=>g.c===c);
   if(!pool.length)pool=grains.filter(g=>g.v!==undefined&&(VSPEC[g.v]||[g.v])[0]===vb);
@@ -665,4 +701,4 @@ function postFX(kind,pcm,sr,hiss=1){ // hiss: optional, scales the radio hiss an
   return {pcm,shift:0};
 }
 
-if(typeof module!=='undefined')module.exports={postFX,paletteLang,babyfy,makeAmbient,analyzeScriptRecording,studioSchedule,estimateF0,renderTone,segmentBySilence,scriptToks,buildScript,labelGrains,vemmoClip,INTENTS,ANCHORS,buildPhones,synthPhones,prosody,tokenize,makeLang,renderSynth,renderSample,analyzeGrains,MOODS};
+if(typeof module!=='undefined')module.exports={pitchTrack,postFX,paletteLang,babyfy,makeAmbient,analyzeScriptRecording,studioSchedule,estimateF0,renderTone,segmentBySilence,scriptToks,buildScript,labelGrains,vemmoClip,INTENTS,ANCHORS,buildPhones,synthPhones,prosody,tokenize,makeLang,renderSynth,renderSample,analyzeGrains,MOODS};
