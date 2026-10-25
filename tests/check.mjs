@@ -33,8 +33,12 @@ const BANNED = [
 ];
 const scan = (label, text) => BANNED.forEach(([re, name]) => { const m = text.match(re); if (m) fail('copy', `${label}: ${name} in "${m[0]}"`) });
 for (const lang of ['en', 'nl']) for (const [k, v] of Object.entries(STR[lang])) scan(`STR.${lang}.${k}`, v);
-// style descriptions and other copy outside STR live in app.js string literals: check those too
-for (const m of app.matchAll(/(en|nl):'((?:[^'\\]|\\.)*)'/g)) scan(`app.js ${m[1]}`, m[2]);
+// style and voice descriptions and other copy outside STR live in string literals in app.js and engine.js: check those too
+const engineSrc = read(path.join(SITE, 'src/engine.js'));
+for (const [file, src] of [['app.js', app], ['engine.js', engineSrc]]) {
+  for (const m of src.matchAll(/(en|nl):'((?:[^'\\]|\\.)*)'/g)) scan(`${file} ${m[1]}`, m[2]);
+  for (const m of src.matchAll(/V\('([^']*)','([^']*)','([^']*)'/g)) { scan(`${file} voice ${m[1]} en`, m[2]); scan(`${file} voice ${m[1]} nl`, m[3]) }
+}
 
 // ---------- pages ----------
 const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);

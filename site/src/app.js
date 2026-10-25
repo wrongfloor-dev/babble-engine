@@ -157,83 +157,7 @@ let LANGUI='en';try{const l=localStorage.getItem('bm.lang');if(l==='nl'||l==='en
 function t(k,v){let s=(STR[LANGUI]&&STR[LANGUI][k])||STR.en[k]||k;if(v)for(const x in v)s=s.split('{'+x+'}').join(v[x]);return s}
 const say=msg=>{const r=$('sr');r.textContent='';setTimeout(()=>r.textContent=msg,30)};
 
-const EMETA={
-  animal:{name:'Critter Chatter',rec:true,d:{en:'A sped-up voice: one quick blip per letter.',nl:'Een versnelde stem: één snelle klank per letter.'}},
-  sim:{name:'Babblish',rec:true,d:{en:'Made-up syllables carried by emotion, in a language that doesn’t exist.',nl:'Verzonnen lettergrepen gedragen door emotie, in een taal die niet bestaat.'}},
-  vemmo:{name:'Vemmo',rec:true,d:{en:'The language of De Workshopbende: fixed phrases plus improvisation per intent.',nl:'De taal van De Workshopbende: vaste uitdrukkingen plus improvisatie per bedoeling.'}},
-  grumble:{name:'Grumble',rec:true,d:{en:'Low mumbling on m, b and g. For monsters, trolls and grumpy farmers.',nl:'Laag gemompel op m, b en g. Voor monsters, trollen en chagrijnige boeren.'}},
-  gizmo:{name:'Gizmo',rec:true,d:{en:'Short, stepped robot syllables with a bit-crushed edge. For machines and drones.',nl:'Korte, getrapte robotlettergrepen met een bitcrush-randje. Voor machines en drones.'}},
-  sprite:{name:'Sprite',rec:true,d:{en:'High, quick whisper-talk: half breath, half voice. For fairies and tiny creatures.',nl:'Hoog en vlug fluisterpraten: half adem, half stem. Voor feeën en kleine wezentjes.'}},
-  echo:{name:'Echo Folk',rec:true,d:{en:'Every line sounds like a small group talking at once. For villages and crowds.',nl:'Elke regel klinkt als een groepje dat door elkaar praat. Voor dorpen en menigtes.'}},
-  radio:{name:'Mumble Radio',rec:true,d:{en:'Babble through a walkie-talkie, with hiss and squelch. For missions and dispatch.',nl:'Gebrabbel door een walkietalkie, met ruis en piepjes. Voor missies en meldkamers.'}},
-  baby:{name:'Babytalk',rec:true,d:{en:'Toddler babble with doubled syllables (ba-ba, da-da) on the melody of your line.',nl:'Peutergebrabbel met verdubbelde lettergrepen (ba-ba, da-da) op de melodie van je zin.'}},
-  tone:{name:'Soft Tones',rec:false,d:{en:'No voice: gentle tones that follow the melody of your text.',nl:'Geen stem: zachte tonen die de melodie van je tekst volgen.'}},
-  instr:{name:'Talking Instruments',rec:false,d:{en:'A muted horn or a soft choir speaks your text.',nl:'Een gedempte hoorn of een zacht koor spreekt je tekst uit.'}}
-};
 const SHORT={animal:['one blip per letter','één klank per letter'],sim:['made-up syllables','verzonnen lettergrepen'],vemmo:['De Workshopbende','De Workshopbende'],grumble:['low mumbling','laag gemompel'],gizmo:['robot syllables','robotlettergrepen'],sprite:['whisper-talk','fluisterpraten'],echo:['a small group','een groepje'],radio:['walkie-talkie','walkietalkie'],baby:['ba-ba, da-da','ba-ba, da-da'],tone:['gentle tones','zachte tonen'],instr:['horn and choir','hoorn en koor']};
-const ENGINE_ORDER=['animal','sim','vemmo','grumble','gizmo','sprite','echo','radio','baby','tone','instr'];
-const FX={grumble:'grumble',gizmo:'gizmo',sprite:'sprite',radio:'radio'};
-const V=(name,en,nl,p)=>Object.assign({name,d:{en,nl}},p);
-const ENGINES={
-  animal:{voices:{
-    fern:V('Fern','cheerful, high','vrolijk, hoog',{pitch:360,speed:1.6,expr:.45,form:1,breath:.06,tilt:.55,oq:.56,jit:1,rate:2}),
-    burt:V('Burt','grumpy, low','chagrijnig, laag',{pitch:150,speed:1.25,expr:.25,form:.92,breath:.08,tilt:.4,oq:.5,jit:1.3,rate:1.5}),
-    pip:V('Pip','tiny, super fast','piepklein, razendsnel',{pitch:620,speed:2,expr:.55,form:1.05,breath:.04,tilt:.6,oq:.55,jit:1,rate:2.6}),
-    lowell:V('Lowell','posh, measured','deftig, afgemeten',{pitch:230,speed:1.15,expr:.3,form:1,breath:.06,tilt:.45,oq:.58,jit:1,rate:1.7}),
-    bleep:V('Bleep','little robot, stepped','robotje, gestapt',{pitch:260,speed:1.5,expr:.3,form:1,breath:0,tilt:.7,oq:.5,jit:0,rate:2,quant:true})}},
-  sim:{voices:{
-    lottie:V('Lottie','young woman','jonge vrouw',{pitch:215,speed:1,expr:.7,form:1.12,breath:.2,tilt:.45,oq:.65,jit:1}),
-    ben:V('Ben','young man','jonge man',{pitch:112,speed:.95,expr:.65,form:.92,breath:.14,tilt:.38,oq:.58,jit:1}),
-    kiki:V('Kiki','child, bouncy','kind, stuiterend',{pitch:320,speed:1.12,expr:.85,form:1.3,breath:.12,tilt:.5,oq:.62,jit:1}),
-    hank:V('Grandpa Hank','older, shaky','ouder, beverig',{pitch:135,speed:.82,expr:.5,form:.95,breath:.32,tilt:.3,oq:.68,jit:2.2,vib:true}),
-    whisper:V('Whisper','breathy, no voice','alleen adem, geen stem',{pitch:180,speed:.9,expr:.6,form:1.05,breath:.3,tilt:.35,oq:.65,jit:1,whisper:true}),
-    bubs:V('Bubs','baby, babbling','baby, brabbelend',{pitch:420,speed:.9,expr:.95,form:1.55,breath:.1,tilt:.5,oq:.62,jit:1})}},
-  vemmo:{voices:{
-    jesse:V('Jesse','tutorial · warm, lively','tutorial · warm, levendig',{pitch:225,speed:1.05,expr:.7,form:1.12,breath:.16,tilt:.45,oq:.62,jit:1}),
-    bram:V('Farmer Bram','fort · calm, low','fort · rustig, laag',{pitch:105,speed:.86,expr:.45,form:.9,breath:.18,tilt:.35,oq:.58,jit:1.1}),
-    mila:V('Mila','fort · bright, quick','fort · helder, vlot',{pitch:250,speed:1.15,expr:.7,form:1.16,breath:.12,tilt:.55,oq:.6,jit:1})}},
-  grumble:{voices:{
-    grok:V('Grok','troll, very low','trol, heel laag',{pitch:78,speed:.85,expr:.45,form:.78,breath:.22,tilt:.3,oq:.55,jit:1.4}),
-    moss:V('Mossbeard','old swamp creature, shaky','oud moeraswezen, beverig',{pitch:96,speed:.75,expr:.4,form:.82,breath:.3,tilt:.28,oq:.62,jit:2.2,vib:true}),
-    burly:V('Burly','gruff farmer','norse boer',{pitch:112,speed:1,expr:.5,form:.86,breath:.18,tilt:.35,oq:.56,jit:1.2})}},
-  gizmo:{voices:{
-    bolt:V('Bolt','helpful bot','behulpzame robot',{pitch:220,speed:1.25,expr:.5,form:1,breath:0,tilt:.65,oq:.5,jit:0,quant:true}),
-    cog:V('Cog','tiny drone, fast','klein droontje, snel',{pitch:420,speed:1.6,expr:.55,form:1.2,breath:0,tilt:.7,oq:.5,jit:0,quant:true}),
-    unit9:V('Unit 9','deep, serious machine','diepe, serieuze machine',{pitch:118,speed:.95,expr:.35,form:.9,breath:0,tilt:.55,oq:.5,jit:0,quant:true})}},
-  sprite:{voices:{
-    fae:V('Fae','light and playful','licht en speels',{pitch:310,speed:1.45,expr:.75,form:1.38,breath:.45,tilt:.6,oq:.66,jit:1}),
-    wisp:V('Wisp','tiny, almost only breath','piepklein, bijna alleen adem',{pitch:470,speed:1.75,expr:.7,form:1.5,breath:.58,tilt:.65,oq:.7,jit:1}),
-    glimmer:V('Glimmer','warm forest spirit','warme bosgeest',{pitch:260,speed:1.25,expr:.65,form:1.25,breath:.38,tilt:.5,oq:.66,jit:1})}},
-  echo:{voices:{
-    village:V('Village','mixed group, chatty','gemengd groepje, kletsend',{pitch:190,speed:1,expr:.7,form:1.05,breath:.16,tilt:.42,oq:.62,jit:1}),
-    crowd:V('Crowd','deeper voices, busy','lagere stemmen, druk',{pitch:140,speed:.95,expr:.6,form:.95,breath:.18,tilt:.38,oq:.6,jit:1.2}),
-    kids:V('Kids','a group of children','een groepje kinderen',{pitch:300,speed:1.1,expr:.85,form:1.3,breath:.12,tilt:.5,oq:.62,jit:1})}},
-  radio:{voices:{
-    dispatch:V('Dispatch','calm and clipped','rustig en kortaf',{pitch:175,speed:1.1,expr:.45,form:1.02,breath:.1,tilt:.5,oq:.58,jit:1}),
-    pilot:V('Pilot','low and steady','laag en stabiel',{pitch:118,speed:1,expr:.4,form:.92,breath:.12,tilt:.45,oq:.56,jit:1}),
-    scout:V('Scout','excited, a bit fast','opgewonden, wat snel',{pitch:240,speed:1.3,expr:.75,form:1.1,breath:.14,tilt:.55,oq:.6,jit:1})}},
-  baby:{voices:{
-    tot:V('Tot','toddler, curious','peuter, nieuwsgierig',{pitch:380,speed:.95,expr:.95,form:1.52,breath:.1,tilt:.5,oq:.64,jit:1}),
-    bubba:V('Bubba','chubby baby, giggly','mollige baby, giechelig',{pitch:330,speed:.85,expr:1,form:1.48,breath:.12,tilt:.45,oq:.66,jit:1.2}),
-    mini:V('Mini','tiny and high','heel klein en hoog',{pitch:460,speed:1.05,expr:.9,form:1.58,breath:.08,tilt:.55,oq:.62,jit:1})}},
-  tone:{voices:{
-    clouds:V('Clouds','slow, airy pad that drifts','trage, luchtige klankwolk',{pitch:330,speed:.85,expr:.45,form:1,breath:0,tilt:.3,tone:'clouds'}),
-    softbubble:V('Soft Bubbles','round bubbles in pairs','ronde bubbels in paartjes',{pitch:480,speed:.95,expr:.55,form:1,breath:0,tilt:.35,tone:'softbubble'}),
-    rain:V('Raindrops','tiny drops, a few at a time','kleine druppels, een paar tegelijk',{pitch:420,speed:1,expr:.5,form:1,breath:0,tilt:.45,tone:'rain'}),
-    breeze:V('Breeze','soft pitched wind','zacht windje op toon',{pitch:300,speed:.9,expr:.5,form:1,breath:0,tilt:.4,tone:'breeze'}),
-    hum:V('Hum','closed-mouth mmm','neuriën met gesloten mond',{pitch:200,speed:.95,expr:.5,form:1,breath:0,tilt:.3,tone:'hum'}),
-    purr:V('Purr','gentle, warm purring','zacht, warm spinnen',{pitch:180,speed:.9,expr:.35,form:1,breath:0,tilt:.3,tone:'purr'}),
-    wood:V('Wood','soft wooden taps','zachte houten tikjes',{pitch:400,speed:1,expr:.55,form:1,breath:0,tilt:.45,tone:'wood'}),
-    droplet:V('Droplet','round water bloops','ronde waterdruppels',{pitch:520,speed:1,expr:.6,form:1,breath:0,tilt:.5,tone:'droplet'}),
-    kalimba:V('Kalimba','warm plucked tines','warme getokkelde tongetjes',{pitch:440,speed:1,expr:.55,form:1,breath:0,tilt:.55,tone:'kalimba'}),
-    felt:V('Felt Keys','soft and round','zacht en rond',{pitch:330,speed:.95,expr:.5,form:1,breath:0,tilt:.35,tone:'felt'}),
-    bubble:V('Pops','tiny rising pops','kleine stijgende popjes',{pitch:600,speed:1.1,expr:.6,form:1,breath:0,tilt:.5,tone:'bubble'}),
-    glass:V('Glass','airy chimes','luchtige klokjes',{pitch:660,speed:.9,expr:.5,form:1,breath:0,tilt:.6,tone:'glass'})}},
-  instr:{voices:{
-    horn:V('Muted Horn','trumpet with a wah mute','trompet met wah-demper',{pitch:330,speed:1,expr:.7,form:1,breath:0,tilt:.55,tone:'horn'}),
-    trombone:V('Trombone','low, wobbly wah','laag, wiebelende wah',{pitch:140,speed:.9,expr:.7,form:1,breath:0,tilt:.45,tone:'trombone'}),
-    choir:V('Ooh Choir','three soft voices','drie zachte stemmen',{pitch:262,speed:.9,expr:.5,form:1,breath:0,tilt:.45,tone:'choir'})}}
-};
 const MOODNAME={neutraal:['Neutral','Neutraal'],blij:['Happy','Blij'],boos:['Angry','Boos'],verdrietig:['Sad','Verdrietig'],flirterig:['Flirty','Flirterig'],verbaasd:['Surprised','Verbaasd']};
 const INTENTNAME={greet:['Greet','Begroeten','Warm and open. The melody rises and falls.','Warm en open. De melodie gaat omhoog en weer omlaag.'],
   bye:['Goodbye','Afscheid','Soft and content, slowly falling.','Zacht en tevreden, langzaam dalend.'],tell:['Tell','Vertellen','Neutral, a flat melody with a slight fall.','Neutraal, een vlakke melodie met een lichte daling.'],
@@ -267,12 +191,11 @@ function init(){
   ctx=new (window.AudioContext||window.webkitAudioContext)();
   out=ctx.createGain();an=ctx.createAnalyser();an.fftSize=1024;out.connect(an);
   const len=Math.floor(ctx.sampleRate*.5),ir=ctx.createBuffer(2,len,ctx.sampleRate);irData=[];
-  for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++){const tt=i/len;d[i]=(Math.random()*2-1)*Math.pow(1-tt,3.2)*(i<ctx.sampleRate*.008?.2:1)}irData.push(d.slice())}
+  roomIR(ctx.sampleRate).forEach((d,c)=>{ir.getChannelData(c).set(d);irData.push(d)});
   const conv=ctx.createConvolver();conv.buffer=ir;wet=ctx.createGain();wet.gain.value=wetFor(st.engine);
   const shelf=ctx.createBiquadFilter();shelf.type='highshelf';shelf.frequency.value=6000;shelf.gain.value=-3;
   out.connect(shelf);shelf.connect(ctx.destination);shelf.connect(conv);conv.connect(wet);wet.connect(ctx.destination);
 }
-const wetFor=e=>({tone:.34,instr:.24,echo:.3,sprite:.28,radio:.03,gizmo:.08}[e]??.16);
 async function ready(){init();if(ctx.state==='suspended'){try{await ctx.resume()}catch(e){}}}
 // one player at a time across the whole app: no overlapping audio
 const P={src:null,owner:null,startAt:0,offset:0,buf:null,onend:null,raf:0};
@@ -326,13 +249,7 @@ function voiceObj(){const c=C();if(c.voice.startsWith('own:')){const ov=ownVoice
   return {preset:ENGINES[st.engine].voices[c.voice]}}
 function settingsKey(){const c=C();return JSON.stringify([st.engine,c.voice,st.engine==='vemmo'?c.intent:c.mood,st.engine==='vemmo'?[c.len,c.anc]:0,c.sl,$('txt').value,st.engine==='sim'?st.langSeed:0,HISS,STEADY])}
 function lenFor(){const c=C();return c.len!=='auto'?c.len:($('txt').value.trim().length<=45?'short':'medium')}
-function opts(){
-  const c=C(),vo=voiceObj(),pv=vo.preset;
-  const o={engine:st.engine,mood:st.engine==='vemmo'?c.intent:c.mood,P:c.sl.pitch,S:c.sl.speed,E:c.sl.expr,F:c.sl.form,breath:c.sl.breath,tilt:c.sl.tilt,
-    hiss:HISS,oq:pv.oq,jit:pv.jit,rate:pv.rate||1,vib:!!pv.vib,quant:!!pv.quant,whisper:!!pv.whisper,tone:pv.tone,base:pv.pitch};
-  if(vo.own){o.recF0=vo.own.median;o.steady=STEADY;o.base=ENGINES[st.engine].voices[Object.keys(ENGINES[st.engine].voices)[0]].pitch}
-  return o;
-}
+function opts(){const c=C(),vo=voiceObj();return styleOpts(st.engine,vo.preset,{mood:st.engine==='vemmo'?c.intent:c.mood,sl:c.sl,hiss:HISS,own:vo.own,steady:STEADY})}
 // ---------- generation ----------
 function buildTokens(variant){
   const c=C();
@@ -347,19 +264,7 @@ function buildTokens(variant){
   if(c2.salt)toks.forEach(k=>{if(k.jit!==undefined)k.jit=(k.jit+c2.salt)%1});
   return toks;
 }
-function render(toks){
-  const o=opts(),vo=voiceObj(),sr=ctx.sampleRate,tk=toks.map(x=>({...x}));
-  const one=(tk2,o2)=>vo.own?renderSample(tk2,vo.own.grains,o2,sr):renderSynth(tk2,o2,sr);
-  let r;if(st.engine==='tone'||st.engine==='instr')return renderTone(tk,o,sr);
-  if(st.engine==='echo'){ // the same line by four voices, slightly apart in pitch, speed and timing
-    const L=[[1,1,0,1],[.84,.97,.021,.7],[1.19,1.03,.037,.62],[.71,.95,.011,.5]],parts=L.map(([pm,sm,off,a],n)=>{const t2=toks.map(x=>({...x,jit:x.jit===undefined?x.jit:(x.jit+n*.29)%1}));return {r:one(t2,{...o,P:o.P*pm,S:o.S*sm}),off,a}});
-    const N=Math.max(...parts.map(p=>p.r.pcm.length+Math.ceil(p.off*sr))),mix=new Float32Array(N);
-    parts.forEach(p=>{const s0=Math.ceil(p.off*sr);for(let i=0;i<p.r.pcm.length;i++)mix[s0+i]+=p.r.pcm[i]*p.a});
-    let m=0;for(const v of mix)m=Math.max(m,Math.abs(v));for(let i=0;i<N;i++)mix[i]*=.85/(m||1);return {pcm:mix,marks:parts[0].r.marks}}
-  r=one(tk,o);
-  if(FX[st.engine]){const f=postFX(FX[st.engine],r.pcm,sr,HISS);let m=0;for(const v of f.pcm)m=Math.max(m,Math.abs(v));if(m>0)for(let i=0;i<f.pcm.length;i++)f.pcm[i]*=.85/m;r={pcm:f.pcm,marks:r.marks.map(([tt,i])=>[tt+f.shift,i])}}
-  return r;
-}
+function render(toks){const vo=voiceObj();return renderStyle(st.engine,toks,opts(),ctx.sampleRate,vo.own&&vo.own.grains)}
 async function generate(variant){
   if(st.busy)return;await ready();pStop();
   if(variant&&st.engine==='vemmo')C().take=Math.floor(Math.random()*1e6);saveCfg();

@@ -6,14 +6,18 @@ Gibberish / fictional speech generator for games. Plain HTML + vanilla JS, no bu
 Everything that goes online lives in `site/` (Cloudflare Workers static assets, `wrangler.jsonc`). `dossier/`, `metingen/`, `tests/` and this file stay out.
 - `site/index.html` – markup for all views (make, my voices, studio steps 1–3, dialogs)
 - `site/src/styles.css` – design tokens and styles. Look (redesign D, 2026-10-25): warm paper and ink outlines with a hard shadow, light by default with a dark variant; per style `body.e-*` sets `--accL/--accD` (accent, 5:1 or more with its text colour) and `--tintL/--tintD` (stage); Figtree UI font, Bagel Fat One for the logo, names and panel headings. Make screen: style cards with a mini critter (`MINI` in app.js), voices, then line and stage side by side at one height, player strip fixed at the bottom of the stage, settings below (this voice / all styles). Fonts are self-hosted in `site/fonts/` (woff2, SIL OFL; license files next to them)
-- `site/src/engine.js` – all audio synthesis and analysis, no DOM. Also loadable in Node (`module.exports` at the bottom) for tests.
+- `site/src/engine.js` – all audio synthesis and analysis, no DOM. One source for the tool and the web module: loads as a plain script (global `Babble`), as CommonJS (`module.exports` at the bottom) and from `babble.mjs`.
   - `tokenize`, `prosody`, `renderSynth` (formant synthesis), `renderSample` (own-voice playback), `renderTone` (Soft Tones + Talking Instruments)
   - Vemmo: `INTENTS`, `ANCHORS`, `vemmoClip`
-  - Extra voice styles: `PALETTES` + `paletteLang` (Grumble, Gizmo, Sprite, Babytalk), `babyfy`, `postFX` (grumble, gizmo, sprite, radio). Echo Folk mixes four renders in `app.js` → `render()`.
+  - Extra voice styles: `PALETTES` + `paletteLang` (Grumble, Gizmo, Sprite, Babytalk), `babyfy`, `postFX` (grumble, gizmo, sprite, radio)
+  - Styles and voices (2026-10-25, moved from app.js): `EMETA`, `ENGINE_ORDER`, `ENGINES`, `FX`, `wetFor`, `roomIR`. `styleOpts` + `renderStyle` are the render path (Echo Folk mixes four renders there); app.js `opts()`/`render()` call them. Moved bit-identical: 94 reference renders matched.
+  - Seed: every noise call goes through `RND` (Math.random by default). `Babble.render` swaps in a seeded generator for one call, so the tool's sound is unchanged.
+  - Web module API (`Babble`, version `BABBLE_VERSION` = `package.json`): `render(text, options)` → `{pcm, sampleRate, duration, syllables, style, voice}`, `toWav`, `play` (browser, with room), `styles`. English mood names map to the Dutch keys in `MOODS` (`MOOD_ALIAS`). `site/src/babble.mjs` re-exports it as an ES module, `site/src/engine.d.ts` has the types, `package.json` lets people `npm i github:wrongfloor-dev/babble-engine`. Docs: `README.md`.
   - Studio: `buildScript`, `studioSchedule`, `analyzeScriptRecording`, `splitChunk`, `estimateF0`, `makeAmbient`
   - Recording rounds (2026-10-25): `basis` (every consonant × a/e/i/o/u, 23 lines, 92 sounds, ~1:35) for a new voice, `extra` (diphthongs ai/ou/ay, 10 lines, ~0:42) added later to the same voice from My voices. Together they cover every sound the voice styles ask for. `algemeen`/`vemmo` stay only so older voices and uploads keep working. Vowels with the same `VSPEC` (a=ah, i=ee, u=oo, ay=ei) count as the same sound in `pickGrain`.
   - Own voice pitch: `pitchTrack` follows each syllable's pitch every 10 ms; `renderSample` option `steady` (0–1, slider "Pitch steadiness", `bm.steady`) holds it on the melody. Without it the output is unchanged.
 - Variants and characters (2026-10-25): per style, `cur()` is the latest result and `SV()` the variants saved with "+ Save variant" (each keeps its settings; clicking one plays it and restores them, × removes it; session only). "Save as character" stores style, voice, emotion, sliders, variation (`salt`/`take`) and language seed in `localStorage` `bm.chars`; characters show under Voice and in My voices. Keep UI copy short.
+- `docs/art/`: the README pictures. SVG with the site fonts embedded, made by `node docs/art/make-art.cjs` (run it again after changing styles, voices or the critters in app.js); `tool.png` is a screenshot of the tool.
 - `site/src/app.js` – UI: i18n (EN/NL in `STR`), make screen, voices storage (IndexedDB `babble-machine`/`voices`: the old name is kept on purpose so voices saved earlier stay available), studio (mic, prompter, recorder)
 
 ## Rules
@@ -28,7 +32,8 @@ Everything that goes online lives in `site/` (Cloudflare Workers static assets, 
 
 ## Run / test
 - Serve `site/` locally: `npx wrangler dev` (applies `_headers` and the 404 page) or `python3 -m http.server -d site`, then open http://localhost:8787 or :8000 (microphone needs http(s), not file://).
-- Build check, no dependencies: `node tests/check.mjs` (STR keys EN = NL, banned writing patterns, links, sitemap, strict-CSP readiness, headers). Engine render checks follow in phase 1.
+- Build check, no dependencies: `node tests/check.mjs` (STR keys EN = NL, banned writing patterns in STR and in the style and voice descriptions in app.js and engine.js, links, sitemap, strict-CSP readiness, headers).
+- Engine check: `node tests/engine.mjs` (every voice renders without NaN, syllable times in order, same seed same sound, clear errors for bad options, valid WAV, `babble.mjs` exports, version = `package.json`). Both: `npm test`.
 - Browser tests (Playwright, Chromium with a fake microphone): `tests/make_screen.py`, `tests/studio.py`. **Out of date** (2026-10-25): they target an older UI (`#voiceSel`, `brabbel.html`, `pw.py`) and a single-file `t2.html`; rewrite them against `site/` via a local server.
 - The fake microphone is a test tone, not a voice: real voice recording still needs a manual check.
 
@@ -42,7 +47,7 @@ Project folder following the Wrong Floor method. Research and decisions live in 
 | Goal | build further: integrations (web → Godot) as a free Wrong Floor product, distributed from one public GitHub repo, plus one link-only itch.io listing (no npm, no itch.io uploads, no Unity); usage by game developers leads, proof for pitches and later income follow |
 | Domain | babble.wrongfloor.studio (Cloudflare custom domain via `wrangler.jsonc`); the first address babbleengine.wrongfloor.studio redirects there (301, Cloudflare Redirect Rule) |
 | Ownership confirmed | yes (2026-10-25, Raoul) |
-| Code | this folder; public repo https://github.com/wrongfloor-dev/babble-engine (public and still empty on 2026-10-25) |
+| Code | this folder; public repo https://github.com/wrongfloor-dev/babble-engine (public) |
 | Should deliver | usage: web engine use per week (jsDelivr) and Godot Asset Library downloads (`dossier/meting.md`) |
 | License | code MIT; generated audio free to use, also commercially |
 | Brand | own brand Babble Engine, credited "by Wrong Floor" |
@@ -68,7 +73,7 @@ Project folder following the Wrong Floor method. Research and decisions live in 
 |---|---|---|
 | 000 Is there something to win? | done (2026-10-25, verdict by Raoul: build pays off) | `dossier/000-kans.md` |
 | 0 Measurement | plan written; Search Console verified for babble.wrongfloor.studio (Domain property, 2026-10-25); jsDelivr stats follow with the engine module | `dossier/meting.md` |
-| 1 Design and build | build brief done (2026-10-25); design basis written | `dossier/bouwbrief.md`, `dossier/ontwerp.md` |
-| 2 Security, SEO, GEO, EU (domain scan; not a security review of the app) | app security review done; live since 2026-10-25 with enforced CSP; first domain scan 2026-10-25: attention, 3 points (http without redirect, AI training not reserved, no privacy note) | `dossier/beveiliging.md`, `scans/2026-10-25.md` |
+| 1 Design and build | tool live (2026-10-25). Phase 1 web module: engine API, ES module, types, package.json, README, tests done (2026-10-25); open: release tag v1.0.0, demo web game, own-voice export format. Phase 2 Godot after that | `dossier/bouwbrief.md`, `dossier/ontwerp.md` |
+| 2 Security, SEO, GEO, EU (domain scan; not a security review of the app) | app security review done; live since 2026-10-25 with enforced CSP; domain scan of babble.wrongfloor.studio 2026-10-25: green (https redirect, privacy page, AI training allowed by choice) | `dossier/beveiliging.md`, `scans/2026-10-25.md` |
 | 3 Performance | first lab measurement 2026-10-25: green, 1 small point (render-blocking scripts, advised to leave); no real-visitor data yet | `metingen/snelheid-2026-10-25.md` |
 | 4 Text and design | done (2026-10-25): redesign D, text check and accessibility check applied | `dossier/ontwerpronde.md`, `dossier/tekstcontrole.md` |
