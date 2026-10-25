@@ -67,7 +67,7 @@ Project folder following the Wrong Floor method. Research and decisions live in 
 | Step | Status | Where |
 |---|---|---|
 | 000 Is there something to win? | done (2026-10-25, verdict by Raoul: build pays off) | `dossier/000-kans.md` |
-| 0 Measurement | plan written (2026-10-25); set up before launch | `dossier/meting.md` |
+| 0 Measurement | plan written; Search Console verified for babble.wrongfloor.studio (Domain property, 2026-10-25); jsDelivr stats follow with the engine module | `dossier/meting.md` |
 | 1 Design and build | build brief done (2026-10-25); design basis written | `dossier/bouwbrief.md`, `dossier/ontwerp.md` |
 | 2 Security, SEO, GEO, EU (domain scan; not a security review of the app) | app security review done; live since 2026-10-25 with enforced CSP; first domain scan 2026-10-25: attention, 3 points (http without redirect, AI training not reserved, no privacy note) | `dossier/beveiliging.md`, `scans/2026-10-25.md` |
 | 3 Performance | first lab measurement 2026-10-25: green, 1 small point (render-blocking scripts, advised to leave); no real-visitor data yet | `metingen/snelheid-2026-10-25.md` |
