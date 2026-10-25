@@ -198,12 +198,12 @@ function buildPhones(toks,o,sr){
   const P=o.P/R;
   const nextVowelF=(v)=>VF[(VSPEC[v]||[v])[0]]||VF.a;
   const cons=(c,vF,amp,coda)=>{
-    const C=CT[c];if(!C)return;const [cl,ff,fb,voiced,loc]=C;const s=animal?.45:1,nk=animal?(cl==='fri'?.28:cl==='h'?.32:.38):1;
+    const C=CT[c];if(!C)return;const [cl,ff,fb,voiced,loc]=C;const s=animal?.45:1,hz=o.hiss??1,nk=(animal?(cl==='fri'?.28:cl==='h'?.32:.38):1)*hz; // hiss: optional, scales consonant noise (default 1 = unchanged)
     const locF=[voiced?260:320,loc,vF[2],vF[3]];
     if(cl==='plo'){
       add(.045*s*ts,{F:locF,B:[90,110,170,250],av:voiced?.12:0,ah:0,af:0},.02,.008);
       add(.012*s*ts+.004,{F:locF,av:voiced?.25:0,ah:.12*nk,af:.42*nk,ff,fb},.004,.006);
-      if(!voiced)add((coda?.02:.038)*s*ts,{F:[vF[0]*.8,(loc+vF[1])/2,vF[2],vF[3]],av:0,ah:.5*nk,af:.03,ff,fb},.02,.008);
+      if(!voiced)add((coda?.02:.038)*s*ts,{F:[vF[0]*.8,(loc+vF[1])/2,vF[2],vF[3]],av:0,ah:.5*nk,af:.03*hz,ff,fb},.02,.008);
     }else if(cl==='fri'){
       add(.075*s*ts,{F:locF,B:[90,110,170,250],av:voiced?.35:0,ah:0,af:(voiced?.5:.68)*nk,ff,fb},.025,animal?.03:.02);
     }else if(cl==='h'){
@@ -646,7 +646,7 @@ function biquad(pcm,type,f,q,sr){
   if(type==='lp'){b0=(1-cw)/2;b1=1-cw;b2=(1-cw)/2}else if(type==='hp'){b0=(1+cw)/2;b1=-(1+cw);b2=(1+cw)/2}else{b0=al;b1=0;b2=-al}
   let x1=0,x2=0,y1=0,y2=0;for(let i=0;i<pcm.length;i++){const x=pcm[i],y=(b0*x+b1*x1+b2*x2-a1*y1-a2*y2)/a0;x2=x1;x1=x;y2=y1;y1=y;pcm[i]=y}return pcm;
 }
-function postFX(kind,pcm,sr){
+function postFX(kind,pcm,sr,hiss=1){ // hiss: optional, scales the radio hiss and squelch (default 1 = unchanged)
   if(kind==='grumble'){biquad(pcm,'lp',2600,.7,sr);for(let i=0;i<pcm.length;i++)pcm[i]=Math.tanh(pcm[i]*1.6)/1.3;return {pcm,shift:0}}
   if(kind==='gizmo'){ // lower sample rate and bit depth, then take the sharpest edge off
     const hold=Math.max(1,Math.round(sr/9000));let h=0;for(let i=0;i<pcm.length;i++){if(i%hold===0)h=pcm[i];pcm[i]=Math.round(h*24)/24}
@@ -658,9 +658,9 @@ function postFX(kind,pcm,sr){
     let m=0;for(const v of pcm)m=Math.max(m,Math.abs(v));const g=m>0?1/m:1;
     for(let i=0;i<pcm.length;i++)pcm[i]=Math.tanh(pcm[i]*g*2.2);biquad(pcm,'hp',420,.8,sr);biquad(pcm,'lp',2900,.9,sr);
     const pre=Math.round(sr*.16),post=Math.round(sr*.2),o=new Float32Array(pre+pcm.length+post);let hz=0;
-    for(let i=0;i<o.length;i++){hz+=((Math.random()*2-1)-hz)*.5;o[i]=hz*.025}
+    for(let i=0;i<o.length;i++){hz+=((Math.random()*2-1)-hz)*.5;o[i]=hz*.025*hiss}
     const sq=(at,len,amp)=>{let z=0;for(let i=0;i<len;i++){z+=((Math.random()*2-1)-z)*.6;const e=Math.sin(Math.PI*i/len);o[at+i]+=z*amp*e}};
-    sq(0,Math.round(sr*.12),.32);sq(pre+pcm.length+Math.round(sr*.03),Math.round(sr*.15),.3);
+    sq(0,Math.round(sr*.12),.32*hiss);sq(pre+pcm.length+Math.round(sr*.03),Math.round(sr*.15),.3*hiss);
     for(let i=0;i<pcm.length;i++)o[pre+i]+=pcm[i]*.55;return {pcm:o,shift:pre/sr}}
   return {pcm,shift:0};
 }

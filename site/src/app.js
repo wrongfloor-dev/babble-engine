@@ -24,7 +24,7 @@ const STR={en:{
 'adv.pitch':'Pitch','adv.pitchH':'Higher or lower voice.','adv.note':'Base note','adv.noteH':'The note the melody starts from.',
 'adv.speed':'Tempo','adv.speedH':'How fast the line is spoken.','adv.expr':'Expression','adv.exprH':'How much the melody moves up and down.',
 'adv.range':'Melody range','adv.rangeH':'How far the notes move from the base note.','adv.form':'Throat size','adv.formH':'Larger sounds deeper and fuller, smaller sounds brighter.',
-'adv.breath':'Breath','adv.breathH':'More breath sounds hoarser and softer.','adv.tilt':'Brightness','adv.tiltH':'Duller or brighter sound.',
+'adv.breath':'Breath','adv.breathH':'More breath sounds hoarser and softer.','adv.tilt':'Brightness','adv.tiltH':'Duller or brighter sound.','adv.hiss':'Consonant hiss','adv.hissH':'The sss and kh of consonants, and the radio crackle. Lower it for a cleaner voice.',
 'adv.amb':'Background sound','adv.ambOff':'Off','adv.ambRain':'Rain','adv.ambBreeze':'Breeze','adv.ambWaves':'Waves','adv.ambLvl':'Background level',
 'adv.ambH':'Plays along while you listen. It is not part of the download.','adv.lang':'Language','adv.newLang':'New language',
 'adv.langH':'Babblish turns every word into fixed made-up syllables. A new language changes which syllables it uses.',
@@ -92,7 +92,7 @@ nl:{
 'adv.pitch':'Toonhoogte','adv.pitchH':'Hogere of lagere stem.','adv.note':'Grondtoon','adv.noteH':'De noot waar de melodie vanuit gaat.',
 'adv.speed':'Tempo','adv.speedH':'Hoe snel de regel wordt uitgesproken.','adv.expr':'Expressie','adv.exprH':'Hoeveel de melodie op en neer gaat.',
 'adv.range':'Melodiebereik','adv.rangeH':'Hoe ver de noten van de grondtoon af gaan.','adv.form':'Keelgrootte','adv.formH':'Groter klinkt dieper en voller, kleiner klinkt helderder.',
-'adv.breath':'Adem','adv.breathH':'Meer adem klinkt heser en zachter.','adv.tilt':'Helderheid','adv.tiltH':'Doffere of helderdere klank.',
+'adv.breath':'Adem','adv.breathH':'Meer adem klinkt heser en zachter.','adv.tilt':'Helderheid','adv.tiltH':'Doffere of helderdere klank.','adv.hiss':'Medeklinkerruis','adv.hissH':'De sss en kh van medeklinkers, en het geknetter van de radio. Lager geeft een schonere stem.',
 'adv.amb':'Achtergrondgeluid','adv.ambOff':'Uit','adv.ambRain':'Regen','adv.ambBreeze':'Wind','adv.ambWaves':'Golven','adv.ambLvl':'Niveau achtergrond',
 'adv.ambH':'Speelt mee tijdens het luisteren. Het zit niet in de download.','adv.lang':'Taal','adv.newLang':'Nieuwe taal',
 'adv.langH':'Babblish maakt van elk woord vaste verzonnen lettergrepen. Een nieuwe taal verandert welke lettergrepen dat zijn.',
@@ -291,6 +291,8 @@ const fmtDur=s=>{s=Math.max(0,s);const m=Math.floor(s/60),r=Math.round(s-m*60);r
 // ---------- 2b. make screen state ----------
 const st={engine:'animal',view:'make',cfg:{},langSeed:Math.floor(Math.random()*1e6),hist:[],hi:-1,busy:false,voices:[],storeOK:null};
 let LANG=makeLang(st.langSeed);
+// consonant hiss: one setting for all styles and voices (1 = the original sound)
+let HISS=1;try{const h=parseFloat(localStorage.getItem('bm.hiss'));if(h>=0&&h<=1)HISS=h}catch(e){}
 function defCfg(e){const k=Object.keys(ENGINES[e].voices)[0],v=ENGINES[e].voices[k];const s={};SLIDERS.forEach(x=>s[x]=v[x]);
   return {voice:k,mood:'neutraal',intent:'greet',len:'auto',anc:'auto',sl:s,take:Math.floor(Math.random()*1e6)}}
 ENGINE_ORDER.forEach(e=>st.cfg[e]=defCfg(e));
@@ -300,12 +302,12 @@ function saveCfg(){try{localStorage.setItem('bm.cfg',JSON.stringify({engine:st.e
 const ownVoice=id=>st.voices.find(v=>v.id===id);
 function voiceObj(){const c=C();if(c.voice.startsWith('own:')){const ov=ownVoice(c.voice.slice(4));if(ov)return {own:ov,preset:ENGINES[st.engine].voices[Object.keys(ENGINES[st.engine].voices)[0]]};c.voice=Object.keys(ENGINES[st.engine].voices)[0]}
   return {preset:ENGINES[st.engine].voices[c.voice]}}
-function settingsKey(){const c=C();return JSON.stringify([st.engine,c.voice,st.engine==='vemmo'?c.intent:c.mood,st.engine==='vemmo'?[c.len,c.anc]:0,c.sl,$('txt').value,st.engine==='sim'?st.langSeed:0])}
+function settingsKey(){const c=C();return JSON.stringify([st.engine,c.voice,st.engine==='vemmo'?c.intent:c.mood,st.engine==='vemmo'?[c.len,c.anc]:0,c.sl,$('txt').value,st.engine==='sim'?st.langSeed:0,HISS])}
 function lenFor(){const c=C();return c.len!=='auto'?c.len:($('txt').value.trim().length<=45?'short':'medium')}
 function opts(){
   const c=C(),vo=voiceObj(),pv=vo.preset;
   const o={engine:st.engine,mood:st.engine==='vemmo'?c.intent:c.mood,P:c.sl.pitch,S:c.sl.speed,E:c.sl.expr,F:c.sl.form,breath:c.sl.breath,tilt:c.sl.tilt,
-    oq:pv.oq,jit:pv.jit,rate:pv.rate||1,vib:!!pv.vib,quant:!!pv.quant,whisper:!!pv.whisper,tone:pv.tone,base:pv.pitch};
+    hiss:HISS,oq:pv.oq,jit:pv.jit,rate:pv.rate||1,vib:!!pv.vib,quant:!!pv.quant,whisper:!!pv.whisper,tone:pv.tone,base:pv.pitch};
   if(vo.own){o.recF0=vo.own.median;o.base=ENGINES[st.engine].voices[Object.keys(ENGINES[st.engine].voices)[0]].pitch}
   return o;
 }
@@ -332,7 +334,7 @@ function render(toks){
     parts.forEach(p=>{const s0=Math.ceil(p.off*sr);for(let i=0;i<p.r.pcm.length;i++)mix[s0+i]+=p.r.pcm[i]*p.a});
     let m=0;for(const v of mix)m=Math.max(m,Math.abs(v));for(let i=0;i<N;i++)mix[i]*=.85/(m||1);return {pcm:mix,marks:parts[0].r.marks}}
   r=one(tk,o);
-  if(FX[st.engine]){const f=postFX(FX[st.engine],r.pcm,sr);let m=0;for(const v of f.pcm)m=Math.max(m,Math.abs(v));if(m>0)for(let i=0;i<f.pcm.length;i++)f.pcm[i]*=.85/m;r={pcm:f.pcm,marks:r.marks.map(([tt,i])=>[tt+f.shift,i])}}
+  if(FX[st.engine]){const f=postFX(FX[st.engine],r.pcm,sr,HISS);let m=0;for(const v of f.pcm)m=Math.max(m,Math.abs(v));if(m>0)for(let i=0;i<f.pcm.length;i++)f.pcm[i]*=.85/m;r={pcm:f.pcm,marks:r.marks.map(([tt,i])=>[tt+f.shift,i])}}
   return r;
 }
 async function generate(variant){
@@ -466,14 +468,14 @@ function refreshSide(){
   const mc=$('moodChips');mc.innerHTML='';Object.keys(MOODS).forEach(k=>chip(mc,MOODNAME[k][LI()],c.mood===k,()=>{c.mood=k;refreshSide();onSetting();generate(false)}));
   document.querySelectorAll('[data-len]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.len===c.len)));$('ancSel').value=c.anc;
   const an=$('anchors');an.innerHTML='';Object.entries(ANCHORS).forEach(([k,A])=>{const b=document.createElement('button');b.type='button';b.innerHTML='<b></b><span></span>';b.querySelector('b').textContent=A.text;b.querySelector('span').textContent=A.pron+' · '+ANCNAME[k][LI()];b.onclick=()=>playAnchor(k);an.appendChild(b)});
-  SLIDERS.forEach(x=>$(x).value=c.sl[x]);
+  SLIDERS.forEach(x=>$(x).value=c.sl[x]);$('hiss').value=HISS;
   $('lPitch').textContent=nv?t('adv.note'):t('adv.pitch');$('hPitch').textContent=nv?t('adv.noteH'):t('adv.pitchH');
   $('lExpr').textContent=nv?t('adv.range'):t('adv.expr');$('hExpr').textContent=nv?t('adv.rangeH'):t('adv.exprH');
-  $('fForm').hidden=nv||!!vo.own;$('fBreath').hidden=nv||!!vo.own;$('fLang').hidden=e!=='sim'&&e!=='echo'&&e!=='radio';$('langName').textContent=LANG.name+' · '+LANG.cons.join(' ')+' / '+LANG.vow.join(' ');
+  $('fForm').hidden=nv||!!vo.own;$('fBreath').hidden=nv||!!vo.own;$('fHiss').hidden=nv||(!!vo.own&&e!=='radio');$('fLang').hidden=e!=='sim'&&e!=='echo'&&e!=='radio';$('langName').textContent=LANG.name+' · '+LANG.cons.join(' ')+' / '+LANG.vow.join(' ');
   outs();
 }
 function outs(){const c=C();$('oPitch').textContent=Math.round(c.sl.pitch)+' Hz';$('oSpeed').textContent='×'+(+c.sl.speed).toFixed(2);$('oExpr').textContent=Math.round(c.sl.expr*100)+'%';
-  $('oForm').textContent='×'+(+c.sl.form).toFixed(2);$('oBreath').textContent=Math.round(c.sl.breath*100)+'%';$('oTilt').textContent=Math.round((c.sl.tilt-.15)/.75*100)+'%';$('oAmb').textContent=Math.round(AMB.lvl*100)+'%'}
+  $('oForm').textContent='×'+(+c.sl.form).toFixed(2);$('oBreath').textContent=Math.round(c.sl.breath*100)+'%';$('oTilt').textContent=Math.round((c.sl.tilt-.15)/.75*100)+'%';$('oHiss').textContent=Math.round(HISS*100)+'%';$('oAmb').textContent=Math.round(AMB.lvl*100)+'%'}
 async function playAnchor(k){await ready();const t2=anchorToks(k,rng(7)),o=opts();o.mood=ANC_INT[k];const vo=voiceObj(),tk=t2.map(x=>({...x}));
   const r=vo.own?renderSample(tk,vo.own.grains,o,ctx.sampleRate):renderSynth(tk,o,ctx.sampleRate);pPlay(bufFrom(r.pcm,ctx.sampleRate),'anchor')}
 function onSetting(){saveCfg();checkStale()}
@@ -483,6 +485,7 @@ function pickVoice(v){const c=C();c.voice=v;
 document.querySelectorAll('[data-len]').forEach(b=>b.addEventListener('click',()=>{C().len=b.dataset.len;document.querySelectorAll('[data-len]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));onSetting()}));
 $('ancSel').addEventListener('change',e=>{C().anc=e.target.value;onSetting()});
 SLIDERS.forEach(x=>$(x).addEventListener('input',e=>{C().sl[x]=+e.target.value;outs();onSetting()}));
+$('hiss').addEventListener('input',e=>{HISS=+e.target.value;try{localStorage.setItem('bm.hiss',String(HISS))}catch(er){}outs();onSetting()});
 $('ambSel').addEventListener('change',e=>{AMB.type=e.target.value;if(AMB.type==='off')ambDown(.4)});
 $('ambLvl').addEventListener('input',e=>{AMB.lvl=+e.target.value;outs();if(AMB.gain&&AMB.src)AMB.gain.gain.setTargetAtTime(AMB.lvl*.55,ctx.currentTime,.05)});
 $('dice').addEventListener('click',()=>{st.langSeed=Math.floor(Math.random()*1e6);LANG=makeLang(st.langSeed);refreshSide();checkStale()});
@@ -580,7 +583,7 @@ async function micStart(){
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){m.status='unsupported';micUI();return false}
   m.status='asking';micUI();
   try{
-    m.stream=await navigator.mediaDevices.getUserMedia({audio:{deviceId:m.deviceId?{exact:m.deviceId}:undefined,echoCancellation:true,noiseSuppression:false,autoGainControl:false}});
+    m.stream=await navigator.mediaDevices.getUserMedia({audio:{deviceId:m.deviceId?{exact:m.deviceId}:undefined,echoCancellation:false,noiseSuppression:false,autoGainControl:false}}); // the plain mic signal, like a sound recorder: no browser processing (headphones keep the guide tone out)
     m.status='granted';
     m.src=ctx.createMediaStreamSource(m.stream);m.an=ctx.createAnalyser();m.an.fftSize=1024;m.src.connect(m.an);m.sink=ctx.createGain();m.sink.gain.value=0;m.an.connect(m.sink);m.sink.connect(ctx.destination); // keep the meter pulled
     m.stream.getAudioTracks().forEach(tr=>tr.onended=()=>{if(SS.run&&SS.run.mode==='record'&&!SS.run.done){finishRun('miclost')}m.status='busy';micUI()});
@@ -636,9 +639,13 @@ $('toRecord').onclick=()=>enterRec('record',sc().map((_,i)=>i));
 $('prompterOnly').onclick=()=>enterRec('guide',sc().map((_,i)=>i));
 $('toUpload').onclick=()=>{stStep(3);showUpload()};
 $('recStart').onclick=()=>startRun();
+// recorder on the audio thread (AudioWorklet); ScriptProcessorNode only where worklets are missing, it can drop samples on a busy page
+let recWorklet=null;
+function loadRecWorklet(){if(!recWorklet&&ctx.audioWorklet)recWorklet=ctx.audioWorklet.addModule('src/rec-worklet.js').then(()=>true,()=>false);return recWorklet||Promise.resolve(false)}
 async function startRun(){
   await ready();pStop();const {mode,queue}=SS.pending,recording=mode==='record'||mode==='redo';
   if(recording&&SS.mic.status!=='granted'){const ok=await micStart();if(!ok){$('recErr').textContent=$('micState').textContent;$('recErr').hidden=false;return}}
+  const useWorklet=recording&&await loadRecWorklet();
   const sr=ctx.sampleRate;
   if(recording&&(!SS.rec||SS.rec.script!==SS.script||SS.rec.sr!==sr||mode==='record'&&SS.rec)){if(mode==='record'||!SS.rec)SS.rec={sr,chunks:[],n:0,lines:new Array(sc().length).fill(null),script:SS.script,tempo:SS.tempo}}
   const sch=studioSchedule(1,SS.tempo);
@@ -647,9 +654,13 @@ async function startRun(){
   $('pauseBtn').textContent=t('rec.pause');$('redoBtn').hidden=false;
   if(recording){
     // capture raw samples; timeline = context time, which also freezes while paused (context suspended)
-    const p=ctx.createScriptProcessor(4096,1,1),mute=ctx.createGain();mute.gain.value=0;SS.mic.src.connect(p);p.connect(mute);mute.connect(ctx.destination);
+    const mute=ctx.createGain();mute.gain.value=0;mute.connect(ctx.destination);let p;
     run.sessBase=SS.rec.n;run.sessStart=-1;
-    p.onaudioprocess=ev=>{if(run.done)return;const d=ev.inputBuffer.getChannelData(0);if(run.sessStart<0)run.sessStart=ctx.currentTime-ev.inputBuffer.duration;SS.rec.chunks.push(new Float32Array(d));SS.rec.n+=d.length};
+    const take=(d,t0)=>{if(run.sessStart<0)run.sessStart=t0;SS.rec.chunks.push(d);SS.rec.n+=d.length};
+    if(useWorklet){p=new AudioWorkletNode(ctx,'babble-recorder',{numberOfInputs:1,numberOfOutputs:1,channelCount:1,channelCountMode:'explicit'});
+      p.port.onmessage=e=>{if(!run.done)take(e.data.d,e.data.t)}}
+    else{p=ctx.createScriptProcessor(4096,1,1);p.onaudioprocess=ev=>{if(run.done)return;take(new Float32Array(ev.inputBuffer.getChannelData(0)),ctx.currentTime-ev.inputBuffer.duration)}}
+    SS.mic.src.connect(p);p.connect(mute);
     run.proc=p;run.mute=mute;SS.dirty=true;setRecStat('rec',t('rec.recording'));say(t('rec.started'));
   }else setRecStat('',mode==='practice'?t('rec.practice'):t('rec.guide'));
   // count-in
@@ -705,7 +716,8 @@ $('pauseBtn').onclick=async()=>{
 $('redoBtn').onclick=()=>{const run=SS.run;if(!run||run.done||run.paused)return;if(ctx.currentTime<run.countEnd)return;scheduleLine(run.cur.idx,ctx.currentTime+.4)};
 $('stopBtn').onclick=()=>finishRun('stop');
 function teardownRun(){const run=SS.run;if(!run)return;run.done=true;cancelAnimationFrame(run.raf);run.osc.forEach(o=>{try{o.stop()}catch(e){}});
-  if(run.proc){try{SS.mic.src&&SS.mic.src.disconnect(run.proc)}catch(e){}try{run.proc.disconnect();run.mute.disconnect()}catch(e){}run.proc.onaudioprocess=null}
+  if(run.proc){try{SS.mic.src&&SS.mic.src.disconnect(run.proc)}catch(e){}try{run.proc.disconnect();run.mute.disconnect()}catch(e){}
+    if(run.proc.port){run.proc.port.onmessage=null;run.proc.port.postMessage('stop')}else run.proc.onaudioprocess=null}
   if(ctx&&ctx.state==='suspended')ctx.resume()}
 function finishRun(why){
   const run=SS.run;if(!run||run.done)return;teardownRun();const mode=run.mode;SS.run=null;
@@ -788,7 +800,7 @@ $('recMissing').onclick=()=>{const R=SS.result;enterRec('redo',R.lines.map((ok,i
 $('recPlay').onclick=async()=>{await ready();const R=SS.result;if(P.owner==='recording'){const pos=pPos();pStop(true);P.offset=pos;$('recPlay').textContent=t('chk.play');return}
   const buf=SS._recBuf&&SS._recBuf.src===R.pcm?SS._recBuf.b:(SS._recBuf={src:R.pcm,b:bufFrom(R.pcm,R.sr)}).b;
   const from=P.offset&&P.offset<buf.duration-.05?P.offset:0;$('recPlay').textContent=t('chk.pause');
-  pPlay(buf,'recording',{from,onTick:pos=>drawWave($('recWave'),R.pcm,pos/buf.duration),onend:(o,natural)=>{$('recPlay').textContent=t('chk.play');if(natural){P.offset=0;drawWave($('recWave'),R.pcm,0)}}})};
+  pPlay(buf,'recording',{dest:ctx.destination,from,onTick:pos=>drawWave($('recWave'),R.pcm,pos/buf.duration),onend:(o,natural)=>{$('recPlay').textContent=t('chk.play');if(natural){P.offset=0;drawWave($('recWave'),R.pcm,0)}}})};
 $('prevEngine').addEventListener('change',()=>{SS.preview=null;pStop()});
 $('prevPlay').onclick=async()=>{
   if(P.owner==='preview'){pStop();return}
@@ -796,7 +808,7 @@ $('prevPlay').onclick=async()=>{
   let toks;if(e==='vemmo')toks=vemmoClip(st.cfg.vemmo.intent,'medium',Math.floor(Math.random()*1e6),'auto');
   else{toks=tokenize($('txt').value||EXAMPLES[0].text[LANGUI],e,st.langSeed,paletteLang(e)||LANG);if(e==='baby')toks=babyfy(toks)}
   const o={engine:e,mood:e==='vemmo'?st.cfg.vemmo.intent:'neutraal',P:base.pitch,S:base.speed,E:base.expr,F:1,breath:0,tilt:base.tilt,oq:base.oq,jit:base.jit,rate:base.rate||1,base:base.pitch,recF0:R.median};
-  let r=renderSample(toks.map(x=>({...x})),R.grains,o,sr);if(FX[e]){const f=postFX(FX[e],r.pcm,sr);let m=0;for(const v of f.pcm)m=Math.max(m,Math.abs(v));if(m>0)for(let i=0;i<f.pcm.length;i++)f.pcm[i]*=.85/m;r={pcm:f.pcm,marks:r.marks}}
+  let r=renderSample(toks.map(x=>({...x})),R.grains,o,sr);if(FX[e]){const f=postFX(FX[e],r.pcm,sr,HISS);let m=0;for(const v of f.pcm)m=Math.max(m,Math.abs(v));if(m>0)for(let i=0;i<f.pcm.length;i++)f.pcm[i]*=.85/m;r={pcm:f.pcm,marks:r.marks}}
   const buf=bufFrom(r.pcm,sr);
   $('prevText').textContent=toks.map(x=>x.text).join('');$('prevDur').textContent=fmtDur(buf.duration);if(wet)wet.gain.value=wetFor(e);
   $('prevPlay').textContent=t('make.stopPlay');pPlay(buf,'preview',{onTick:pos=>drawWave($('prevWave'),r.pcm,pos/buf.duration),onend:()=>{$('prevPlay').textContent=t('chk.prevPlay');drawWave($('prevWave'),r.pcm,0)}});

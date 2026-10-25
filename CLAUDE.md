@@ -17,6 +17,7 @@ Everything that goes online lives in `site/` (Cloudflare Workers static assets, 
 - Don't change synthesis algorithms for visual work.
 - UI copy goes through `t()` with keys in both `STR.en` and `STR.nl`.
 - One audio player at a time: always play through `pPlay()` / stop with `pStop()`.
+- Studio capture runs on the audio thread (`site/src/rec-worklet.js`, AudioWorkletNode); `ScriptProcessorNode` is only a fallback. It dropped and repeated samples on a busy page (crackle, measured 2026-10-25). The mic is taken raw: `echoCancellation`, `noiseSuppression` and `autoGainControl` off. "Your recording" plays dry (straight to `ctx.destination`).
 - Own voices only work with engines where `EMETA[e].rec` is true (all voice styles; not Soft Tones or Talking Instruments).
 - WAV export: a plain `.wav` Blob download. Inside a claude.ai artifact (`window.claude` present) it goes through the `downloads` capability instead, zipped (that allowlist has zip, not wav).
 - Strict CSP (`site/_headers`, report-only for now): no inline `style`/`<script>`/`on…=` in HTML, no requests to other hosts. Setting `el.style.x` from JS is fine. JSON-LD (`application/ld+json`) is allowed.
@@ -47,7 +48,7 @@ Project folder following the Wrong Floor method. Research and decisions live in 
 
 | Keep | May change |
 |---|---|
-| Synthesis algorithms in `src/engine.js`. One approved extension (2026-10-25): an optional `seed` for the fine variation; without it the sound stays as it is | Integrations around the engine (web module, Godot addon) |
+| Synthesis algorithms in `src/engine.js`. Approved extensions (2026-10-25), both optional, without them the sound stays bit-identical: a `seed` for the fine variation, and `hiss` (0–1) that scales consonant noise (`buildPhones`) and the radio hiss/squelch (`postFX`), set by the "Consonant hiss" slider (global, `localStorage` `bm.hiss`) | Integrations around the engine (web module, Godot addon) |
 | IndexedDB name `babble-machine`/`voices`, so saved voices keep working | Export step: a normal Blob download instead of the claude.ai capability |
 | EN/NL copy through `t()` | Font loading (self-host instead of Google Fonts) |
 | The 11 voice styles and the studio flow | The new design, only through a design review in step 4 |
