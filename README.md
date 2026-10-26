@@ -7,6 +7,7 @@
   <a href="#-web-module"><b>🧩 Web module</b></a> &nbsp;·&nbsp;
   <a href="#-godot-4"><b>🎮 Godot</b></a> &nbsp;·&nbsp;
   <a href="#-styles-and-voices"><b>🐾 Styles</b></a> &nbsp;·&nbsp;
+  <a href="https://wrongfloor.itch.io/babble-engine"><b>🕹️ itch.io</b></a> &nbsp;·&nbsp;
   <a href="#-license"><b>📜 MIT</b></a>
 </p>
 
