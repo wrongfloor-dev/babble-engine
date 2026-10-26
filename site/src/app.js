@@ -16,7 +16,7 @@ const STR={en:{
 'char.empty':'No characters yet.','char.use':'Use','make.takeN':'Variant {i}','make.takeOld':'earlier settings','make.addTake':'+ Save variant','make.delTake':'Remove variant {i}','make.saveHelp':'Save a variant to keep your settings and quickly compare variants. Save your variant as a character once you are happy with the result.','make.helpAria':'About variants and characters','make.download':'Download WAV','make.downloadZip':'Download WAV (.zip)','make.busy':'Generating…',
 'make.stopPlay':'■ Stop','make.ready':'Result ready, {s} seconds.',
 'make.dlErr':'The download didn’t work ({m}). Try again, or generate the line again.','make.dlDeclined':'Download cancelled.','make.dlDone':'Saved as {f}.',
-'foot.audio':'Audio you make with Babble Engine is yours to use, also commercially.','foot.privacy':'Privacy','foot.code':'Source code (MIT)',
+'foot.audio':'Audio you make with Babble Engine is yours to use, also commercially.','foot.privacy':'Privacy','foot.code':'GitHub (MIT)','make.code':'Use in your game','code.title':'Use in your game','code.copy':'Copy code','code.copied':'Copied','code.own':'First export your voice under My voices.','code.note':'Same voice and settings. Each take varies a little.','code.more':'How it works','foot.game':'Use in your game','aria.gh':'Babble Engine on GitHub',
 'side.voice':'Voice','side.sound':'Sound','side.instrument':'Instrument','side.add':'Record your voice',
 'side.name':'Name it says','side.intent':'Intent','side.emotion':'Emotion','side.length':'Length','side.short':'Short','side.medium':'Medium',
 'side.anchors':'Fixed phrases','side.ancUse':'Use in the clip',
@@ -89,7 +89,7 @@ nl:{
 'char.empty':'Nog geen personages.','char.use':'Gebruiken','make.takeN':'Variant {i}','make.takeOld':'eerdere instellingen','make.addTake':'+ Variant opslaan','make.delTake':'Variant {i} weggooien','make.saveHelp':'Sla een variant op om je instellingen te bewaren en snel varianten te kunnen vergelijken. Sla je variant definitief op als personage als je tevreden bent met het resultaat.','make.helpAria':'Over varianten en personages','make.download':'Download WAV','make.downloadZip':'Download WAV (.zip)','make.busy':'Bezig met genereren…',
 'make.stopPlay':'■ Stoppen','make.ready':'Resultaat klaar, {s} seconden.',
 'make.dlErr':'Downloaden lukte niet ({m}). Probeer het opnieuw, of genereer de regel opnieuw.','make.dlDeclined':'Download geannuleerd.','make.dlDone':'Opgeslagen als {f}.',
-'foot.audio':'Geluid dat je met Babble Engine maakt, mag je vrij gebruiken, ook commercieel.','foot.privacy':'Privacy','foot.code':'Broncode (MIT)',
+'foot.audio':'Geluid dat je met Babble Engine maakt, mag je vrij gebruiken, ook commercieel.','foot.privacy':'Privacy','foot.code':'GitHub (MIT)','make.code':'In je game gebruiken','code.title':'In je game gebruiken','code.copy':'Code kopiëren','code.copied':'Gekopieerd','code.own':'Exporteer eerst je stem bij Mijn stemmen.','code.note':'Zelfde stem en instellingen. Elke versie klinkt net iets anders.','code.more':'Hoe het werkt','foot.game':'In je game gebruiken','aria.gh':'Babble Engine op GitHub',
 'side.voice':'Stem','side.sound':'Geluid','side.instrument':'Instrument','side.add':'Neem je stem op',
 'side.name':'Naam die het zegt','side.intent':'Bedoeling','side.emotion':'Emotie','side.length':'Lengte','side.short':'Kort','side.medium':'Middellang',
 'side.anchors':'Vaste uitdrukkingen','side.ancUse':'Gebruik in de clip',
@@ -283,7 +283,7 @@ function setBusy(b){st.busy=b;$('busy').hidden=!b;$('pResult').setAttribute('ari
 function cur(){return st.resBy[st.engine]}
 const SV=()=>st.savedBy[st.engine]||(st.savedBy[st.engine]=[]);
 function showResult(){
-  const r=cur();$('playerRow').hidden=!r;$('takes').hidden=!r;renderTakes();$('dlBtn').hidden=!r;$('dlOk').hidden=true;$('bubbleHint').hidden=!!r;
+  const r=cur();$('playerRow').hidden=!r;$('takes').hidden=!r;renderTakes();$('dlBtn').hidden=!r;$('codeBtn').hidden=!r;$('dlOk').hidden=true;$('bubbleHint').hidden=!!r;
   const el=$('sounds');el.innerHTML='';if(!r){setPlayLabel(false);return}
   const n=r.toks.reduce((a,k)=>a+k.text.length,0);el.dataset.len=n>220?'l':n>120?'m':'s';
   r.toks.forEach(k=>{const s=document.createElement('span');s.className='s'+(k.lex?' lex':'');s.textContent=k.text;k.el=s;el.appendChild(s)});
@@ -494,6 +494,25 @@ function openExamples(){const l=$('exList');l.innerHTML='';[['general',t('ex.gen
     if(x.v){const sm=document.createElement('small');sm.textContent=ENGINES.vemmo.voices[x.v].name+' · '+INTENTNAME[x.i][LI()];b.appendChild(sm)}
     b.onclick=()=>{$('txt').value=x.text[LANGUI];if(x.v&&st.engine==='vemmo'){const c=C();c.voice=x.v;c.intent=x.i;const p=ENGINES.vemmo.voices[x.v];SLIDERS.forEach(k=>c.sl[k]=p[k]);refreshSide();saveCfg()}$('exDlg').close();checkStale();$('txt').focus()};l.appendChild(b)})});
   $('exDlg').showModal()}
+// "Use in your game": the web module call for what you hear now (module option names, only what differs from the voice)
+const MOD_SLIDERS={pitch:'pitch',speed:'speed',expression:'expr',throat:'form',breath:'breath',brightness:'tilt'};
+// (the fetch line below is text for the user's game, split so it is not mistaken for a request from this site)
+function gameCode(){const c=C(),vo=voiceObj(),e=st.engine,o=[],q=x=>"'"+String(x).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+"'";
+  o.push('style: '+q(e));if(!vo.own)o.push('voice: '+q(c.voice));else o.push('ownVoice: me');
+  if(e==='vemmo'){o.push('intent: '+q(c.intent));if(c.len==='medium')o.push("length: 'medium'")}
+  else{const m=Object.keys(MOOD_ALIAS).find(k=>MOOD_ALIAS[k]===c.mood);if(m&&m!=='neutral')o.push('mood: '+q(m))}
+  if(e==='name')o.push('name: '+q(nameFor()));
+  if(e==='sim'||e==='echo'||e==='radio')o.push('seed: '+st.langSeed); // the same made-up language as here
+  for(const [k,ik] of Object.entries(MOD_SLIDERS)){const v=+c.sl[ik];if(Math.abs(v-vo.preset[ik])>1e-6)o.push(k+': '+(+v.toFixed(2)))}
+  if(HISS!==1)o.push('hiss: '+(+HISS.toFixed(2)));if(vo.own&&STEADY!==1)o.push('steady: '+(+STEADY.toFixed(2)));
+  const url="'https://cdn.jsdelivr.net/gh/wrongfloor-dev/babble-engine@1/site/src/babble.mjs'",file=vo.own?(vo.own.name.replace(/[^a-z0-9]+/gi,'-').replace(/^-+|-+$/g,'').toLowerCase()||'voice')+'.babble-voice.json':''; // the name Export gives the file
+  const line='play(render('+q(e==='vemmo'?'':$('txt').value.trim())+', { '+o.join(', ')+' }));';
+  return vo.own?'import { render, play, loadVoice } from '+url+';\n\nconst me = loadVoice(await (await fetch'+'('+q(file)+')).text());\n'+line:'import { render, play } from '+url+';\n\n'+line}
+$('codeBtn').onclick=()=>{$('codeTxt').textContent=gameCode();$('codeOwn').hidden=!voiceObj().own;$('codeOk').textContent='';$('codeDlg').showModal()};
+$('codeClose').onclick=()=>$('codeDlg').close();
+$('codeCopy').onclick=async()=>{const txt=$('codeTxt').textContent;let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(e){}
+  if(!ok){const r=document.createRange();r.selectNodeContents($('codeTxt'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r)} // no clipboard: select it for Ctrl+C
+  $('codeOk').textContent=ok?t('code.copied'):''};
 $('exBtn').onclick=openExamples;$('exClose').onclick=()=>$('exDlg').close();
 
 // ---------- 3. voices storage (IndexedDB, this browser only) ----------
@@ -875,7 +894,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&P.src)pSto
 function applyLang(){
   document.documentElement.lang=LANGUI;
   document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.dataset.t));
-  document.querySelectorAll('[data-t-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.tAria)));
+  document.querySelectorAll('[data-t-aria]').forEach(el=>{el.setAttribute('aria-label',t(el.dataset.tAria));if(el.classList.contains('iconbtn'))el.title=t(el.dataset.tAria)}); // an icon-only button also gets its name on hover
   document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===LANGUI)));
   buildEngines();refreshSide();renderVoices();renderChars();if(cur())showResult();refreshPrep();stStep(SS.step);
   if(SS.result&&!$('checkBody').hidden)showCheck();

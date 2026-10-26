@@ -46,6 +46,8 @@ Making a web game? Use the same engine straight from your code. One file, no bui
 - 📜 **Plain script tag:** load `site/src/engine.js` and use the global `Babble` (`Babble.render(...)`)
 - 📦 **Node or a bundler:** `npm i github:wrongfloor-dev/babble-engine`, then `import { render, toWav } from 'babble-engine'`
 - 🔷 **TypeScript:** types ship in `site/src/engine.d.ts`
+- ‹/› **From the tool:** click ‹/› next to Download WAV to get the `render` call for the voice and settings you hear
+- 🤖 **With an AI assistant:** [babble.wrongfloor.studio/game](https://babble.wrongfloor.studio/game) has a ready prompt for ChatGPT, Claude, Gemini, Cursor or Copilot, and [llms.txt](https://babble.wrongfloor.studio/llms.txt) lists every option, style and voice id
 
 ### `render(text, options)`
 

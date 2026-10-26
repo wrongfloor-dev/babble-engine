@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gibberish speech in your web game, one file · Babble Engine</title>
+<meta name="description" content="Make your game characters babble live in JavaScript: one file, no server, no dependencies. Speak a line, sync a mouth, use your own recorded voice.">
+<link rel="canonical" href="https://babble.wrongfloor.studio/game">
+<link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+<main class="nf legal">
+  <a class="logo" href="/">Babble<span>Engine</span></a>
+  <h1>Use it in your game</h1>
+  <p class="lead">The engine behind this tool is one JavaScript file. No build step, no server, no dependencies. Free, also for commercial games.</p>
+
+  <h2>1. Add it</h2>
+  <pre class="code"><code>import { render, play } from 'https://cdn.jsdelivr.net/gh/wrongfloor-dev/babble-engine@1/site/src/babble.mjs';
+
+play(render('Hi! Do you want an apple?', { style: 'animal', voice: 'fern', mood: 'happy' }));</code></pre>
+  <p>Tip: in the <a href="/">tool</a>, click <b>‹/›</b> next to Download for the line with your settings.</p>
+
+  <h2>2. Sync a mouth</h2>
+  <pre class="code"><code>const line = render('Welcome, traveller!', { style: 'sim', voice: 'hank' });
+play(line);
+for (const s of line.syllables) setTimeout(() =&gt; flapMouth(s.text), s.time * 1000);</code></pre>
+
+  <h2>3. Your own voice</h2>
+  <p>Record it in the tool and click <b>Export</b> under My voices.</p>
+  <pre class="code"><code>import { render, play, loadVoice } from 'https://cdn.jsdelivr.net/gh/wrongfloor-dev/babble-engine@1/site/src/babble.mjs';
+
+const me = loadVoice(await (await fetch('me.babble-voice.json')).text());
+play(render('Welcome to my game!', { style: 'sim', ownVoice: me }));</code></pre>
+
+  <h2>4. Or let your AI add it</h2>
+  <p>A prompt for ChatGPT, Claude, Gemini, Cursor or Copilot. Fill in the last line.</p>
+  <details class="aiprompt"><summary>Show prompt</summary>
+  <pre class="code" id="aiPrompt"><code>Add Babble Engine to my game, so characters "talk" in gibberish when a dialogue line appears.
+
+Babble Engine is a free JavaScript module (MIT), no build step, no server. Full reference: https://babble.wrongfloor.studio/llms.txt
+
+Load it:
+import { render, play } from 'https://cdn.jsdelivr.net/gh/wrongfloor-dev/babble-engine@1/site/src/babble.mjs';
+
+Speak a line:
+const line = render(text, { style: 'animal', voice: 'fern', mood: 'happy' });
+const p = play(line); // returns { stop(), ended } (ended is a Promise)
+
+- render returns { pcm, sampleRate, duration, syllables }; syllables is [{ time, text }] with start times in seconds
+- Styles: animal, sim, vemmo, name, bark, grumble, gizmo, sprite, ghost, echo, radio, baby, blip, droid, tone, instr
+- Moods: neutral, happy, angry, sad, flirty, surprised
+- Use seed (a number) per character so a character keeps the same made-up language
+- Browsers only play sound after a click or key press
+
+Please:
+1. Give each character its own style and voice
+2. Stop the previous line when a new one starts
+3. Use syllables to animate the mouth or reveal the text
+
+My game is made with: [your engine or framework, e.g. Phaser, PixiJS, plain canvas]</code></pre>
+  </details>
+
+  <p class="hint more">WAV files: <code>toWav(render(...))</code>, also in Node. All options: <a href="https://github.com/wrongfloor-dev/babble-engine#-web-module">README</a> or <a href="/llms.txt">llms.txt</a>.</p>
+
+  <section lang="nl" aria-labelledby="nlTitle">
+    <h2 id="nlTitle">Nederlands</h2>
+    <p>Eén JavaScript-bestand, gratis, ook voor commerciële games. In de tool geeft <b>‹/›</b> naast Download de code met jouw instellingen.</p>
+  </section>
+
+  <p><a class="btn primary" href="/">Go to Babble Engine</a></p>
+</main>
+<footer class="foot">
+  <p>Audio you make with Babble Engine is yours to use, also commercially.</p>
+  <p><a href="/game" aria-current="page">Use in your game</a> · <a href="https://github.com/wrongfloor-dev/babble-engine">GitHub (MIT)</a> · <a href="https://wrongfloor.studio">by Wrong Floor</a> · <a href="/privacy">Privacy</a></p>
+</footer>
+<script src="/src/game.js"></script>
+</body>
+</html>

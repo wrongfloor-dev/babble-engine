@@ -28,6 +28,7 @@
     </nav>
     <button class="topcta" id="addVoiceTop"><span class="rd" aria-hidden="true"></span><span data-t="side.record">Record your voice</span></button>
     <div class="lang" role="group" aria-label="Language" data-t-aria="aria.lang"><button data-lang="en" aria-pressed="true">EN</button><button data-lang="nl" aria-pressed="false">NL</button></div>
+    <a class="gh" href="https://github.com/wrongfloor-dev/babble-engine" aria-label="Babble Engine on GitHub" data-t-aria="aria.gh"><svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
   </div>
 </header>
 <!-- ===== Studio header ===== -->
@@ -84,7 +85,7 @@
         <button class="btn primary" id="genBtn" data-t="make.speak">▶ Speak</button>
         <div class="player" id="playerRow" hidden><canvas id="wave" aria-hidden="true"></canvas><span class="dur" id="dur"></span></div>
         <p class="busy" id="busy" hidden><span class="spin" aria-hidden="true"></span><span data-t="make.busy">Generating…</span></p>
-        <button class="btn" id="dlBtn" hidden data-t="make.download">Download WAV (.zip)</button>
+        <div class="dlgrp"><button class="btn" id="dlBtn" hidden data-t="make.download">Download WAV (.zip)</button><button class="btn iconbtn" id="codeBtn" hidden aria-label="Use in your game" data-t-aria="make.code">‹/›</button></div>
         <button class="btn" id="playBtn" hidden></button>
       </div>
       <div class="takes" id="takes" hidden><span class="lbl" id="takesLbl" data-t="make.takes">Variants</span><div class="chips takechips" id="takeChips" role="group" aria-labelledby="takesLbl"></div></div>
@@ -248,14 +249,23 @@
 </section>
 </main>
 <footer class="foot">
-  <p><span data-t="foot.audio">Audio you make with Babble Engine is yours to use, also commercially.</span> <a href="https://github.com/wrongfloor-dev/babble-engine" data-t="foot.code">Source code (MIT)</a></p>
-  <p><a href="https://wrongfloor.studio">by Wrong Floor</a> · <a href="/privacy" data-t="foot.privacy">Privacy</a></p>
+  <p data-t="foot.audio">Audio you make with Babble Engine is yours to use, also commercially.</p>
+  <p><a href="/game" data-t="foot.game">Use in your game</a> · <a href="https://github.com/wrongfloor-dev/babble-engine" data-t="foot.code">GitHub (MIT)</a> · <a href="https://wrongfloor.studio">by Wrong Floor</a> · <a href="/privacy" data-t="foot.privacy">Privacy</a></p>
 </footer>
 
 <dialog id="exDlg" aria-labelledby="exTitle">
   <div class="dlg">
     <div class="dlg-head"><h2 id="exTitle" data-t="ex.title">Choose example text</h2><button class="btn" id="exClose" data-t="ex.close">Close</button></div>
     <div class="exlist" id="exList"></div>
+  </div>
+</dialog>
+<dialog id="codeDlg" aria-labelledby="codeTitle">
+  <div class="dlg">
+    <div class="dlg-head"><h2 id="codeTitle" data-t="code.title">Use in your game</h2><button class="btn" id="codeClose" data-t="ex.close">Close</button></div>
+    <p class="hint" id="codeOwn" hidden data-t="code.own">First export your voice under My voices.</p>
+    <pre class="code"><code id="codeTxt"></code></pre>
+    <div class="coderow"><button class="btn primary" id="codeCopy" data-t="code.copy">Copy code</button><span class="hint" id="codeOk" role="status"></span></div>
+    <p class="hint"><span data-t="code.note">Same voice and settings. Each take varies a little.</span> <a href="/game" data-t="code.more">How it works</a> · <a href="https://github.com/wrongfloor-dev/babble-engine">GitHub</a></p>
   </div>
 </dialog>
 <dialog id="cfDlg" aria-labelledby="cfTitle">

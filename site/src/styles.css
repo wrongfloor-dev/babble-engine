@@ -269,6 +269,8 @@ body.e-tone .xtone,body.e-instr .xtone{display:inline} body.e-tone .face,body.e-
 .transport .busy{grid-column:2}
 #genBtn{font-size:17px;padding:9px 22px}
 #dlBtn{background:var(--ink);color:var(--bg)}
+.dlgrp{display:flex;gap:8px;align-items:center}
+.iconbtn{width:44px;min-width:44px;padding:0;justify-content:center;font-weight:800;letter-spacing:-.04em}
 .takes{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--surface);border-top:2px dashed var(--line);padding:10px 16px 12px}
 .takechips{flex:1}
 .takechips button{min-width:40px;font-variant-numeric:tabular-nums}
@@ -317,7 +319,7 @@ body.e-tone .xtone,body.e-instr .xtone{display:inline} body.e-tone .face,body.e-
   .bubble::before,.bubble::after{display:none}
   .sounds[data-len="s"]{font-size:22px}.sounds[data-len="m"]{font-size:19px}.sounds[data-len="l"]{font-size:17px}
   .transport{grid-template-columns:auto minmax(0,1fr);gap:10px 12px;padding:12px}
-  .transport #dlBtn{grid-column:1/-1}
+  .transport .dlgrp{grid-column:1/-1}.dlgrp #dlBtn{flex:1}
   .sgrid{grid-template-columns:1fr 1fr}
   .foot{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
   .takes .lbl{flex-basis:100%}
@@ -349,3 +351,36 @@ body.e-tone .xtone,body.e-instr .xtone{display:inline} body.e-tone .face,body.e-
 .legal ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
 .legal a:not(.btn):not(.logo){color:var(--text);text-underline-offset:3px}
 a.btn{text-decoration:none;color:inherit}
+
+/* use in your game: code blocks, GitHub link */
+.code{margin:0;background:var(--surface2);border:1.5px solid var(--line2);border-radius:12px;padding:12px 14px;font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.code code{font:inherit}
+.legal code:not(pre code){font:13px ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--surface2);border-radius:6px;padding:1px 5px}
+.coderow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dlg .hint a{color:var(--text);text-underline-offset:3px}
+.gh{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;color:var(--text);flex:0 0 auto}
+.gh:hover{color:var(--coral)}
+/* 404: Fern looking for the page */
+.lost{padding-bottom:40px}
+.lost-stage{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:var(--surface);border:2px solid var(--ink);border-radius:22px;padding:22px 24px;box-shadow:4px 4px 0 var(--shadow)}
+.lost-critter{width:110px;height:121px;flex:0 0 auto;transform:rotate(-8deg);transform-origin:50% 90%}
+.lost-critter .b{fill:var(--c)}.lost-critter .e{fill:#231B12}
+.lost-mouth{transform-box:fill-box;transform-origin:center;transform:scaleY(.5)}
+.lost-critter.talk .lost-mouth{transform:scaleY(1)}
+.lost-critter.bob{animation:lostBob .16s ease-out}
+@keyframes lostBob{0%{transform:rotate(-8deg) translateY(0)}45%{transform:rotate(-4deg) translateY(-6px)}100%{transform:rotate(-8deg) translateY(0)}}
+@media (prefers-reduced-motion:reduce){.lost-critter.bob{animation:none}}
+.lost-bubble{position:relative;flex:1 1 220px;margin:0;background:var(--bg);border:2px solid var(--ink);border-radius:18px;padding:12px 16px;font-family:var(--logo);font-size:24px;line-height:1.2}
+.lost-bubble::before{content:"";position:absolute;left:-10px;top:50%;width:16px;height:16px;background:var(--bg);border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:translateY(-50%) rotate(45deg)}
+.lost-who{display:block;font-size:13px;letter-spacing:.02em;color:var(--muted);margin-bottom:2px}
+.lost-nl{color:var(--muted);font-size:14px}
+.lost-actions{display:flex;gap:12px;flex-wrap:wrap}
+@media (max-width:480px){.lost-bubble::before{display:none}.lost-critter{width:84px;height:92px}}
+.lost h1{margin-top:12px}
+.codewrap{position:relative}
+.codewrap .code{padding-right:76px}
+.copybtn{position:absolute;top:8px;right:8px;background:var(--surface);color:var(--text);border:1.5px solid var(--line2);border-radius:999px;padding:3px 10px;font-family:inherit;font-weight:700;font-size:12px;line-height:1.4;cursor:pointer}
+.copybtn:hover{border-color:var(--ink)}
+.aiprompt summary{cursor:pointer;font-weight:700;padding:4px 0}
+.aiprompt[open] summary{margin-bottom:10px}
+.legal .more{margin-top:8px}

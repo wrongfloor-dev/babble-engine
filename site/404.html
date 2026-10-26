@@ -8,15 +8,30 @@
 <link rel="stylesheet" href="/src/styles.css">
 </head>
 <body>
-<main class="nf">
+<main class="nf lost">
   <a class="logo" href="/">Babble<span>Engine</span></a>
-  <h1>This page doesn't exist</h1>
-  <p class="lead">The address may be mistyped, or the page has moved.</p>
-  <p><a class="btn primary" href="/">Go to Babble Engine</a></p>
+  <div class="lost-stage s-animal">
+    <svg class="lost-critter" id="lostCritter" viewBox="0 0 40 44" aria-hidden="true">
+      <ellipse class="b" cx="11" cy="11" rx="4" ry="7"/><ellipse class="b" cx="29" cy="11" rx="4" ry="7"/>
+      <circle class="b" cx="20" cy="25" r="15"/>
+      <circle class="e" cx="14" cy="22" r="2"/><circle class="e" cx="26" cy="21" r="2.6"/>
+      <ellipse class="e lost-mouth" cx="20" cy="31" rx="2.2" ry="2.6"/>
+    </svg>
+    <p class="lost-bubble"><span class="lost-who">Fern</span>Bibba? Wub-wub… Flibberty-flop!</p>
+  </div>
+  <h1>This page wandered off</h1>
+  <p class="lead">Fern looked everywhere. The address may be mistyped, or the page has moved.</p>
+  <p class="lost-nl" lang="nl">Deze pagina bestaat niet (meer).</p>
+  <div class="lost-actions">
+    <a class="btn primary" href="/">Go to Babble Engine</a>
+    <button class="btn" id="lostHear" type="button">▶ Hear Fern</button>
+  </div>
 </main>
 <footer class="foot">
-  <p>Audio you make with Babble Engine is yours to use, also commercially. <a href="https://github.com/wrongfloor-dev/babble-engine">Source code (MIT)</a></p>
-  <p><a href="https://wrongfloor.studio">by Wrong Floor</a> · <a href="/privacy">Privacy</a></p>
+  <p>Audio you make with Babble Engine is yours to use, also commercially.</p>
+  <p><a href="/game">Use in your game</a> · <a href="https://github.com/wrongfloor-dev/babble-engine">GitHub (MIT)</a> · <a href="https://wrongfloor.studio">by Wrong Floor</a> · <a href="/privacy">Privacy</a></p>
 </footer>
+<script src="/src/engine.js"></script>
+<script src="/src/404.js"></script>
 </body>
 </html>

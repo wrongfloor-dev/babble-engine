@@ -7,11 +7,59 @@ Babble Engine is for game developers who want characters to "talk" without voice
 ## Use it
 
 - [Babble Engine](https://babble.wrongfloor.studio/): the tool, in English and Dutch
+- [Use it in your game](https://babble.wrongfloor.studio/game): the same engine as one JavaScript file, with examples
 - [Source code on GitHub](https://github.com/wrongfloor-dev/babble-engine): plain HTML and JavaScript, no dependencies
 
 ## Styles
 
 16 styles. Voice styles (work with your own recorded voice): Critter Chatter, Babblish, Bloopa Doopa, Name Talk, Grunts & Barks, Grumble, Gizmo, Sprite, Spooky Whisper, Echo Folk, Mumble Radio, Babytalk. Sound styles (no voice): Text Blips, Droid Chirps, Soft Tones, Talking Instruments (with a kazoo).
+
+## Web module (for game code)
+
+One ES module, no build step, no dependencies, no server. Works in the browser; `render` and `toWav` also run in Node (`require('./site/src/engine.js')`).
+
+```js
+import { render, play, toWav, styles, loadVoice } from 'https://cdn.jsdelivr.net/gh/wrongfloor-dev/babble-engine@1/site/src/babble.mjs';
+
+const line = render('Hi! Do you want an apple?', { style: 'animal', voice: 'fern', mood: 'happy' });
+const p = play(line);   // browser only, with the style's room; returns { stop(), ended, context }
+p.stop();               // stop it, e.g. when the next dialogue line starts
+line.syllables;         // [{ time, text }]: syllable start times in seconds, for mouth flaps or subtitles
+toWav(line);            // ArrayBuffer, 16-bit mono WAV, dry
+```
+
+render(text, options) returns { pcm (Float32Array, mono, dry), sampleRate, duration, syllables, style, voice }. Options:
+
+- style: default 'animal'. voice: default the style's first voice
+- mood: neutral, happy, angry, sad, flirty, surprised (default neutral)
+- seed: default 1. Same text, options and seed give the same sound
+- sampleRate: default 48000
+- pitch, speed, expression, throat, breath, brightness: override the voice
+- hiss: 0 to 1, consonant noise
+- name: Name Talk only, the name the creature keeps saying (like 'Pikachu')
+- intent, length: Bloopa Doopa only (style 'vemmo'). It ignores the text and speaks by intent: greet, bye, tell, explain, ask, curious, joy, cheer, think, letdown, agree, warn. length 'short' or 'medium'
+- ownVoice, steady: a voice from loadVoice(), exported in the tool under Voices & characters as a .babble-voice.json file. Voice styles only
+
+Unknown styles, voices, moods or intents throw an Error whose message starts with 'Babble: ' and lists the valid values.
+
+## Style and voice ids
+
+- `animal` Critter Chatter: `fern`, `burt`, `pip`, `lowell`, `bleep`
+- `sim` Babblish: `lottie`, `ben`, `kiki`, `hank`, `whisper`, `bubs`
+- `vemmo` Bloopa Doopa: `jesse`, `bram`, `mila`
+- `name` Name Talk: `moki`, `grumbo`, `zee`, `lulu`, `bonk`
+- `bark` Grunts & Barks: `hero`, `heroine`, `elder`, `kid`, `brute`
+- `grumble` Grumble: `grok`, `moss`, `burly`
+- `gizmo` Gizmo: `bolt`, `cog`, `unit9`
+- `sprite` Sprite: `fae`, `wisp`, `glimmer`
+- `ghost` Spooky Whisper: `whisper`, `wail`, `hollow`
+- `echo` Echo Folk: `village`, `crowd`, `kids`
+- `radio` Mumble Radio: `dispatch`, `pilot`, `scout`
+- `baby` Babytalk: `tot`, `bubba`, `mini`
+- `blip` Text Blips (no own voice): `pixel`, `tiny`, `boss`, `soft`, `typewriter`
+- `droid` Droid Chirps (no own voice): `beebo`, `rollo`, `zapp`, `mini`
+- `tone` Soft Tones (no own voice): `clouds`, `softbubble`, `rain`, `breeze`, `hum`, `purr`, `wood`, `droplet`, `kalimba`, `felt`, `bubble`, `glass`
+- `instr` Talking Instruments (no own voice): `horn`, `trombone`, `choir`, `kazoo`
 
 ## License
 
