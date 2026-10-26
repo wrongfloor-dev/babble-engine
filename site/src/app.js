@@ -32,7 +32,7 @@ const STR={en:{
 
 'voices.title':'Voices & characters','voices.own':'Recorded voices','voices.lead':'Recorded voices and characters. They stay in this browser only.',
 'voices.empty':'You don’t have any voices of your own yet. Add one to hear your text in your own voice.',
-'voices.session':'This browser doesn’t allow saving, so voices only last for this session.','voices.use':'Use','voices.rename':'Rename','voices.delete':'Delete',
+'voices.session':'This browser doesn’t allow saving, so voices only last for this session.','voices.use':'Use','voices.export':'Export','voices.exported':'Saved as {name}.','voices.exportFail':'Export didn’t work. Try again.','voices.rename':'Rename','voices.delete':'Delete',
 'voices.save':'Save','voices.cancel':'Cancel','voices.info':'{n} sounds · {when}','voices.partial':'Incomplete','voices.basis':'Basic round','voices.deep':'Basic + depth round','voices.old':'Older script',
 'voices.deepen':'Add depth round ({t})',
 'voices.sessionTag':'This session','voices.delTitle':'Delete “{name}”?','voices.delText':'The recording is removed from this browser. This can’t be undone.',
@@ -105,7 +105,7 @@ nl:{
 
 'voices.title':'Stemmen en personages','voices.own':'Opgenomen stemmen','voices.lead':'Opgenomen stemmen en personages. Ze staan alleen in deze browser.',
 'voices.empty':'Je hebt nog geen eigen stemmen. Voeg er een toe om je tekst in je eigen stem te horen.',
-'voices.session':'Deze browser staat bewaren niet toe, dus stemmen blijven alleen deze sessie bestaan.','voices.use':'Gebruiken','voices.rename':'Hernoemen','voices.delete':'Verwijderen',
+'voices.session':'Deze browser staat bewaren niet toe, dus stemmen blijven alleen deze sessie bestaan.','voices.use':'Gebruiken','voices.export':'Exporteren','voices.exported':'Opgeslagen als {name}.','voices.exportFail':'Exporteren is niet gelukt. Probeer het opnieuw.','voices.rename':'Hernoemen','voices.delete':'Verwijderen',
 'voices.save':'Opslaan','voices.cancel':'Annuleren','voices.info':'{n} klanken · {when}','voices.partial':'Onvolledig','voices.basis':'Basisronde','voices.deep':'Basis + verdieping','voices.old':'Ouder script',
 'voices.deepen':'Verdieping opnemen ({t})',
 'voices.sessionTag':'Deze sessie','voices.delTitle':'“{name}” verwijderen?','voices.delText':'De opname wordt uit deze browser verwijderd. Dit kan niet ongedaan worden gemaakt.',
@@ -513,7 +513,7 @@ function renderVoices(){
     info.appendChild(b);info.appendChild(p);row.appendChild(info);
     const act=document.createElement('div');act.className='vact';
     const mk=(lab,fn,cls)=>{const x=document.createElement('button');x.type='button';x.className='btn'+(cls?' '+cls:'');x.textContent=lab;x.onclick=fn;act.appendChild(x);return x};
-    mk(t('voices.use'),()=>useVoice(v));
+    mk(t('voices.use'),()=>useVoice(v));mk(t('voices.export'),()=>exportVoice(v));
     if(v.script==='basis'&&!v.extra)mk(t('voices.deepen',{t:roundTime('extra')}),()=>openStudio(v.id),'primary');
     mk(t('voices.rename'),()=>{info.innerHTML='';const inp=document.createElement('input');inp.type='text';inp.value=v.name;inp.setAttribute('aria-label',t('chk.name'));info.appendChild(inp);act.innerHTML='';
       mk(t('voices.save'),async()=>{const nm=inp.value.trim()||v.name;v.name=nm;try{if(!v.session)await dbPut(toStore(v))}catch(e){}renderVoices();refreshSide()},'primary');mk(t('voices.cancel'),()=>renderVoices());inp.focus()});
@@ -521,6 +521,11 @@ function renderVoices(){
       ENGINE_ORDER.forEach(e=>{if(st.cfg[e].voice==='own:'+v.id)st.cfg[e].voice=Object.keys(ENGINES[e].voices)[0]});saveCfg();renderVoices();refreshSide();checkStale()}));
     row.appendChild(act);l.appendChild(row)});
 }
+// the voice as a file for the web module (Babble.loadVoice) and later the Godot addon
+async function exportVoice(v){await ready();const name=(v.name.replace(/[^a-z0-9]+/gi,'-').replace(/^-+|-+$/g,'').toLowerCase()||'voice')+'.babble-voice.json';
+  const data=new TextEncoder().encode(JSON.stringify(voiceToFile(v,ctx.sampleRate)));
+  try{if(DL)await DL.save({filename:name.replace(/\.json$/,'.zip'),data:new Blob([makeZip(name,data)])});else saveBlob(new Blob([data],{type:'application/json'}),name);say(t('voices.exported',{name}))}
+  catch(e){say(t('voices.exportFail'))}}
 function useVoice(v){showView('make');if(EMETA[st.engine].rec){C().voice='own:'+v.id;refreshSide();saveCfg();checkStale();$('voiceMsg').hidden=true}else{$('voiceMsg').textContent=t('voices.inUseIncompat',{name:v.name});$('voiceMsg').hidden=false}}
 function confirmDlg(title,text,yes,no){return new Promise(res=>{$('cfTitle').textContent=title;$('cfText').textContent=text;$('cfYes').textContent=yes;$('cfNo').textContent=no;const d=$('cfDlg');
   const done=v=>{d.close();$('cfYes').onclick=$('cfNo').onclick=null;d.onclose=null;res(v)};$('cfYes').onclick=()=>done(true);$('cfNo').onclick=()=>done(false);d.onclose=()=>res(false);d.showModal();$('cfNo').focus()})}

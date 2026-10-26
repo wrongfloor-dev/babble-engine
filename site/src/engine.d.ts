@@ -39,6 +39,18 @@ export interface RenderOptions {
   brightness?: number;
   /** Consonant hiss and radio noise, 0 to 1, default 1. */
   hiss?: number;
+  /** A voice recorded in the tool, from loadVoice(). Voice styles only (not 'tone' or 'instr'). */
+  ownVoice?: OwnVoice;
+  /** Own voice only: 0 follows the recorded pitch, 1 (default) holds each syllable on the melody. */
+  steady?: number;
+}
+
+/** A recorded voice, loaded from a .babble-voice.json file. */
+export interface OwnVoice {
+  name: string;
+  sampleRate: number;
+  median: number;
+  grains: Float32Array[];
 }
 
 export interface Syllable {
@@ -83,6 +95,8 @@ export function toWav(result: RenderResult | Float32Array, sampleRate?: number):
 /** Browser only. Plays a render like the site does, with the style's room unless room is false. */
 export function play(result: RenderResult, options?: { context?: AudioContext; room?: boolean }): Playback;
 export function styles(): StyleInfo[];
+/** Load a .babble-voice.json file (exported from Voices & characters in the tool), as text or parsed JSON. */
+export function loadVoice(file: string | object): OwnVoice;
 
 declare const Babble: {
   version: typeof version;
@@ -90,6 +104,7 @@ declare const Babble: {
   toWav: typeof toWav;
   play: typeof play;
   styles: typeof styles;
+  loadVoice: typeof loadVoice;
 };
 export default Babble;
 

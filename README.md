@@ -22,7 +22,7 @@ Your characters want to talk. Your budget doesn't include voice actors. **Babble
 - 🐹 **11 styles, 47 voices**, from Critter Chatter to a talking trombone
 - 😄 **6 moods**: neutral, happy, angry, sad, flirty, surprised
 - 🎛️ **Tune every voice**: pitch, tempo, expression, throat size, breath, brightness
-- 🎤 **Record your own voice** and your characters babble with it: a sound no other game has. About 1.5 minutes of reading, and it works with all 9 voice styles. Recordings stay in your browser, nothing is uploaded
+- 🎤 **Record your own voice** and your characters babble with it: a sound no other game has. About 1.5 minutes of reading, and it works with all 9 voice styles. Recordings stay in your browser, nothing is uploaded. Export a voice to use it in your own game
 - 🧑‍🤝‍🧑 **Save characters** so Grandpa Hank sounds like Grandpa Hank every time
 - 💾 **Download WAV**, ready for any engine
 
@@ -60,15 +60,32 @@ Returns `{ pcm, sampleRate, duration, syllables, style, voice }`. `pcm` is a mon
 | `sampleRate` | `48000` | |
 | `pitch`, `speed`, `expression`, `throat`, `breath`, `brightness` | from the voice | override the voice |
 | `hiss` | `1` | consonant noise, 0 to 1 |
+| `ownVoice`, `steady` | none, `1` | a recorded voice from `loadVoice()`, see below. `steady` 0 follows your recorded pitch, 1 holds each syllable on the melody |
 | `intent`, `length` | `'tell'`, `'short'` | Vemmo only: it speaks by intent and ignores the text |
 
 👄 `syllables` is a list of `{ time, text }`: the start of every syllable in seconds. Flap a mouth, bounce a sprite or reveal subtitles in sync.
+
+### 🎤 Your own voice in your game
+
+1. Record your voice in the tool, under **Voices & characters**
+2. Click **Export** next to it. You get a `.babble-voice.json` file
+3. Load it and babble with it in any voice style:
+
+```js
+import { render, play, loadVoice } from 'https://cdn.jsdelivr.net/gh/wrongfloor-dev/babble-engine@1/site/src/babble.mjs';
+
+const me = loadVoice(await (await fetch('me.babble-voice.json')).text());
+play(render('Welcome to my game!', { style: 'sim', ownVoice: me }));
+```
+
+The file holds every recorded sound as 16-bit audio in JSON, so other engines can read it too.
 
 ### More
 
 - ▶️ `play(result, { room = true, context })`: browser only. Plays the line with the style's room, like the tool. Returns `{ stop(), ended, context }`
 - 💾 `toWav(result)`: a 16-bit mono WAV as an `ArrayBuffer`, dry
 - 📋 `styles()`: every style with its voices, moods and intents
+- 🎤 `loadVoice(file)`: a `.babble-voice.json` from the tool, as text or parsed JSON
 
 ## 🐾 Styles and voices
 
@@ -90,7 +107,6 @@ Returns `{ pcm, sampleRate, duration, syllables, style, voice }`. `pcm` is a mon
 
 ## 🗺️ What's next
 
-- 🎤 Export your recorded voice for use in your own game
 - 🤖 A Godot 4 addon with a `BabbleSpeaker` node and a signal per syllable
 
 ## 🛠️ Repository
@@ -101,6 +117,6 @@ Returns `{ pcm, sampleRate, duration, syllables, style, voice }`. `pcm` is a mon
 
 ## 📜 License
 
-Code: **MIT**, see [`LICENSE`](LICENSE). Audio you make with Babble Engine is **yours to use, also commercially**.
+Code: **MIT**, see [`LICENSE`](LICENSE). Audio you make with Babble Engine is **yours to use, also commercially**. No credit needed, but a mention is always welcome 💛
 
 <p align="center">Made with 🐹 by <a href="https://wrongfloor.studio"><b>Wrong Floor</b></a></p>

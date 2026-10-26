@@ -806,7 +806,7 @@ function renderStyle(engine,toks,o,sr,grains){
 }
 
 // ===== Web module: Babble.render(text, options) =====
-const BABBLE_VERSION='1.0.0';
+const BABBLE_VERSION='1.1.0';
 const MOOD_ALIAS={neutral:'neutraal',happy:'blij',angry:'boos',sad:'verdrietig',flirty:'flirterig',surprised:'verbaasd'};
 const SLIDER_NAMES={pitch:'pitch',speed:'speed',expression:'expr',throat:'form',breath:'breath',brightness:'tilt'};
 const hasKey=(o,k)=>typeof k==='string'&&Object.prototype.hasOwnProperty.call(o,k);
@@ -825,13 +825,36 @@ function babbleRender(text,opt={}){
   let toks;
   if(style==='vemmo')toks=vemmoClip(intent,opt.length==='medium'?'medium':'short',seed,'auto');
   else{toks=tokenize(String(text==null?'':text),style,seed,paletteLang(style)||makeLang(seed));if(style==='baby')toks=babyfy(toks)}
-  const o=styleOpts(style,preset,{mood:style==='vemmo'?intent:mood,sl,hiss:Number.isFinite(opt.hiss)?opt.hiss:1});
+  const own=opt.ownVoice||null;
+  if(own&&!(own.grains&&own.grains.length))throw new Error('Babble: ownVoice must come from Babble.loadVoice()');
+  if(own&&!EMETA[style].rec)throw new Error('Babble: style "'+style+'" has no voice to replace; own voices work with '+ENGINE_ORDER.filter(x=>EMETA[x].rec).join(', '));
+  const o=styleOpts(style,preset,{mood:style==='vemmo'?intent:mood,sl,hiss:Number.isFinite(opt.hiss)?opt.hiss:1,own,steady:Number.isFinite(opt.steady)?opt.steady:1});
   const prev=RND;RND=mulberry(seed);let r;
-  try{r=renderStyle(style,toks,o,sr,null)}finally{RND=prev}
+  try{r=renderStyle(style,toks,o,sr,own&&grainsAt(own,sr))}finally{RND=prev}
   for(let i=0;i<r.pcm.length;i++)if(!isFinite(r.pcm[i]))r.pcm[i]=0;
   return {pcm:r.pcm,sampleRate:sr,duration:r.pcm.length/sr,style,voice,
     syllables:r.marks.map(([time,i])=>({time,text:toks[i]?toks[i].text:''}))};
 }
+// Own voice file, made by the tool's Export button: JSON with every recorded sound as base64 16-bit PCM.
+const GRAIN_KEYS=['c','v','pos','f0','loud'];
+function b64(bytes){let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));return btoa(s)}
+function voiceToFile(v,sampleRate){
+  return {format:'babble-voice',version:1,name:v.name,sampleRate,median:v.median,complete:v.complete!==false,
+    sounds:v.grains.map(g=>{const o={},n=new Int16Array(g.length);for(let i=0;i<g.length;i++){const x=Math.max(-1,Math.min(1,g[i]||0));n[i]=x<0?x*0x8000:x*0x7FFF}
+      GRAIN_KEYS.forEach(k=>{if(g[k]!==undefined)o[k]=g[k]});o.pcm=b64(new Uint8Array(n.buffer));return o})};
+}
+function loadVoice(file){
+  const f=typeof file==='string'?JSON.parse(file):file;
+  if(!f||f.format!=='babble-voice'||f.version!==1||!Array.isArray(f.sounds)||!f.sounds.length||!(f.sampleRate>0))throw new Error('Babble: not a Babble voice file (export one from Voices & characters on babble.wrongfloor.studio)');
+  const grains=f.sounds.map(s=>{const bin=atob(s.pcm),n=new Int16Array(bin.length>>1);for(let i=0;i<n.length;i++)n[i]=(bin.charCodeAt(2*i)|bin.charCodeAt(2*i+1)<<8)<<16>>16;
+    const g=new Float32Array(n.length);for(let i=0;i<n.length;i++)g[i]=n[i]/0x8000;GRAIN_KEYS.forEach(k=>{if(s[k]!==undefined)g[k]=s[k]});return g});
+  return {name:String(f.name||'Voice'),sampleRate:f.sampleRate,median:Number.isFinite(f.median)?f.median:180,grains,_at:{}};
+}
+// recorded sounds at the render's sample rate (linear, cached per rate)
+function grainsAt(voice,sr){if(voice.sampleRate===sr)return voice.grains;if(voice._at&&voice._at[sr])return voice._at[sr];
+  const k=voice.sampleRate/sr,out=voice.grains.map(g=>{const n=Math.max(1,Math.floor(g.length/k)),o=new Float32Array(n);
+    for(let i=0;i<n;i++){const p=i*k,j=Math.floor(p),f=p-j;o[i]=(g[j]||0)*(1-f)+(g[j+1]||0)*f}GRAIN_KEYS.forEach(key=>{if(g[key]!==undefined)o[key]=g[key]});return o});
+  if(voice._at)voice._at[sr]=out;return out}
 // 16-bit mono WAV, dry (no room).
 function babbleWav(res,sampleRate){
   const pcm=res.pcm||res,sr=res.sampleRate||sampleRate||48000,n=pcm.length,b=new ArrayBuffer(44+n*2),v=new DataView(b);
@@ -859,7 +882,7 @@ function babbleStyles(){
     voices:Object.entries(ENGINES[id].voices).map(([vid,v])=>({id:vid,name:v.name,description:v.d.en})),
     moods:id==='vemmo'?[]:Object.keys(MOOD_ALIAS),intents:id==='vemmo'?Object.keys(INTENTS):[]}));
 }
-const Babble={version:BABBLE_VERSION,render:babbleRender,toWav:babbleWav,play:babblePlay,styles:babbleStyles};
+const Babble={version:BABBLE_VERSION,render:babbleRender,toWav:babbleWav,play:babblePlay,styles:babbleStyles,loadVoice};
 globalThis.Babble=Babble;
 
-if(typeof module!=='undefined')module.exports={pitchTrack,postFX,paletteLang,babyfy,makeAmbient,analyzeScriptRecording,studioSchedule,estimateF0,renderTone,segmentBySilence,scriptToks,buildScript,labelGrains,vemmoClip,INTENTS,ANCHORS,buildPhones,synthPhones,prosody,tokenize,makeLang,renderSynth,renderSample,analyzeGrains,MOODS,renderStyle,styleOpts,ENGINES,EMETA,ENGINE_ORDER,Babble,...Babble};
+if(typeof module!=='undefined')module.exports={pitchTrack,postFX,paletteLang,babyfy,makeAmbient,analyzeScriptRecording,studioSchedule,estimateF0,renderTone,segmentBySilence,scriptToks,buildScript,labelGrains,vemmoClip,INTENTS,ANCHORS,buildPhones,synthPhones,prosody,tokenize,makeLang,renderSynth,renderSample,analyzeGrains,MOODS,renderStyle,styleOpts,ENGINES,EMETA,ENGINE_ORDER,voiceToFile,Babble,...Babble};

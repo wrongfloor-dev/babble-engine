@@ -44,6 +44,31 @@ const tag = o => String.fromCharCode(...[0, 1, 2, 3].map(i => w.getUint8(o + i))
 if (tag(0) !== 'RIFF' || tag(8) !== 'WAVE' || tag(36) !== 'data') fail('wav', 'bad header');
 if (w.getUint32(24, true) !== 22050 || w.getUint32(40, true) !== r.pcm.length * 2) fail('wav', 'rate or length wrong');
 
+// own voice: a made-up voice (one short tone per script sound) survives export and loading, and renders
+{
+  const sr = 32000, flat = B.buildScript('basis').flat();
+  const grains = flat.map((s, i) => { const f0 = 140 + (i % 7) * 12, g = new Float32Array(Math.round(sr * 0.18));
+    for (let j = 0; j < g.length; j++) g[j] = 0.5 * Math.sin(2 * Math.PI * f0 * j / sr) * Math.sin(Math.PI * j / g.length);
+    Object.assign(g, { c: s.c, v: s.v, pos: i % 4, f0 }); return g });
+  const file = JSON.parse(JSON.stringify(B.voiceToFile({ name: 'Test', median: 170, grains }, sr)));
+  const voice = B.loadVoice(file);
+  if (voice.grains.length !== grains.length || voice.grains[3].c !== grains[3].c || voice.grains[3].v !== grains[3].v) fail('own voice', 'sounds or labels lost in the file');
+  const err = Math.max(...grains[5].map((x, j) => Math.abs(x - voice.grains[5][j])));
+  if (err > 1 / 16000) fail('own voice', `samples changed by ${err}`);
+  for (const style of ['sim', 'animal', 'grumble', 'echo']) for (const rate of [32000, 48000]) {
+    const r = B.render(TEXT, { style, ownVoice: voice, sampleRate: rate, seed: 2 });
+    let peak = 0; for (const x of r.pcm) peak = Math.max(peak, Math.abs(x));
+    if (peak < 0.01 || !r.syllables.length) fail('own voice', `${style} at ${rate} Hz: no sound`);
+  }
+  const a = B.render(TEXT, { style: 'sim', ownVoice: voice, seed: 2 }).pcm, b = B.render(TEXT, { style: 'sim', ownVoice: voice, seed: 2 }).pcm;
+  if (!same(a, b)) fail('own voice', 'same seed gave different sound');
+  if (same(a, B.render(TEXT, { style: 'sim', seed: 2 }).pcm)) fail('own voice', 'sounds the same as the built-in voice');
+  for (const [what, fn] of [['tone style', () => B.render(TEXT, { style: 'tone', ownVoice: voice })], ['bad file', () => B.loadVoice({ format: 'x' })], ['bad ownVoice', () => B.render(TEXT, { ownVoice: {} })]]) {
+    let threw = false; try { fn() } catch (e) { threw = /^Babble: /.test(e.message) }
+    if (!threw) fail('own voice', `no clear error for ${what}`);
+  }
+}
+
 // ES module entry gives the same API, versions agree
 const M = await import('../site/src/babble.mjs');
 if (M.render !== B.render || M.default !== B.Babble) fail('esm', 'babble.mjs exports differ');
