@@ -19,6 +19,7 @@ Everything that goes online lives in `site/` (Cloudflare Workers static assets, 
 - Variants and characters (2026-10-25): per style, `cur()` is the latest result and `SV()` the variants saved with "+ Save variant" (each keeps its settings; clicking one plays it and restores them, × removes it; session only). "Save as character" stores style, voice, emotion, sliders, variation (`salt`/`take`) and language seed in `localStorage` `bm.chars`; characters show under Voice and in My voices. Keep UI copy short.
 - `docs/art/`: the README pictures. SVG with the site fonts embedded, made by `node docs/art/make-art.cjs` (run it again after changing styles, voices or the critters in app.js); `tool.png` is a screenshot of the tool.
 - `site/src/app.js` – UI: i18n (EN/NL in `STR`), make screen, voices storage (IndexedDB `babble-machine`/`voices`: the old name is kept on purpose so voices saved earlier stay available), studio (mic, prompter, recorder)
+- `addons/babble_engine/babble_engine.gd` – Godot 4 addon (phase 2, started 2026-10-26): a GDScript port of engine.js, `BabbleEngine.render(text, options)` with snake_case options (`sample_rate`). Must give the same samples as the web module: same RNGs (`rng` xorshift, `mulberry` for noise), JS rounding (`js_round`), Float32 where JS uses Float32Array. Errors: `push_error` and an empty Dictionary (no exceptions in Godot). Done: Critter Chatter and Babblish. Next: the other voice styles and effects, Soft Tones/Instruments, own voice, a `BabbleSpeaker` node. Speed: about 15× slower than the web module, so render in a background thread.
 
 ## Rules
 - Don't change synthesis algorithms for visual work.
@@ -33,6 +34,7 @@ Everything that goes online lives in `site/` (Cloudflare Workers static assets, 
 ## Run / test
 - Serve `site/` locally: `npx wrangler dev` (applies `_headers` and the 404 page) or `python3 -m http.server -d site`, then open http://localhost:8787 or :8000 (microphone needs http(s), not file://).
 - Build check, no dependencies: `node tests/check.mjs` (STR keys EN = NL, banned writing patterns in STR and in the style and voice descriptions in app.js and engine.js, links, sitemap, strict-CSP readiness, headers).
+- Godot parity: `GODOT=<path to Godot console exe> node tests/godot.mjs` renders the same lines in a temporary Godot project and the web module and compares sample by sample (`tests/godot/runner.gd`).
 - Engine check: `node tests/engine.mjs` (every voice renders without NaN, syllable times in order, same seed same sound, clear errors for bad options, valid WAV, `babble.mjs` exports, version = `package.json`). Both: `npm test`.
 - Browser tests (Playwright, Chromium with a fake microphone): `tests/make_screen.py`, `tests/studio.py`. **Out of date** (2026-10-25): they target an older UI (`#voiceSel`, `brabbel.html`, `pw.py`) and a single-file `t2.html`; rewrite them against `site/` via a local server.
 - The fake microphone is a test tone, not a voice: real voice recording still needs a manual check.
