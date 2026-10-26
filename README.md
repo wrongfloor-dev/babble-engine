@@ -143,7 +143,7 @@ Same text, options and seed give the same sound as the web module, sample for sa
 - `site/`: the tool as published on babble.wrongfloor.studio. Plain HTML and JavaScript, no build step. `site/src/engine.js` is the engine, shared by the tool and the web module
 - `addons/babble_engine/`: the Godot 4 addon
 - `tests/`: `node tests/check.mjs` (copy, links, headers) and `node tests/engine.mjs` (every voice renders, seeds repeat, WAV is valid). Or just `npm test`. With Godot installed, `GODOT=<path to the console exe> node tests/godot.mjs` compares the addon with the web module
-- `docs/art/`: the pictures in this README
+- `docs/art/`: the pictures in this README, the Asset Library icon (`icon.svg` → `icon.png`) and the Godot demo screenshot
 
 ## 📜 License
 

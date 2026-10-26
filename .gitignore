@@ -2,6 +2,8 @@
 node_modules/
 .wrangler/
 .dev.vars
+# Godot editor cache (when the addon is opened as a project)
+.godot/
 t.html
 t2.html
 *.log
