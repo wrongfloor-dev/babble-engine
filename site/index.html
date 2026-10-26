@@ -4,16 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Babble Engine: free gibberish voice generator for games</title>
-<meta name="description" content="Turn a line of text into gibberish speech for your game characters. 11 styles, record your own voice, export WAV. Free, runs in your browser.">
+<meta name="description" content="Turn a line of text into gibberish speech for your game characters. 16 styles, record your own voice, export WAV. Free, runs in your browser.">
 <link rel="canonical" href="https://babble.wrongfloor.studio/">
 <meta property="og:title" content="Babble Engine: free gibberish voice generator for games">
-<meta property="og:description" content="Turn a line of text into gibberish speech for your game characters. 11 styles, record your own voice, export WAV. Free, runs in your browser.">
+<meta property="og:description" content="Turn a line of text into gibberish speech for your game characters. 16 styles, record your own voice, export WAV. Free, runs in your browser.">
 <meta property="og:url" content="https://babble.wrongfloor.studio/">
 <meta property="og:type" content="website">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preload" href="fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="src/styles.css">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://wrongfloor.studio/#org","name":"Wrong Floor","url":"https://wrongfloor.studio/"},{"@type":"WebSite","@id":"https://babble.wrongfloor.studio/#site","name":"Babble Engine","url":"https://babble.wrongfloor.studio/","inLanguage":"en","publisher":{"@id":"https://wrongfloor.studio/#org"}},{"@type":"SoftwareApplication","name":"Babble Engine","url":"https://babble.wrongfloor.studio/","applicationCategory":"MultimediaApplication","operatingSystem":"Web browser","description":"Turn a line of text into gibberish speech for your game characters. 11 styles, record your own voice, export WAV. Free, runs in your browser.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"license":"https://github.com/wrongfloor-dev/babble-engine/blob/main/LICENSE","creator":{"@id":"https://wrongfloor.studio/#org"},"isPartOf":{"@id":"https://babble.wrongfloor.studio/#site"}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://wrongfloor.studio/#org","name":"Wrong Floor","url":"https://wrongfloor.studio/"},{"@type":"WebSite","@id":"https://babble.wrongfloor.studio/#site","name":"Babble Engine","url":"https://babble.wrongfloor.studio/","inLanguage":"en","publisher":{"@id":"https://wrongfloor.studio/#org"}},{"@type":"SoftwareApplication","name":"Babble Engine","url":"https://babble.wrongfloor.studio/","applicationCategory":"MultimediaApplication","operatingSystem":"Web browser","description":"Turn a line of text into gibberish speech for your game characters. 16 styles, record your own voice, export WAV. Free, runs in your browser.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"license":"https://github.com/wrongfloor-dev/babble-engine/blob/main/LICENSE","creator":{"@id":"https://wrongfloor.studio/#org"},"isPartOf":{"@id":"https://babble.wrongfloor.studio/#site"}}]}</script>
 </head>
 <body>
 <div id="sr" class="sr" aria-live="polite"></div>
@@ -55,6 +55,7 @@
     <section class="panel compose" aria-labelledby="sayLbl">
       <h2 class="disp" id="sayLbl">What does it say?</h2>
       <div class="field" id="fTxt"><textarea id="txt" aria-labelledby="sayLbl"></textarea><button class="link" id="exBtn" aria-haspopup="dialog" data-t="make.examples">Choose example text</button></div>
+      <div class="field" id="fName" hidden><label for="nameIn" data-t="side.name">Name it says</label><input type="text" id="nameIn" maxlength="24" autocomplete="off" spellcheck="false"></div>
       <div class="field" id="fMood"><span class="lbl" id="moodLbl" data-t="side.emotion">Emotion</span><div class="chips" id="moodChips" role="group" aria-labelledby="moodLbl"></div></div>
       <div class="field" id="fIntent"><span class="lbl" id="intentLbl" data-t="side.intent">Intent</span><div class="chips" id="intentChips" role="group" aria-labelledby="intentLbl"></div><p class="hint" id="intentDesc"></p></div>
       <div class="field" id="fLen"><span class="lbl" id="lenLbl" data-t="side.length">Length</span>
@@ -147,42 +148,46 @@
     <h1 data-t="st.title">Add your own voice</h1>
     <p class="lead center" id="stRound"></p>
     <p class="private center" data-t="st.private">Your recording stays in this browser. Nothing is uploaded.</p>
-    <ol class="stepper" id="stepper"><li data-s="1"><span class="n">1</span><span data-t="st.s1">Prepare</span></li><li data-s="2"><span class="n">2</span><span data-t="st.s2">Record</span></li><li data-s="3"><span class="n">3</span><span data-t="st.s3">Check</span></li></ol>
+    <ol class="stepper" id="stepper"><li data-s="1"><span data-t="st.s1">Prepare</span></li><li data-s="2"><span data-t="st.s2">Record</span></li><li data-s="3"><span data-t="st.s3">Check</span></li></ol>
 
-    <!-- Prepare -->
+    <!-- Prepare: four steps in order, each ticks off when done -->
     <section class="panel" id="spPrep">
-      <h2 data-t="prep.mic">Check your microphone</h2>
-      <p class="hint" data-t="prep.micHint">Speak at a normal volume and watch the level.</p>
-      <div class="field" id="fMicSel" hidden><label for="micSel" data-t="prep.micLabel">Microphone</label><select id="micSel"></select></div>
-      <div class="meterrow" id="micMeterRow" hidden><div class="meter" id="meter1" aria-hidden="true"></div><span class="mstate" id="micLevelTxt"></span></div>
-      <p id="micState" class="hint" role="status"></p>
-      <div><button class="btn" id="micAsk" data-t="prep.micAsk">Allow microphone</button></div>
-      <hr>
-      <h2 data-t="prep.how">How it works</h2>
-      <ol class="steps3"><li data-t="prep.h1">Listen to the example.</li><li data-t="prep.h2">Say the four sounds in one breath.</li><li data-t="prep.h3">During the recording, follow the highlighted sounds.</li></ol>
-      <div class="exrow"><button class="btn" id="exPlay">▶ <span data-t="prep.listen">Listen to an example</span></button><span class="chunk" id="exChunk"></span></div>
-      <p class="hint" data-t="prep.headphones">Use headphones so the guide tone isn't recorded.</p>
-      <details id="dRecSet"><summary><span class="sumwrap"><span data-t="prep.settings">Recording settings</span><span class="sum" id="recSum"></span></span></summary>
-        <div class="dbody">
-          <div class="setgrid">
-            
-            <div class="field"><label for="setTempo" data-t="prep.tempo">Tempo</label><select id="setTempo"><option value="relaxed" data-t="prep.relaxed">Relaxed</option><option value="normal" data-t="prep.normal">Normal</option></select></div>
-            <div class="field"><label for="setNote" data-t="prep.note">Your note</label><select id="setNote"><option value="low" data-t="prep.low">Low</option><option value="mid" data-t="prep.mid">Medium</option><option value="high" data-t="prep.high">High</option></select><button class="link" id="playNote" data-t="prep.playNote">Play this note</button></div>
-            <div class="field"><label for="setGuide" data-t="prep.guide">Guide tone</label><select id="setGuide"><option value="on" data-t="prep.on">On</option><option value="off" data-t="prep.off">Off</option></select></div>
-          </div>
-          <button class="link" id="showScript" aria-expanded="false" data-t="prep.showScript">Show full script</button>
-          <div class="scriptlist" id="scriptList" hidden></div>
-        </div>
-      </details>
-      <p class="calc" id="recCalc"></p>
-      <div class="duo"><button class="btn" id="practice" data-t="prep.practice">Practice two lines</button><button class="btn primary" id="toRecord" data-t="prep.toRecord">Go to recording</button></div>
-      <p class="hint center" id="toRecHint"></p>
-      <div class="altroute" id="altRoute">
-        <h3 data-t="prep.altTitle">No microphone here?</h3>
-        <p class="hint" data-t="prep.altText">Record with your phone or another app, then upload the file. The reading guide shows the script at the right pace while you record elsewhere.</p>
-        <div class="row2"><button class="btn" id="toUpload" data-t="prep.upload">Upload a recording</button><button class="btn" id="prompterOnly" data-t="prep.guideOnly">Start reading guide</button></div>
-        <p class="hint" data-t="prep.guideNote">Reading guide only. Nothing is recorded.</p>
-      </div>
+      <ol class="psteps">
+        <li class="pstep" id="psMic"><span class="pn" aria-hidden="true"><b>1</b></span><div class="pb">
+          <h2 data-t="prep.mic">Microphone</h2>
+          <div class="field" id="fMicSel" hidden><label for="micSel" class="sr" data-t="prep.micLabel">Microphone</label><select id="micSel"></select></div>
+          <div class="meterrow" id="micMeterRow" hidden><div class="meter" id="meter1" aria-hidden="true"></div><span class="mstate" id="micLevelTxt"></span></div>
+          <p id="micState" class="hint" role="status"></p>
+          <div><button class="btn" id="micAsk" data-t="prep.micAsk">Allow microphone</button></div>
+        </div></li>
+        <li class="pstep" id="psListen"><span class="pn" aria-hidden="true"><b>2</b></span><div class="pb">
+          <h2 data-t="prep.how">Listen</h2>
+          <div class="exrow"><button class="btn" id="exPlay">▶ <span data-t="prep.listen">Play example</span></button><span class="chunk" id="exChunk"></span></div>
+          <p class="hint" data-t="prep.h2">Say all four in one breath. Wear headphones.</p>
+        </div></li>
+        <li class="pstep" id="psPractice"><span class="pn" aria-hidden="true"><b>3</b></span><div class="pb">
+          <h2><span data-t="prep.h1">Practice</span> <span class="opt" data-t="prep.h3">optional</span></h2>
+          <div><button class="btn" id="practice" data-t="prep.practice">Practice two lines</button></div>
+        </div></li>
+        <li class="pstep" id="psRec"><span class="pn" aria-hidden="true"><b>4</b></span><div class="pb">
+          <h2 data-t="prep.s4">Record</h2>
+          <p class="hint" id="recCalc"></p>
+          <div><button class="btn primary big" id="toRecord" data-t="prep.toRecord">Start recording</button></div>
+          <p class="hint" id="toRecHint"></p>
+          <details id="dRecSet"><summary><span class="sumwrap"><span data-t="prep.settings">Settings</span><span class="sum" id="recSum"></span></span></summary>
+            <div class="dbody">
+              <div class="setgrid">
+                <div class="field"><label for="setTempo" data-t="prep.tempo">Tempo</label><select id="setTempo"><option value="slow" data-t="prep.slow">Slow</option><option value="relaxed" data-t="prep.relaxed">Relaxed</option><option value="normal" data-t="prep.normal">Normal</option></select></div>
+                <div class="field"><label for="setNote" data-t="prep.note">Your note</label><select id="setNote"><option value="low" data-t="prep.low">Low</option><option value="mid" data-t="prep.mid">Medium</option><option value="high" data-t="prep.high">High</option></select><button class="link" id="playNote" data-t="prep.playNote">Play this note</button></div>
+                <div class="field"><label for="setGuide" data-t="prep.guide">Guide tone</label><select id="setGuide"><option value="on" data-t="prep.on">On</option><option value="off" data-t="prep.off">Off</option></select></div>
+              </div>
+              <button class="link" id="showScript" aria-expanded="false" data-t="prep.showScript">Show full script</button>
+              <div class="scriptlist" id="scriptList" hidden></div>
+            </div>
+          </details>
+        </div></li>
+      </ol>
+      <p class="altroute" id="altRoute"><span data-t="prep.altTitle">No microphone?</span> <button class="link" id="toUpload" data-t="prep.upload">Upload a recording</button> · <button class="link" id="prompterOnly" data-t="prep.guideOnly">Reading guide</button></p>
     </section>
 
     <!-- Record -->
@@ -228,7 +233,7 @@
         <div class="sub">
           <h3 data-t="chk.b">2. As babble</h3>
           <p class="hint" data-t="chk.bHint">An example made with your recording. Nothing is saved yet.</p>
-          <div class="field"><label for="prevEngine" data-t="make.style">Sound style</label><select id="prevEngine"><option value="animal">Critter Chatter</option><option value="sim">Babblish</option><option value="vemmo">Vemmo</option></select></div>
+          <div class="field"><label for="prevEngine" data-t="make.style">Sound style</label><select id="prevEngine"><option value="animal">Critter Chatter</option><option value="sim">Babblish</option><option value="vemmo">Bloopa Doopa</option></select></div>
           <div class="player"><button class="btn" id="prevPlay"></button><canvas id="prevWave" aria-hidden="true"></canvas><span class="dur" id="prevDur"></span></div>
           <p class="sounds" id="prevText"></p>
         </div>

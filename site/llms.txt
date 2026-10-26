@@ -11,7 +11,7 @@ Babble Engine is for game developers who want characters to "talk" without voice
 
 ## Styles
 
-11 styles. Voice styles (work with your own recorded voice): Critter Chatter, Babblish, Vemmo, Grumble, Gizmo, Sprite, Babytalk, Echo Folk, Mumble Radio. Sound styles (no voice): Soft Tones, Talking Instruments.
+16 styles. Voice styles (work with your own recorded voice): Critter Chatter, Babblish, Bloopa Doopa, Name Talk, Grunts & Barks, Grumble, Gizmo, Sprite, Spooky Whisper, Echo Folk, Mumble Radio, Babytalk. Sound styles (no voice): Text Blips, Droid Chirps, Soft Tones, Talking Instruments (with a kazoo).
 
 ## License
 

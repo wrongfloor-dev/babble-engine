@@ -19,10 +19,10 @@ Your characters want to talk. Your budget doesn't include voice actors. **Babble
 
 <p align="center"><img src="docs/art/tool.png" alt="The Babble Engine tool: style cards at the top, a text box on the left and Fern the critter speaking the line in a speech bubble on the right" width="100%"></p>
 
-- 🐹 **11 styles, 47 voices**, from Critter Chatter to a talking trombone
+- 🐹 **16 styles, 70 voices**, from Critter Chatter to retro text blips and a talking kazoo
 - 😄 **6 moods**: neutral, happy, angry, sad, flirty, surprised
 - 🎛️ **Tune every voice**: pitch, tempo, expression, throat size, breath, brightness
-- 🎤 **Record your own voice** and your characters babble with it: a sound no other game has. About 1.5 minutes of reading, and it works with all 9 voice styles. Recordings stay in your browser, nothing is uploaded. Export a voice to use it in your own game
+- 🎤 **Record your own voice** and your characters babble with it: a sound no other game has. The basic round is under 2 minutes of reading and works with all 12 voice styles. Optional short rounds add double consonants (bl, kr), word endings (ahp, ohm) and barks, and you can redo any round. Recordings stay in your browser, nothing is uploaded. Export a voice to use it in your own game
 - 🧑‍🤝‍🧑 **Save characters** so Grandpa Hank sounds like Grandpa Hank every time
 - 💾 **Download WAV**, ready for any engine
 
@@ -61,7 +61,8 @@ Returns `{ pcm, sampleRate, duration, syllables, style, voice }`. `pcm` is a mon
 | `pitch`, `speed`, `expression`, `throat`, `breath`, `brightness` | from the voice | override the voice |
 | `hiss` | `1` | consonant noise, 0 to 1 |
 | `ownVoice`, `steady` | none, `1` | a recorded voice from `loadVoice()`, see below. `steady` 0 follows your recorded pitch, 1 holds each syllable on the melody |
-| `intent`, `length` | `'tell'`, `'short'` | Vemmo only: it speaks by intent and ignores the text |
+| `name` | the voice's name | Name Talk only: the name the creature keeps saying, like `'Pikachu'` |
+| `intent`, `length` | `'tell'`, `'short'` | Bloopa Doopa only: it speaks by intent (`greet`, `ask`, `joy`, `letdown`…) and ignores the text |
 
 👄 `syllables` is a list of `{ time, text }`: the start of every syllable in seconds. Flap a mouth, bounce a sprite or reveal subtitles in sync.
 
@@ -78,7 +79,7 @@ const me = loadVoice(await (await fetch('me.babble-voice.json')).text());
 play(render('Welcome to my game!', { style: 'sim', ownVoice: me }));
 ```
 
-The file holds every recorded sound as 16-bit audio in JSON, so other engines can read it too.
+The file holds every recorded sound as 16-bit audio in JSON, including the extra rounds, so other engines can read it too.
 
 ### More
 
@@ -89,21 +90,26 @@ The file holds every recorded sound as 16-bit audio in JSON, so other engines ca
 
 ## 🐾 Styles and voices
 
-<p align="center"><img src="docs/art/styles.svg" alt="The 11 styles as cards, each with its critter and what it says for 'Hi! Do you want an apple?'" width="100%"></p>
+<p align="center"><img src="docs/art/styles.svg" alt="The 16 styles as cards, each with its critter and what it says for 'Hi! Do you want an apple?'" width="100%"></p>
 
 | | Style | Name | Voices |
 |---|---|---|---|
 | 🐹 | `animal` | Critter Chatter | `fern`, `burt`, `pip`, `lowell`, `bleep` |
 | 🗣️ | `sim` | Babblish | `lottie`, `ben`, `kiki`, `hank`, `whisper`, `bubs` |
-| 🔨 | `vemmo` | Vemmo | `jesse`, `bram`, `mila` |
+| 🎪 | `vemmo` | Bloopa Doopa | `jesse`, `bram`, `mila` |
+| 🐾 | `name` | Name Talk | `moki`, `grumbo`, `zee`, `lulu`, `bonk` |
+| 🗡️ | `bark` | Grunts & Barks | `hero`, `heroine`, `elder`, `kid`, `brute` |
 | 👹 | `grumble` | Grumble | `grok`, `moss`, `burly` |
 | 🤖 | `gizmo` | Gizmo | `bolt`, `cog`, `unit9` |
 | 🧚 | `sprite` | Sprite | `fae`, `wisp`, `glimmer` |
+| 👻 | `ghost` | Spooky Whisper | `whisper`, `wail`, `hollow` |
 | 🏘️ | `echo` | Echo Folk | `village`, `crowd`, `kids` |
 | 📻 | `radio` | Mumble Radio | `dispatch`, `pilot`, `scout` |
 | 👶 | `baby` | Babytalk | `tot`, `bubba`, `mini` |
 | 🎐 | `tone` | Soft Tones | `clouds`, `softbubble`, `rain`, `breeze`, `hum`, `purr`, `wood`, `droplet`, `kalimba`, `felt`, `bubble`, `glass` |
-| 🎺 | `instr` | Talking Instruments | `horn`, `trombone`, `choir` |
+| 💬 | `blip` | Text Blips | `pixel`, `tiny`, `boss`, `soft`, `typewriter` |
+| 🛰️ | `droid` | Droid Chirps | `beebo`, `rollo`, `zapp`, `mini` |
+| 🎺 | `instr` | Talking Instruments | `horn`, `trombone`, `choir`, `kazoo` |
 
 ## 🗺️ What's next
 

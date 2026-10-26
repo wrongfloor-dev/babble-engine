@@ -33,7 +33,7 @@ function makeLang(seed){
   return {cons,vow,codas,name};
 }
 function sylFromText(t){
-  const m=t.toLowerCase().match(/^(sh|[bcdfghjklmnpqrstvwxz]?)([aeiouy]+)(sh|[bcdfghjklmnpqrstvwxz]*)$/);
+  const m=t.toLowerCase().match(/^(sh|[bcdfgkp][lr]|[bcdfghjklmnpqrstvwxz]?)([aeiouy]+)(sh|[bcdfghjklmnpqrstvwxz]*)$/);
   if(!m)return {c:'',v:'a',k:''};
   let v=m[2];if(!VSPEC[v])v=v[0];return {c:m[1]==='c'?'k':m[1],v,k:m[3].slice(0,2)==='sh'?'sh':m[3].slice(0,1)};
 }
@@ -44,7 +44,7 @@ function tokenize(text,engine,seed,LANG){
     if(/^[.,!?;:…]+$/.test(p)){toks.push({type:'punct',text:p,mark:p.slice(-1)});return}
     if(!/[A-Za-zÀ-ÿ0-9]/.test(p)){toks.push({type:'punct',text:p,mark:''});return}
     if(engine==='tone'||engine==='instr'){const n=Math.max(1,Math.round(p.length/3));toks.push({type:'syl',text:p,n,c:'',v:'a',k:'',jit:(hash(p.toLowerCase())%1000)/1000,stress:true});return}
-    if(engine==='animal'){
+    if(engine==='animal'||engine==='blip'){
       [...p].forEach((ch,ci)=>{
         const l=ch.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
         let c='',v='a';
@@ -77,87 +77,118 @@ function tokenize(text,engine,seed,LANG){
 }
 
 
-// ===== Vemmo (De Workshopbende) =====
+// ===== Bloopa Doopa (De Workshopbende): cartoon sound jokes, picked by intent. The internal id stays 'vemmo'. =====
+// Per intent: how it sounds (p, s, e, a, c, end, tilt, oq, b as in MOODS) and the language: onsets (ons), word endings (tail),
+// tricks (jump: zip zap zoo, rhyme: hoppa-doppa, plain: boopy), closer chance (clos), interjections (ij), sung notes (sing), anchors.
 const INTENTS={
-  greet:{n:'Greet',p:2,s:1.05,e:.1,a:1.05,c:p=>3*Math.sin(p*Math.PI),end:-2,tilt:.05,oq:0,w:{v:3,d:3,n:1.5,sh:1,t:1,k:1},endV:{ay:3,i:2,o:1.5},anc:['dovvi','shikka'],at:'start',mark:'!',d:'Warm and open. Melody rises and falls. Lots of v, d and -ay.'},
-  bye:{n:'Goodbye',p:-1,s:.9,e:-.05,a:.9,c:p=>-2*p,end:-3,tilt:-.05,oq:.04,b:.08,w:{v:3,n:3,m:2,d:1,sh:1},endV:{oo:3,o:2,i:1},anc:['vemmo'],at:'end',mark:'.',d:'Soft and content. Slowly falling. Soft v, n, m.'},
-  tell:{n:'Tell',p:0,s:1,e:-.1,a:1,c:p=>-1.2*p,end:-2,tilt:0,oq:0,w:{v:2,sh:2,d:2,t:2,k:2,n:2},endV:{a:2,i:2,o:2,oo:1,ay:1},anc:[],mark:'.',d:'Neutral. Flat melody with a slight fall. Mixed palette.'},
-  explain:{n:'Explain',p:0,s:.95,e:0,a:1,c:p=>1.5*Math.sin(p*Math.PI*3),end:-1.5,tilt:.05,oq:0,w:{t:3,k:3,d:2,v:1,n:1},endV:{a:3,o:2,i:1},anc:[],mark:'.',d:'Calm and clear. Wavy, a little stress on every word. Lots of t, k, d.'},
-  ask:{n:'Ask',p:1,s:1,e:.05,a:1,c:p=>0,end:7,tilt:0,oq:0,w:{n:3,v:3,sh:1,d:1},endV:{oo:4,a:1,i:1},anc:['navoo'],at:'end',mark:'?',d:'Open. Clearly up at the end. Lots of n, v and -oo.'},
-  curious:{n:'Curious',p:3,s:1.05,e:.2,a:1.05,c:p=>4*p,end:6,tilt:.05,oq:.02,w:{sh:3,v:2,n:2,d:1},endV:{oo:3,i:2,ay:1},interj:['oh'],anc:[],mark:'?',d:'Surprised. Rises across the whole line. sh, v and -oo, sometimes an “oh”.'},
-  joy:{n:'Joy',p:4,s:1.12,e:.25,a:1.15,c:p=>2.5*Math.sin(p*Math.PI*2),end:2,tilt:.1,oq:0,w:{sh:3,v:2,t:2,k:1},endV:{ay:4,i:2},interj:['ha'],anc:['shevay'],at:'any',mark:'!',d:'Exuberant. Bouncy, high melody. Lots of sh and -ay, sometimes “ha”.'},
-  cheer:{n:'Cheer',p:3,s:1.1,e:.2,a:1.2,c:p=>2*p,end:3,tilt:.12,oq:-.03,w:{t:3,k:3,n:2,v:1},endV:{ay:4,a:1},anc:['takka'],at:'start',mark:'!',d:'Energetic. Builds toward the end. Bright t, k and -ay.'},
-  think:{n:'Think',p:-1,s:.8,e:-.05,a:.85,c:p=>1.5*Math.sin(p*Math.PI),end:1,tilt:-.05,oq:.05,b:.1,w:{m:3,n:3,v:2,d:1},endV:{o:3,oo:2,a:1},interj:['hm'],anc:[],mark:'…',d:'Hesitant. Slow, the end hangs. Lots of m, n, o and an “hm”.'},
-  letdown:{n:'Letdown',p:-2,s:.82,e:-.1,a:.85,c:p=>-3.5*p,end:-4,tilt:-.1,oq:.06,b:.15,w:{n:3,v:2,m:2,d:1},endV:{o:3,oo:2,a:1},interj:['aah','oh'],anc:[],mark:'.',d:'Mildly disappointed, never pitiful. Fades down. Soft sounds, “aah”.'},
-  agree:{n:'Agree',p:1,s:1,e:.05,a:1,c:p=>-1.5*p,end:-2,tilt:.02,oq:0,w:{v:3,m:3,n:1,d:1},endV:{o:3,i:1,a:1},anc:['vemmo'],at:'any',mark:'!',d:'Warm and agreeing. Slightly falling. v, m and -o.'},
-  warn:{n:'Warn',p:-1,s:1.05,e:0,a:1.15,c:p=>-.5*p,end:-3,tilt:.15,oq:-.05,w:{t:3,k:3,d:3,sh:1},endV:{a:3,o:2},anc:[],mark:'!',d:'Firm, without panic. Low and flat. Hard t, k, d.'}
+  greet:{n:'Greet',p:2,s:1.05,e:.15,a:1.05,c:p=>3*Math.sin(p*Math.PI),end:3,tilt:.05,oq:0,ons:{w:3,z:2,b:2,bl:1,h:1},tail:{a:3,oo:2,y:1},tricks:{rhyme:3,jump:1,plain:1},clos:.25,ij:['whoa'],anc:['bloopa','zipzap'],at:'start',mark:'!',d:'Happily surprised. Woopa-zoopa!'},
+  bye:{n:'Goodbye',p:1,s:1.05,e:.1,a:.95,c:p=>-2*p,end:-1,tilt:0,oq:.02,ons:{t:3,d:2,n:1,l:1},tail:{le:3,oo:2},tricks:{rhyme:3,plain:2},clos:0,ij:[],anc:[],mark:'!',d:'Hopping off. Tiddle-oodle-oo!'},
+  tell:{n:'Tell',p:0,s:1.05,e:0,a:1,c:p=>-1.2*p,end:-2,tilt:0,oq:0,ons:{w:3,n:2,z:2,b:1,d:1,m:1},tail:{le:3,a:2,y:1},tricks:{jump:3,rhyme:2,plain:1},clos:.1,ij:[],anc:[],mark:'.',d:'Cosy chatting. Wizzle-wazzle, noodle-nackle.'},
+  explain:{n:'Explain',p:0,s:1.05,e:.05,a:1,c:p=>1.5*Math.sin(p*Math.PI*3),end:-1.5,tilt:.05,oq:0,ons:{t:3,k:2,kl:2,p:1,pl:1},tail:{a:3,y:1},tricks:{jump:3,plain:1},clos:.6,ij:[],anc:[],mark:'.',d:'Look, this is how. Tippa-tappa, klik-klak, plop!'},
+  ask:{n:'Ask',p:1,s:1,e:.05,a:1,c:p=>0,end:7,tilt:0,oq:0,ons:{b:3,w:2,p:1,z:1},tail:{le:2,a:2,y:1},tricks:{plain:2,rhyme:1,jump:1},clos:0,ij:[],anc:['wibby'],at:'end',mark:'?',d:'Curious, head tilted. Bibble-bah?'},
+  curious:{n:'Curious',p:3,s:1,e:.2,a:1.05,c:p=>4*p,end:6,tilt:.05,oq:.02,ons:{w:3,b:2,z:1},tail:{y:3,oo:2},tricks:{jump:2,plain:2},clos:0,ij:['ooh','oh','whoa'],anc:[],mark:'?',d:'Ooh, what is that? Oooh, wibbly-woo?'},
+  joy:{n:'Joy',p:4,s:1.1,e:.25,a:1.15,c:p=>2.5*Math.sin(p*Math.PI*2),end:2,tilt:.1,oq:0,ons:{b:3,d:2,z:2,p:1},tail:{a:3,oo:1},tricks:{sing:3,rhyme:1,jump:1},clos:.6,ij:['ha','whoa'],anc:['badabing'],at:'any',mark:'!',d:'Party! Ba-da-bing, ba-da-boop!'},
+  cheer:{n:'Cheer',p:3,s:1.1,e:.2,a:1.2,c:p=>2*p,end:3,tilt:.12,oq:-.03,ons:{z:3,d:2,h:2,b:1},tail:{a:3,oo:2},tricks:{rhyme:3,sing:1},clos:.3,ij:[],anc:['hoppa'],at:'start',mark:'!',d:'You can do it! Zippa-dippa-doo!'},
+  think:{n:'Think',p:-1,s:.85,e:-.05,a:.9,c:p=>1.5*Math.sin(p*Math.PI),end:1,tilt:-.05,oq:.05,b:.1,ons:{b:3,m:2,w:2},tail:{le:4},tricks:{jump:3,plain:1},clos:0,ij:['hm'],anc:[],mark:'…',d:'Hmm. Hmmm, bibble-bobble…'},
+  letdown:{n:'Letdown',p:-1,s:.95,e:0,a:.95,c:p=>-3*p,end:-5,tilt:-.05,oq:.04,ons:{w:3,fl:2,bl:2},tail:{le:4},tricks:{jump:3,rhyme:1},clos:.5,ij:['uhoh','aah'],anc:['flibberty'],at:'end',mark:'.',d:'Oops, just missed. Wobble-flobble, blup.'},
+  agree:{n:'Agree',p:1,s:1.05,e:.1,a:1,c:p=>-1.5*p,end:-2,tilt:.02,oq:0,ons:{b:3,d:2,p:1},tail:{y:3,oo:1},tricks:{rhyme:2,plain:2},clos:.3,ij:[],anc:['plimplom'],at:'any',mark:'!',d:'Yes, great. Boopy-doop!'},
+  warn:{n:'Warn',p:0,s:1.05,e:.05,a:1.1,c:p=>-.5*p,end:-3,tilt:.1,oq:-.03,ons:{kr:3,k:2,t:1,d:1},tail:{le:4},tricks:{jump:3},clos:0,ij:['ooh','uhoh'],anc:[],mark:'!',d:'Careful, never scary. Krinkle-krankle, ooh!'}
 };
+// Fixed words. s: syllables split by |, hyphen and space as written, CAPITALS stressed. mel: start and end semitones per syllable.
 const ANCHORS={
-  dovvi:{text:'Eh, dovvi!',pron:'eh, DOV-vi',n:'hello'},shikka:{text:'Shikka navay!',pron:'SHIK-ka na-VAY',n:'let’s start!'},
-  shevay:{text:'Shevay!',pron:'she-VAY',n:'nailed it'},navoo:{text:'Navoo?',pron:'na-VOO',n:'what do you think?'},
-  takka:{text:'Takka navay!',pron:'TAK-ka na-VAY',n:'once more, you can do it'},vemmo:{text:'Vemmo!',pron:'VEM-mo',n:'together, thanks'}
+  bloopa:{text:'Bloopa-doo!',pron:'bloo-pa-DOO',n:'hello',s:'bloo|pa-DOO!',mel:[[0,1],[1,1],[4,8]]},
+  zipzap:{text:'Zip zap zoo!',pron:'ZIP zap ZOO',n:'here we go',s:'ZIP zap ZOO!',mel:[[5,5],[2,2],[4,1]]},
+  badabing:{text:'Ba-da-bing!',pron:'ba-da-BING',n:'nailed it',s:'ba-da-BING!',mel:[[0,0],[4,4],[7,7]]},
+  wibby:{text:'Wibby-wah?',pron:'WIB-ee-WAH',n:'what do you think?',s:'WIB|by-WAH?',mel:[[3,3],[1,1],[1,7]]},
+  hoppa:{text:'Hoppa-doppa!',pron:'HOP-pa-DOP-pa',n:'once more, you can do it',s:'HOP|pa-DOP|pa!',mel:[[4,4],[1,1],[5,5],[2,0]]},
+  plimplom:{text:'Plim plom!',pron:'PLIM PLOM',n:'thanks, together',s:'PLIM PLOM!',mel:[[6,6],[-2,-3]]},
+  flibberty:{text:'Flibberty-flop!',pron:'FLIB-ber-tee-FLOP',n:'oops, never mind',s:'FLIB|ber|ty-FLOP!',mel:[[4,4],[3,3],[2,2],[3,-7]]}
 };
-const VFAM={v:['e','a','o'],sh:['i','a','e'],d:['o','i'],t:['a'],k:['a','e'],n:['u','a'],m:['a','o']};
-const SOFT=new Set(['v','sh','n','m']);
-const VBLOCK=new Set('dan van man kan ken dik dat dit net nat kat tak vak vet vis ten toe doe die do day no na nee nu ma mama papa dada kaka vader moeder sha she shi tea tie ta ti to tam tim tom mo moo dom dommi doom dove dive kook kom kam kim ken kan kat vla sul dag nooboo vadish nana nono momo dodo toto kiki tata navay vemmo dovvi shevay navoo takka shikka'.split(' '));
 function wpick(r,w){let tot=0;for(const k in w)tot+=w[k];let x=r()*tot;for(const k in w){x-=w[k];if(x<=0)return k}return Object.keys(w)[0]}
-function anchorToks(key,r){
-  const A=ANCHORS[key],tw=A.text.split(' '),pw=A.pron.replace(/,/g,'').split(' '),out=[];
-  pw.forEach((w,wi)=>{
-    const sy=w.split('-');
-    sy.forEach((s,i)=>{const x=sylFromText(s);if(x.k==='h')x.k='';let t=s.toLowerCase();if(wi===0&&i===0)t=t.charAt(0).toUpperCase()+t.slice(1);
-      out.push({type:'syl',text:t,...x,stress:s===s.toUpperCase()&&s!==s.toLowerCase(),jit:r(),lex:true,anchor:key})});
-    const pm=(tw[wi].match(/[.,!?…]+$/)||[''])[0];
-    if(pm)out.push({type:'punct',text:pm,mark:pm.slice(-1)});
-    if(wi<pw.length-1)out.push({type:'gap',text:' '});
+const syl=(text,c,v,k,x)=>({type:'syl',text,c,v,k:k||'',...x});
+const HYPHEN=()=>({type:'punct',text:'-',mark:''});
+function bloopaSyls(s,r){ // 'bloo|pa-DOO!' -> tokens
+  const out=[];
+  s.split(/( |-|[.,!?…]+$)/).filter(Boolean).forEach(part=>{
+    if(part===' ')out.push({type:'gap',text:' '});else if(part==='-')out.push(HYPHEN());
+    else if(/^[.,!?…]+$/.test(part))out.push({type:'punct',text:part,mark:part.slice(-1)});
+    else part.split('|').forEach(p=>{const x=sylFromText(p);if(x.k==='h')x.k='';if(x.v==='y')x.v='i';
+      out.push(syl(p.toLowerCase(),x.c,x.v,x.k,{stress:p===p.toUpperCase(),jit:r()}))});
   });
+  const f=out.find(t=>t.type==='syl');if(f)f.text=f.text.charAt(0).toUpperCase()+f.text.slice(1);
   return out;
 }
-function vemmoWord(r,I,n){
-  for(let tries=0;tries<40;tries++){
-    const syl=[];let lastSoft=r()<.5,carry='';
-    for(let i=0;i<n;i++){
-      const w={};for(const k in I.w)w[k]=I.w[k]*(SOFT.has(k)===lastSoft?.45:1.6);
-      if(syl.length&&syl[syl.length-1].k&&!carry)w[syl[syl.length-1].k]=0;
-      let c=carry&&VFAM[carry]?carry:wpick(r,w);carry='';
-      const last=i===n-1;
-      let v=last?wpick(r,I.endV):VFAM[c][Math.floor(r()*VFAM[c].length)];
-      let k='';
-      if(!last&&r()<.45){const cand=['k','sh','v','n','m','d','t'].filter(x=>SOFT.has(x)!==SOFT.has(c));k=cand[Math.floor(r()*cand.length)];if('ktvm'.includes(k)&&r()<.55)carry=k}
-      else if(n===1&&r()<.4){v=VFAM[c][Math.floor(r()*VFAM[c].length)];k=['k','sh','v','n'][Math.floor(r()*4)]}
-      syl.push({c,v,k});lastSoft=SOFT.has(c);
-    }
-    const txt=syl.map(s=>s.c+s.v+s.k).join('');
-    let rep=false;for(let i=1;i<syl.length;i++)if(syl[i].c+syl[i].v===syl[i-1].c+syl[i-1].v)rep=true;
-    if(rep||VBLOCK.has(txt))continue;
-    const endStress=n>1&&/ay|oo/.test(syl[n-1].v)&&r()<.65;
-    return syl.map((s,i)=>({type:'syl',text:s.c+s.v+s.k,...s,stress:endStress?i===n-1:i===0,jit:r()}));
-  }
-  return [{type:'syl',text:'vo',c:'v',v:'o',k:'',stress:true,jit:.5}];
+function anchorToks(key,r){
+  const A=ANCHORS[key],out=bloopaSyls(A.s,r);let i=0;
+  out.forEach(t=>{if(t.type==='syl')Object.assign(t,{mel:A.mel[i++],lex:true,anchor:key})});
+  return out;
 }
-const INTERJ={oh:{c:'',v:'o',k:'',hold:.08},ha:{c:'h',v:'a',k:'',hold:0},hm:{c:'h',v:'u',k:'m',hold:.06},aah:{c:'',v:'a',k:'h',hold:.14}};
+// Sounds people make anyway. hold: extra length in seconds.
+const INTERJ={oh:[syl('Oh','','o','',{hold:.08})],ooh:[syl('Oooh','','oo','',{hold:.18})],aah:[syl('Aah','','a','',{hold:.14})],
+  ha:[syl('Ha','h','a'),syl('ha','h','a')],hm:[syl('Hmmm','h','u','m',{hold:.1})],whoa:[syl('Whoa','w','o','',{hold:.1})],
+  uhoh:[syl('Uh','','a','',{mel:[3,3]}),HYPHEN(),syl('oh','','o','',{mel:[-1,-3],hold:.06})]};
+// Closers: a short word like a sound effect
+const KNAL=[['blup','bl','o','p'],['bing','b','i','n'],['boop','b','oo','p'],['flop','fl','o','p'],['plop','pl','o','p'],['zoo','z','oo',''],['bop','b','o','p'],['zap','z','a','p'],['plink','pl','i','k']];
+const MIDS=['b','d','p','t','z','g','l','m','n','k'];
+const SPELL={a:'a',y:'y',oo:'oo',le:'le'};
+// No real words: Dutch and well-known English words, rude ones, and catchphrases of existing characters
+const NOWORD=new Set(('ja nee hup plof kijk pas op hoi doei top yes no hello hi go stop ok okay bye wow kak kut pik lul dik dom poep pies tiet pis kont poop poopy pee wee butt boob booby booty '+
+  'wokka zoinks yabba dabba').split(' '));
+const BADPART=/wokka|zoink|yabba|dabba|nig|tit|kak|dik|pik|poo|pip+[iy]|nipp|dogg|bood|diddl/;
+const CVc=(on,v,cd)=>syl(on+v+(cd||''),on,v,cd||'');
+function tailSyls(m,tail){ // second half of a word: -a, -y, -oo, -le
+  if(tail==='le')return [syl(m+'le',m,'e','l')];
+  if(tail==='y')return [syl(m+'y',m,'i','')];
+  return [syl(m+SPELL[tail],m,tail,'')];
+}
+function baseWord(on,v,m,tail){ // bloo|pa, wiz|zle, hop|pa: the middle consonant is written double after a short vowel (k as ck before -le, -y)
+  if(tail==='le'&&(v==='oo'||!LEMID.includes(m)))tail='y';
+  return [syl(on+v+(v==='oo'?'':m==='k'&&tail!=='a'&&tail!=='oo'?'c':m),on,v,''),...tailSyls(m,tail)];
+}
+const LEMID=['b','d','g','p','t','z','k'];
+function bloopaWord(r,I,plain){
+  const trick=plain?'plain':wpick(r,I.tricks),on=wpick(r,I.ons),m=MIDS[Math.floor(r()*MIDS.length)],tail=wpick(r,I.tail);
+  const V=['i','a','o','oo'],v=V[Math.floor(r()*V.length)];
+  if(trick==='jump'){ // the vowel jumps: zip zap zoo, wizzle-wazzle, klik-klak
+    const three=r()<.35,vs=three?['i','a','o']:(r()<.5?['i','a']:['i','o']);
+    if(r()<.5){const cd=['p','k','m','b','n'][Math.floor(r()*5)];const out=[];
+      vs.forEach((x,i)=>{if(i)out.push(three&&i===2&&r()<.5?{type:'gap',text:' '}:HYPHEN());out.push(three&&i===2&&r()<.5?CVc(on,'oo'):CVc(on,x,cd))});return out}
+    const out=[];vs.slice(0,2).forEach((x,i)=>{if(i)out.push(HYPHEN());out.push(...baseWord(on,x,m,tail))});return out;
+  }
+  if(trick==='rhyme'){ // the same word with another first sound: hoppa-doppa, bloopa-doopa
+    const pool=['d','b','h','w','z','p','t'].filter(x=>x!==on),on2=pool[Math.floor(r()*pool.length)];
+    return [...baseWord(on,v,m,tail),HYPHEN(),...baseWord(on2,v,m,tail)];
+  }
+  if(trick==='sing'){ // ba-da-bing: two quick notes and a closer, on rising notes
+    const k=KNAL[Math.floor(r()*KNAL.length)],m2=['d','b','p'].filter(x=>x!==on)[Math.floor(r()*2)];
+    return [syl(on+'a',on,'a','',{note:0}),HYPHEN(),syl(m2+'a',m2,'a','',{note:4}),HYPHEN(),syl(k[0],k[1],k[2],k[3],{note:7,hold:.04,stress:true})];
+  }
+  return baseWord(on,v,m,tail); // plain: boopy, bibble
+}
+const isWord=toks=>{const w=toks.map(t=>t.type==='syl'?t.text:t.text==='-'?'-':' ').join('').toLowerCase();
+  return BADPART.test(w)||NOWORD.has(w.replace(/-/g,''))||w.split(/[- ]/).some(p=>NOWORD.has(p))};
 function vemmoClip(intent,len,seed,anchorMode){
   const I=INTENTS[intent]||INTENTS.tell,r=rng(hash(intent+len+'|'+seed));
-  const target=len==='short'?2+Math.floor(r()*3):5+Math.floor(r()*4);
-  const toks=[];let count=0;
+  const toks=[],sep=()=>toks.push({type:'punct',text:',',mark:','},{type:'gap',text:' '});
   const useA=I.anc.length&&(anchorMode==='always'||(anchorMode==='auto'&&r()<.4));
-  const akey=useA?I.anc[Math.floor(r()*I.anc.length)]:null;
-  const aT=akey?anchorToks(akey,r):[],aN=aT.filter(t=>t.type==='syl').length;
-  const atStart=akey&&(I.at==='start'||(I.at==='any'&&r()<.5));
+  const akey=useA?I.anc[Math.floor(r()*I.anc.length)]:null,aT=akey?anchorToks(akey,r):[];
   if(akey&&len==='short')return aT; // short clip with an anchor: just the anchor
-  if(akey&&atStart){toks.push(...aT,{type:'gap',text:' '});count+=aN}
-  if(I.interj&&r()<.35&&!(akey&&atStart)){const key=I.interj[Math.floor(r()*I.interj.length)];const x=INTERJ[key];
-    toks.push({type:'syl',text:key.charAt(0).toUpperCase()+key.slice(1),c:x.c,v:x.v,k:x.k==='h'?'':x.k,hold:x.hold,stress:true,jit:r()},{type:'punct',text:key==='hm'||key==='aah'?'…':',',mark:key==='hm'||key==='aah'?',':','},{type:'gap',text:' '});count+=1}
-  const room=Math.max(len==='medium'?2:1,target-count-(akey&&!atStart?aN:0));
-  let left=room,first=toks.length===0,words=[];
-  while(left>0){const n=Math.min(left,left>=4?2+Math.floor(r()*2):left);words.push(n);left-=n}
-  words.forEach((n,wi)=>{
-    const w=vemmoWord(r,I,n);if(first){w[0].text=w[0].text.charAt(0).toUpperCase()+w[0].text.slice(1);first=false}
-    toks.push(...w);
-    if(wi<words.length-1){if(len==='medium'&&wi===0&&words.length>2&&r()<.5)toks.push({type:'punct',text:',',mark:','});toks.push({type:'gap',text:' '})}
-  });
-  if(akey&&!atStart){toks.push({type:'punct',text:',',mark:','},{type:'gap',text:' '});const t=aT.slice();toks.push(...t)}
-  else toks.push({type:'punct',text:I.mark,mark:I.mark});
+  const atStart=akey&&(I.at==='start'||(I.at==='any'&&r()<.5));
+  if(akey&&atStart){toks.push(...aT,{type:'gap',text:' '})}
+  else if(I.ij.length&&r()<.4){INTERJ[I.ij[Math.floor(r()*I.ij.length)]].forEach(t=>toks.push({...t,jit:r(),stress:true}));sep()}
+  const n=len==='short'||akey?1:2;let extra=toks.length>0;
+  const duet=len==='medium'&&n>1&&r()<.5;let high=r()<.5;
+  for(let i=0;i<n;i++){
+    let w;for(let tries=0;tries<20;tries++){w=bloopaWord(r,I,extra&&len==='short');if(!isWord(w))break}
+    w.forEach(t=>{if(t.type!=='syl')return;t.jit=r();if(t.stress===undefined)t.stress=false;if(duet)t.reg=high?5:-6});
+    const first=w.find(t=>t.type==='syl');first.stress=first.stress||!w.some(t=>t.stress);
+    if(i===0&&akey&&atStart)first.text=first.text.charAt(0).toUpperCase()+first.text.slice(1);
+    if(i>0)sep();toks.push(...w);high=!high;
+  }
+  if(toks[0]&&toks[0].type==='syl')toks[0].text=toks[0].text.charAt(0).toUpperCase()+toks[0].text.slice(1);
+  if(akey&&!atStart){sep();toks.push(...aT);return toks}
+  if(!(len==='short'&&(extra||toks.filter(t=>t.type==='syl').length>2))&&r()<I.clos){const k=KNAL[Math.floor(r()*KNAL.length)];sep();toks.push(syl(k[0],k[1],k[2],k[3],{stress:true,jit:r(),hold:.03}))}
+  toks.push({type:'punct',text:I.mark,mark:I.mark});
   return toks;
 }
 
@@ -172,11 +203,14 @@ function prosody(toks,o){
   toks.forEach((k,i)=>{
     if(k.type!=='syl')return;
     const m=markOf[i],p=pos[i]||0,last=lastOf.has(i);
-    if(o.engine==='vemmo'){
+    if(k.mel&&o.engine!=='vemmo'){k.semiA=k.mel[0];k.semiB=k.mel[1];k.last=last;k.amp=(m==='!'?1.12:1)*M.a*(k.stress?1.08:.92);return} // barks carry their own melody
+    if(o.engine==='vemmo'){ // Bloopa Doopa: anchors carry their own melody (mel), sung clips notes, a duet a high or low register (reg)
+      const rg=k.reg||0;
+      if(k.mel||k.note!==undefined){const [a,b]=k.mel||[k.note,k.note];k.semiA=a+rg;k.semiB=b+rg;k.last=last;k.amp=(m==='!'?1.12:1)*M.a*(k.stress?1.08:.92);return}
       let semi=(k.jit-.5)*2*E*3+M.c(p)+(k.stress?E*2.5+1:0)+(1-p)*E*1.2;
       if(m==='!')semi+=1.5;
       let b=semi-.8;if(last)b=semi+(M.end??-2);
-      k.semiA=semi;k.semiB=b;k.last=last;k.amp=(m==='!'?1.12:1)*M.a*(k.stress?1.08:.92);return;
+      k.semiA=semi+rg;k.semiB=b+rg;k.last=last;k.amp=(m==='!'?1.12:1)*M.a*(k.stress?1.08:.92);return;
     }
     let semi=animal?(k.jit-.5)*E*7+M.c(p)*.6:(k.jit-.5)*2*E*5+(1-p)*E*2.5-p*E*2+M.c(p)+(k.stress?E*2.2:0);
     if(m==='!')semi+=animal?2:3;
@@ -226,11 +260,11 @@ function buildPhones(toks,o,sr){
     }else{
       const spec=VSPEC[k.v]||[k.v,k.v],vF=VF[spec[0]]||VF.a,amp=k.amp||1;
       const fa=P*Math.pow(2,k.semiA/12),fb=P*Math.pow(2,k.semiB/12);
-      if(k.c)cons(k.c,vF,amp,false);
+      if(k.c){if(CT[k.c])cons(k.c,vF,amp,false);else for(const ch of k.c)cons(ch,vF,amp,false)} // bl, pl, kr: two consonants
       let vd;
       if(animal)vd=.05*R/o.S*(.85+k.jit*.3)*(k.last?1.5:1);
       else if(o.engine==='vemmo')vd=((k.stress?.135:.095)+(spec[0]!==spec[1]||k.v.length>1?.04:0)+(k.hold||0))/o.S*(k.last?1.5:1)*(.9+k.jit*.2);
-      else vd=((k.stress?.15:.115)+(spec[0]!==spec[1]||k.v.length>1?.05:0))/o.S*(k.last?1.85:1)*(.88+k.jit*.24);
+      else vd=((k.stress?.15:.115)+(spec[0]!==spec[1]||k.v.length>1?.05:0)+(k.hold||0))/o.S*(k.last?1.85:1)*(.88+k.jit*.24);
       f0pts.push([t,fa]);
       if(spec[0]!==spec[1]){add(vd*.45,{F:VF[spec[0]].slice(),B:[70,100,160,250],av:amp,ah:0,af:0},.04,.012);add(vd*.55,{F:VF[spec[1]].slice(),B:[70,100,160,250],av:amp*.9,ah:0,af:0},vd*.5,.02)}
       else add(vd,{F:vF.slice(),B:[70,100,160,250],av:amp,ah:0,af:0},animal?.02:.045,.012);
@@ -392,14 +426,19 @@ function segmentBySilence(pcm,sr,target){ // for the script: each sound between 
 function renderSample(toks,grains,o,sr){
   prosody(toks,o);
   const animal=o.engine==='animal',base=(o.P/(o.base||200))*(animal?o.rate:1),sd=Math.min(1,Math.max(0,o.steady||0)); // steady: optional, 0 = unchanged
-  const items=[],marks=[];let t=0;
+  const items=[],marks=[],plain=plainGrains(grains),tails=grains.some(g=>g.tail);let t=0,inBark=false;
   toks.forEach((k,i)=>{
+    if(k.type==='syl'){if(k.barkPart&&inBark)return;inBark=false}
     if(k.type==='gap'){t+=(animal?.035:.04)/o.S;return}
     if(k.type==='punct'){t+=(/[.!?…]/.test(k.mark)?.34:(k.mark?.16:0))/o.S;return}
     marks.push([t,i]);
+    if(k.bark!==undefined){const bg=grains.filter(g=>g.bark===k.bark);if(bg.length){ // a recorded bark plays whole, at its own melody; the pitch slider moves it
+      const g=bg[hash(k.bark+i)%bg.length],rate=Math.min(2,Math.max(.5,o.P/(o.base||200))),len=g.length/sr/rate,gg=rate>1.12?lowpass(g,.46/rate):g;
+      items.push({g:gg,t,rate,end:1,len,amp:k.amp||1,pc:null,g0:g.f0});t+=len*.95;inBark=true;return}}
     const reps=k.type==='laugh'?k.n:1;
     for(let r=0;r<reps;r++){
-      const g=k.type==='laugh'?grains[hash('l'+i+r)%grains.length]:pickGrain(grains,k,(k.text||'')+i+r);
+      let g=k.type==='laugh'?plain[hash('l'+i+r)%plain.length]:pickGrain(grains,k,(k.text||'')+i+r),tg=null;
+      if(tails&&k.type==='syl'&&k.k&&g.k!==k.k&&(tg=tailFor(grains,k,(k.text||'')+i)))g=pickGrain(grains,{...k,k:''},(k.text||'')+i+r); // no recorded ending: the syllable without it, plus a recorded ending
       const semi=k.type==='laugh'?4-r:(k.semiA||0);
       let rate,pc=null;
       if(g.f0&&o.recF0&&sd){if(g._pt===undefined||g._ptr!==o.recF0){g._pt=pitchTrack(g,sr,o.recF0);g._ptr=o.recF0}pc=g._pt}
@@ -411,6 +450,11 @@ function renderSample(toks,grains,o,sr){
       else len=Math.min(len,(k.last?.42:.26)/o.S);
       if(k.type==='laugh')len=Math.min(len,.1);
       let top=rate*Math.max(1,end);if(pc){let mn=Infinity;for(const v of pc.f)mn=Math.min(mn,v);top*=Math.max(1,Math.pow(g.f0/mn,sd))}const gg=top>1.12?(g._lp&&g._lp[0]===Math.round(top*10)?g._lp[1]:(g._lp=[Math.round(top*10),lowpass(g,.46/top)])[1]):g;
+      if(tg){ // syllable for 60% of its time, then the ending, cross-faded inside the vowel, on the end note and at the syllable's loudness
+        const cv=len*.6,off=tailStart(tg,sr),tr=tg.f0&&o.recF0?Math.min(3.2,Math.max(.45,o.recF0*(o.P/(o.base||200))*Math.pow(2,(k.semiB??semi)/12)/tg.f0)):rate*end;
+        const tl=Math.min((tg.length-off)/sr/tr,.32/o.S),tgg=tr>1.12?lowpass(tg,.46/tr):tg,ta=Math.min(2,Math.max(.5,vowelLevel(g,sr)/vowelLevel(tg,sr)));
+        items.push({g:gg,t,rate,end:Math.sqrt(end),len:cv+.015,amp:k.amp||1,pc,g0:g.f0});items.push({g:tgg,off,t:t+cv-.015,rate:tr,end:1,len:tl,amp:(k.amp||1)*ta,pc:null,g0:tg.f0});
+        t+=(cv+tl)*.82;continue}
       items.push({g:gg,t,rate,end,len,amp:k.amp||1,pc,g0:g.f0});
       t+=animal?len*.92:len*.82;
     }
@@ -418,7 +462,7 @@ function renderSample(toks,grains,o,sr){
   const N=Math.ceil((t+.3)*sr),out=new Float32Array(N);
   items.forEach(it=>{
     const n=Math.floor(it.len*sr),s0=Math.floor(it.t*sr),fade=Math.min(Math.floor(sr*.012),n>>2);
-    let x=0;
+    let x=it.off||0;
     for(let i=0;i<n&&s0+i<N;i++){
       let r=it.rate*(1+(it.end-1)*(i/n));
       if(it.pc){const p=it.pc,L=p.f.length-1,fi=Math.min(L,Math.max(0,(x-p.off)/p.hop)),a=Math.floor(fi),b=Math.min(L,a+1),src=p.f[a]+(p.f[b]-p.f[a])*(fi-a);
@@ -437,8 +481,16 @@ function renderSample(toks,grains,o,sr){
 // into the same voice. Together they cover every sound the voice styles ask for (measured 2026-10-25). Lines: "c.v c.v c.v c.v".
 const SCRIPT_BASIS=['n.e m.i r.u sh.o','t.e d.i b.u p.a','r.e d.o s.i t.a','s.e p.i f.a m.o','p.e n.a g.u sh.i','d.e g.a w.u s.o','v.e b.a n.u g.i','h.a g.e p.o v.i','k.a m.ou z.e s.u','m.a .u b.e n.i','v.a h.o f.i j.e','z.a .o l.ai v.u','w.a g.o z.u sh.e','d.a r.o f.u v.ai','sh.a n.o t.u w.i','sh.u b.o s.a .i','l.a k.o t.i p.u','v.o z.i m.e h.u','b.i f.o k.e r.a','z.o .e k.i l.u','w.o r.i k.u l.e','w.e t.o l.i m.u','l.o f.e d.u .a'];
 const SCRIPT_EXTRA=['n.ai r.ou w.ai z.ou','s.ai k.ou sh.ay g.ou','g.ai v.ou k.ai .ou','d.ai s.ou k.ay j.ai','p.ai d.ou v.ay t.o','n.ou z.ai p.ou f.ai','b.ou t.u n.ay f.ou','r.ai w.ou t.ay m.ai','sh.ou .ai h.ou m.ay','l.ou b.ai d.ay sh.ai'];
-const SHOWC={j:'y'},SHOWV={a:'ah',e:'eh',i:'ee',o:'oh',u:'oo',ai:'ai',ou:'ow',ay:'ay'};
+// bloopa: every cluster Bloopa Doopa and names use (bl pl fl kl kr gr br fr) with each vowel, plus dra, dree, hee, heh. Lines: "c.v.k".
+// ends: each vowel with each end sound (ahp, ohm), glued onto any syllable without a recorded ending, like a CVVC voicebank.
+// Voices that recorded the first Bloopa round (2026-10-26, whole syllables like flohp) keep those sounds; they still match exactly.
+const SCRIPT_BLOOPA=['bl.a. pl.e. fl.i. kl.o.','kr.u. gr.a. br.e. fr.i.','bl.o. pl.u. fl.a. kl.e.','kr.i. gr.o. br.u. fr.a.','bl.e. pl.i. fl.o. kl.u.','kr.a. gr.e. br.i. fr.o.','bl.i. pl.o. fl.u. kl.a.','kr.e. gr.i. br.o. fr.u.','bl.u. pl.a. fl.e. kl.i.','kr.o. gr.u. br.a. fr.e.','dr.a. dr.i. h.i. h.e.'];
+const SCRIPT_ENDS=['.a.p .e.b .i.k .o.m','.u.n .a.l .e.r .i.p','.o.b .u.k .a.m .e.n','.i.l .o.r .u.p .a.b','.e.k .i.m .o.n .u.l','.a.r .e.p .i.b .o.k','.u.m .a.n .e.l .i.r','.o.p .u.b .a.k .e.m','.i.n .o.l .u.r'];
+const SHOWC={j:'y'},SHOWV={a:'ah',e:'eh',i:'ee',o:'oh',u:'oo',oo:'oo',ai:'ai',ou:'ow',ay:'ay'};
+const BARKLIST=()=>{const seen=new Set(),out=[];Object.values(BARKS).flat().forEach(([txt,syls])=>{if(!seen.has(txt)){seen.add(txt);out.push([txt,syls])}});return out};
 function buildScript(kind){
+  if(kind==='bloopa'||kind==='ends')return (kind==='ends'?SCRIPT_ENDS:SCRIPT_BLOOPA).map(l=>l.split(' ').map(s=>{const [c,v,k]=s.split('.'),x={show:(SHOWC[c]??c)+SHOWV[v]+k,c,v,k};if(kind==='ends')x.vc=true;return x}));
+  if(kind==='barks')return BARKLIST().map(([txt,syls])=>[{show:txt,bark:txt,syls}]); // one whole sound per line
   if(kind==='basis'||kind==='extra')return (kind==='basis'?SCRIPT_BASIS:SCRIPT_EXTRA).map(l=>l.split(' ').map(s=>{const [c,v]=s.split('.');return {show:(SHOWC[c]??c)+SHOWV[v],c,v}}));
   const mk=list=>list.map(ch=>ch.split('-').map(t=>{const x=sylFromText(t.replace(/^y/,'j').replace(/^eye$/,'ai').replace(/^ow$/,'ou'));return {show:t,c:x.c,v:x.v}}));
   if(kind==='vemmo')return mk(['ve-sha-do-ka','va-shi-di-ta','vo-she-ke-nu','na-ma-mo-vay','shay-tay-kay-nay','voo-noo-doo-shoo','vi-ni-mi-ki','da-ko-to-sho','a-o-i-oo','ay-e-ve-di']);
@@ -454,11 +506,11 @@ function buildScript(kind){
   return out;
 }
 // studio timing: the prompter and the analysis share it
-function studioSchedule(nChunks,tempo){
-  const I=tempo==='relaxed'?.46:.36,count=3,beat=.6,guide=.45,gap=.3,rest=1;
+function studioSchedule(nChunks,tempo,kind){
+  const per=kind==='barks'?1:4,I=kind==='barks'?{slow:1.4,relaxed:1.1}[tempo]||.9:{slow:.62,relaxed:.46}[tempo]||.36,count=3,beat=.6,guide=.45,gap=.3,rest=kind==='barks'?.7:1;
   const ev=[];let t=count*beat;
-  for(let c=0;c<nChunks;c++){const g=t;const r=g+guide+gap;ev.push({chunk:c,guide:g,read:r,syl:[0,1,2,3].map(i=>r+i*I),end:r+4*I});t=r+4*I+rest}
-  return {I,beat,count,guide,events:ev,total:t+.5};
+  for(let c=0;c<nChunks;c++){const g=t;const r=g+guide+gap;ev.push({chunk:c,guide:g,read:r,syl:Array.from({length:per},(_,i)=>r+i*I),end:r+per*I});t=r+per*I+rest}
+  return {I,per,rest,beat,count,guide,events:ev,total:t+.5};
 }
 function envOf(pcm,sr,ms){const hop=Math.max(1,Math.round(sr*ms/1000)),n=Math.floor(pcm.length/hop),e=new Float32Array(n);
   for(let i=0;i<n;i++){let s=0;for(let j=0;j<hop;j++){const v=pcm[i*hop+j];s+=v*v}e[i]=Math.sqrt(s/hop)}return {e,hop}}
@@ -487,21 +539,37 @@ function chunkRangesBySilence(pcm,sr,target){
     while(segs.length>target){let gi=0,gb=1e9;for(let i=0;i<segs.length-1;i++){const g=segs[i+1][0]-segs[i][1];if(g<gb){gb=g;gi=i}}segs.splice(gi,2,[segs[gi][0],segs[gi+1][1]]);fixed++}
     while(segs.length<target){let li=0;segs.forEach((s,i)=>{if(s[1]-s[0]>segs[li][1]-segs[li][0])li=i});const [a,b]=segs[li],lo=a+Math.floor((b-a)*.35),hi=a+Math.ceil((b-a)*.65);let m=lo;for(let i=lo;i<=hi;i++)if(e[i]<e[m])m=i;segs.splice(li,1,[a,m-1],[m+1,b]);fixed++}
   }
+  const lo=Math.max(floor*3,top*.01);segs=segs.map(([a,b],i)=>{const pa=i?segs[i-1][1]+1:0,nb=i<segs.length-1?segs[i+1][0]-1:n-1;let g=0;
+    for(let j=a-1;j>=pa;j--){if(e[j]>lo){a=j;g=0}else if(++g>12)break}g=0;for(let j=b+1;j<=nb;j++){if(e[j]>lo){b=j;g=0}else if(++g>6)break}return [a,b]}); // keep the soft edges (see soundSpan)
   const r=segs.map(([a,b])=>[a*hop,(b+1)*hop]);r.fixed=fixed;return r;
 }
+// The spoken part of a line (envelope in 5 ms frames): the loud core (8% of the peak), widened to the soft sounds around it
+// (the k or s before the first vowel, the fade of the last one) down to just above the room noise. The core alone cut those off (2026-10-26).
+function soundSpan(e){let mx=0;for(const v of e)mx=Math.max(mx,v);const s=Array.from(e).sort((x,y)=>x-y),fl=s[Math.floor(s.length*.1)]||0,lo=Math.max(fl*3,mx*.01),th=mx*.08;
+  let a=0,b=e.length-1;while(a<b&&e[a]<th)a++;while(b>a&&e[b]<th)b--;
+  let gap=0;for(let i=a-1;i>=0;i--){if(e[i]>lo){a=i;gap=0}else if(++gap>12)break} // a k or t has a short silence between its burst and the vowel
+  gap=0;for(let i=b+1;i<e.length;i++){if(e[i]>lo){b=i;gap=0}else if(++gap>6)break}
+  return [a,b,mx]}
 function chunkRangesFromSchedule(pcm,sr,sched){ // in-app recording: we know when each chunk was read
   return sched.events.map(ev=>{
     const A=Math.max(0,Math.floor((ev.read-.25)*sr)),B=Math.min(pcm.length,Math.floor((ev.end+.55)*sr));
-    const seg=pcm.subarray(A,B),{e,hop}=envOf(seg,sr,5);let mx=0;for(const v of e)mx=Math.max(mx,v);const th=mx*.08;
-    let a=0,b=e.length-1;while(a<b&&e[a]<th)a++;while(b>a&&e[b]<th)b--;
+    const seg=pcm.subarray(A,B),{e,hop}=envOf(seg,sr,5),[a,b]=soundSpan(e);
     return [A+a*hop,A+(b+1)*hop];
   });
 }
-function splitChunk(pcm,sr,A,B,n){ // cut one breath into n syllables at the quietest points near the expected borders
+function splitChunk(pcm,sr,A,B,n,vc){ // cut one breath into n syllables at the quietest points near the expected borders
   const seg=pcm.subarray(A,B),{e,hop}=envOf(seg,sr,4),L=e.length;const sm2=new Float32Array(L);
   for(let i=0;i<L;i++){let s=0,c=0;for(let j=-2;j<=2;j++)if(e[i+j]!==undefined){s+=e[i+j];c++}sm2[i]=s/c}
   const cuts=[0];for(let k=1;k<n;k++){const x=Math.round(L*k/n),w=Math.round(L/n*.4);let m=Math.max(cuts[k-1]+2,x-w);for(let i=Math.max(cuts[k-1]+2,x-w);i<=Math.min(L-2,x+w);i++)if(sm2[i]<sm2[m])m=i;cuts.push(m)}cuts.push(L);
-  return cuts.slice(0,-1).map((c,k)=>[A+Math.max(0,c*hop-Math.round(sr*.008)),Math.min(B,A+cuts[k+1]*hop+Math.round(sr*.008))]);
+  if(vc){ // every sound starts with a vowel and many end in a closure (the silence of a p or k): the quiet cut lands in that closure, so move it on to where the next vowel starts
+    let G=0;for(const v of sm2)G=Math.max(G,v);const on=[];
+    for(let i=8;i<L-8;i++){let lo=1e9,hi=1e9;for(let j=i-8;j<=i;j++)lo=Math.min(lo,sm2[j]);for(let j=i+2;j<=i+8;j++)hi=Math.min(hi,sm2[j]);
+      if(hi>G*.25&&hi>lo*2.2&&!(on.length&&i-on[on.length-1]<10))on.push(i)}
+    for(let k=1;k<n;k++){const nx=on.find(c=>c>=cuts[k]&&c-cuts[k]<=Math.round(.09*sr/hop));if(nx!==undefined)cuts[k]=Math.min(Math.max(cuts[k],nx-3),cuts[k+1]-2)} // closure, burst, then the vowel: the burst stays left
+  }
+  const out=cuts.slice(0,-1).map((c,k)=>[A+Math.max(0,c*hop-Math.round(sr*.008)),Math.min(B,A+cuts[k+1]*hop+Math.round(sr*.008))]);
+  if(vc)out[n-1][1]=Math.min(pcm.length,B+Math.round(sr*.12)); // the last closing sound is soft: keep a little after the line
+  return out;
 }
 function analyzeScriptRecording(pcm,sr,kind,sched){
   const script=buildScript(kind),n=script.length;
@@ -509,13 +577,13 @@ function analyzeScriptRecording(pcm,sr,kind,sched){
   if(ranges.length!==n)return {ok:false,found:ranges.length,expected:n};
   const grains=[],chunkF0=[];
   ranges.forEach(([A,B],ci)=>{
-    const parts=splitChunk(pcm,sr,A,B,4),fs=[];
+    const parts=splitChunk(pcm,sr,A,B,script[ci].length,!!script[ci][0].vc),fs=[];
     parts.forEach(([a,b],pi)=>{const g=pcm.slice(a,b);let m=0;for(const v of g)m=Math.max(m,Math.abs(v));if(m<1e-4)return;for(let i=0;i<g.length;i++)g[i]/=m;
-      g.c=script[ci][pi].c;g.v=script[ci][pi].v;g.pos=pi;g.loud=m;g.f0=estimateF0(g,sr);if(g.f0)fs.push(g.f0);grains.push(g)});
+      const it=script[ci][pi];if(it.bark!==undefined)g.bark=it.bark;else{g.c=it.c;g.v=it.v;if(it.k!==undefined)g.k=it.k;if(it.vc)g.tail=true}g.pos=pi;g.loud=m;g.f0=estimateF0(g,sr);if(g.f0)fs.push(g.f0);grains.push(g)});
     fs.sort((a,b)=>a-b);chunkF0.push(fs.length?fs[fs.length>>1]:0);
   });
-  const all=grains.map(g=>g.f0).filter(Boolean).sort((a,b)=>a-b),median=all.length?all[all.length>>1]:180;
-  grains.forEach(g=>{if(!g.f0||Math.abs(12*Math.log2(g.f0/median))>9)g.f0=median});
+  const all=grains.filter(g=>!g.bark).map(g=>g.f0).filter(Boolean).sort((a,b)=>a-b),median=all.length?all[all.length>>1]:180;
+  grains.forEach(g=>{if(!g.bark&&!g.f0||!g.bark&&Math.abs(12*Math.log2(g.f0/median))>9)g.f0=median});
   return {ok:true,grains,chunkF0,median,fixed:ranges.fixed||0,expected:n};
 }
 function labelGrains(grains,script){const flat=script.flat();if(grains.length!==flat.length)return false;grains.forEach((g,i)=>{g.c=flat[i].c;g.v=flat[i].v});return true}
@@ -544,8 +612,25 @@ function pitchTrack(g,sr,ref){
   const out=new Float32Array(F);for(let k=0;k<F;k++){let s=0,m=0;for(let j=k-1;j<=k+1;j++)if(j>=0&&j<F){s+=med[j];m++}out[k]=Math.exp(s/m)}
   return {hop:hop*D,off:(W>>1)*D,f:out};
 }
+// Sounds from the optional rounds: whole syllables with a cluster or an ending (k), and whole barks. They are only used when they match;
+// everything else picks from the plain consonant + vowel sounds, so a voice without these rounds sounds exactly as before.
+// an ending from the endings round for a syllable that has none recorded: same vowel and end sound, else same end sound, else one of the same kind
+function tailFor(grains,k,salt){const sp=VSPEC[k.v||'a']||[k.v],vb=sp[sp.length-1],V=g=>(VSPEC[g.v]||[g.v])[0];
+  let pool=grains.filter(g=>g.tail&&g.k===k.k&&V(g)===vb);if(!pool.length)pool=grains.filter(g=>g.tail&&g.k===k.k);
+  if(!pool.length)pool=grains.filter(g=>g.tail&&CODA_CLASS(g.k)===CODA_CLASS(k.k)&&V(g)===vb);
+  return pool.length?pool[hash(salt+'t')%pool.length]:null}
+function tailStart(g,sr){if(g._ts===undefined){const {e,hop}=envOf(g,sr,5);let pk=0,ve=0;for(const v of e)pk=Math.max(pk,v);for(let i=0;i<e.length;i++)if(e[i]>pk*.5)ve=i;g._ts=Math.max(0,ve*hop-Math.round(sr*.09))}return g._ts} // ~90 ms of vowel, then the end sound
+function vowelLevel(g,sr){if(g._lv===undefined){const {e}=envOf(g,sr,40);let pk=0;for(const v of e)pk=Math.max(pk,v);g._lv=pk||1}return g._lv}
+const PLAIN=new WeakMap(),CODA_CLASS=k=>/^(m|n|ng)$/.test(k)?'nas':/^[lr]$/.test(k)?'liq':'plo';
+function plainGrains(grains){let p=PLAIN.get(grains);if(!p){p=grains.filter(g=>!g.k&&!g.bark&&!(g.c&&!CT[g.c]));PLAIN.set(grains,p)}return p}
 function pickGrain(grains,k,salt){
-  const c=k.c||'',v=k.v||'a',vb=(VSPEC[v]||[v])[0];
+  if(grains.some(g=>g.k!==undefined)){ // same start and vowel; the exact ending, else one that sounds alike (bib -> bip), else none (krik -> kri)
+    const sp=(VSPEC[k.v||'a']||[k.v]).join(),kk=k.k||'',cand=grains.filter(g=>g.k!==undefined&&g.c===(k.c||'')&&(VSPEC[g.v]||[g.v]).join()===sp);
+    const score=g=>g.k===kk?3:!kk||!g.k?(kk&&!g.k?1:0):CODA_CLASS(g.k)===CODA_CLASS(kk)?2:0;
+    let best=0;for(const g of cand)best=Math.max(best,score(g));
+    if(best){const hit=cand.filter(g=>score(g)===best);return hit[hash(salt)%hit.length]}}
+  grains=plainGrains(grains);
+  const c=CT[k.c]||!k.c?(k.c||''):k.c[0],v=k.v||'a',vb=(VSPEC[v]||[v])[0]; // a cluster (bl) uses its first consonant
   let pool=grains.filter(g=>g.v!==undefined&&g.c===c&&g.v===v);
   const sp=(VSPEC[v]||[v]).join();if(!pool.length)pool=grains.filter(g=>g.v!==undefined&&g.c===c&&(VSPEC[g.v]||[g.v]).join()===sp); // same pronunciation: a = ah, i = ee, u = oo, ay = ei
   if(!pool.length)pool=grains.filter(g=>g.v!==undefined&&g.c===c&&(VSPEC[g.v]||[g.v])[0]===vb);
@@ -561,7 +646,7 @@ function scriptToks(script){const toks=[];script.forEach(row=>{row.forEach(x=>to
 // ===== Soft Tones: no voice, gentle pitched sounds that follow the melody of the line =====
 const SCALE=[0,2,4,7,9];
 function quant(semi){const o=Math.floor(semi/12),r=semi-o*12;let best=SCALE[0],bd=99;for(const x of SCALE.concat([12])){const d=Math.abs(x-r);if(d<bd){bd=d;best=x}}return o*12+best}
-const SUST={horn:.15,trombone:.17,choir:.22,purr:.2};
+const SUST={horn:.15,trombone:.17,choir:.22,purr:.2,kazoo:.15};
 function renderTone(toks,o,sr){
   prosody(toks,{...o,engine:'sim'});
   const notes=[],marks=[];let t=.02;
@@ -572,7 +657,7 @@ function renderTone(toks,o,sr){
     marks.push([t,i]);const n=k.n||1;
     for(let j=0;j<n;j++){
       const x=n>1?j/(n-1):0,step=(j%2?1:-1)*o.E*1.5*(n>1?1:0);
-      const raw=(k.semiA||0)*(1-x)+(k.semiB||0)*x+step,glide=o.tone==='horn'||o.tone==='trombone';
+      const raw=(k.semiA||0)*(1-x)+(k.semiB||0)*x+step,glide=o.tone==='horn'||o.tone==='trombone'||o.tone==='kazoo';
       const semi=glide?raw:quant(raw),x2=n>1?Math.min(1,(j+.8)/(n-1)):1,semi2=glide?(k.semiA||0)*(1-x2)+(k.semiB||0)*x2+(j===n-1&&k.last?(k.semiB-k.semiA)*.4:0):semi;
       const base=SUST[o.tone]?SUST[o.tone]:.088,d=(base/o.S)*(j===0&&k.stress?1.12:1)*(k.last&&j===n-1?1.6:1);
       notes.push({t,d,f:o.P*Math.pow(2,semi/12),f2:o.P*Math.pow(2,semi2/12),a:.5*(k.amp||1)*(j===0?1.08:.92)*(.92+((hash(k.text+j)%100)/100)*.16)});
@@ -601,6 +686,12 @@ function renderTone(toks,o,sr){
         lo+=F*bd;const hi=w*.6-lo-q*bd;bd+=F*hi; // state-variable filter: the mute
         lo2+=.08*(lo-lo2);
         v=(bd*.9+lo2*.5)*env*.55}
+      else if(kind==='kazoo'){ // a hummed tune through a buzzing paper membrane: rich harmonics, clipped, with a nasal resonance
+        const p=Math.min(1,tt/Math.max(.02,sus)),f=nt.f*Math.pow(nt.f2/nt.f,sm(p))*(1+(tt>.06?.012*Math.sin(TP*6*tt):0));ph+=f/sr;
+        let w=0;for(let h=1;h<=K;h++)w+=Math.sin(TP*h*ph)/h;
+        const env=Math.min(1,tt/.02)*(tt>sus?Math.exp(-(tt-sus)/.03):1),bz=Math.tanh(w*3.2),F=2*Math.sin(Math.PI*Math.min(1150,sr/6)/sr);
+        lo+=F*bd;const hi=bz-lo-.5*bd;bd+=F*hi;
+        v=(bz*.35+bd*.8)*env*.5}
       else if(kind==='choir'){ // soft 'ooh': three voices (root, a scale step up, octave below) with slow vibrato
         const env=Math.min(1,tt/.09)*(tt>sus?Math.exp(-(tt-sus)/.12):1);let w=0;
         [[1,1,0],[1.122,.55,1.7],[.5,.45,3.1]].forEach(([m,a,phs])=>{const f=nt.f*m*(1+.005*Math.sin(TP*(4.8+phs*.3)*tt+phs));
@@ -668,6 +759,7 @@ const PALETTES={
   grumble:{cons:['m','b','g','n','r','d','h'],vow:['o','u','a','oo','ou'],codas:['m','n','r','g','','',''],name:'Grumble'},
   gizmo:{cons:['t','k','b','d','z','p'],vow:['e','i','o','ee'],codas:['k','t','z','','',''],name:'Gizmo'},
   sprite:{cons:['s','sh','f','l','n','v'],vow:['i','e','ee','ai','a'],codas:['s','l','n','','',''],name:'Sprite'},
+  ghost:{cons:['h','sh','w','l','m','v','f','s'],vow:['oo','o','a','ee','ou'],codas:['m','n','sh','','',''],name:'Ghost'},
   baby:{cons:['b','d','m','n','g','w'],vow:['a','u','i','oo','ah'],codas:[''],name:'Babytalk'}
 };
 function paletteLang(engine){return PALETTES[engine]||null}
@@ -703,21 +795,163 @@ function postFX(kind,pcm,sr,hiss=1){ // hiss: optional, scales the radio hiss an
   return {pcm,shift:0};
 }
 
+// ===== more styles (2026-10-26): Text Blips, Droid Chirps, Name Talk, Grunts & Barks, Spooky Whisper =====
+function toneFinish(out,o,sr){ // brightness as a gentle low-pass, then a fixed peak
+  const fc=1500+Math.max(0,Math.min(1,(o.tilt-.15)/.75))*8000,a=1-Math.exp(-2*Math.PI*fc/sr);let y=0,y2=0;
+  for(let i=0;i<out.length;i++){y+=a*(out[i]-y);y2+=a*(y-y2);out[i]=isFinite(y2)?y2:0}
+  let m=0;for(const v of out)m=Math.max(m,Math.abs(v));if(m>0)for(let i=0;i<out.length;i++)out[i]*=.8/m;
+  return out;
+}
+// ---- Text Blips: one short retro beep per letter, like the text box of a pixel-art game ----
+function blep(t,dt){if(t<dt){t/=dt;return t+t-t*t-1}if(t>1-dt){t=(t-1)/dt;return t*t+t+t+1}return 0} // PolyBLEP: rounds off the jumps
+function blipWave(kind,ph,dt){
+  if(kind==='saw')return 2*ph-1-blep(ph,dt);
+  if(kind==='tri')return 1-4*Math.abs(ph-.5);
+  const duty=kind==='pulse'?.25:.5;return (ph<duty?1:-1)+blep(ph,dt)-blep((ph-duty+1)%1,dt);
+}
+function renderBlips(toks,o,sr){
+  prosody(toks,{...o,engine:'animal'}); // a melody per letter, as in Critter Chatter
+  const slot=.052/o.S,kind=o.tone||'square',notes=[],marks=[];let t=.02;
+  toks.forEach((k,i)=>{
+    if(k.type==='gap'){t+=slot;return}
+    if(k.type==='punct'){t+=(/[.!?…]/.test(k.mark)?.3:(k.mark?.14:0))/o.S;return}
+    if(k.type!=='syl')return;
+    marks.push([t,i]);const semi=quant((k.last?k.semiB:k.semiA)*.7);
+    notes.push({t,f:o.P*Math.pow(2,semi/12),a:k.amp||1,d:kind==='click'?.012:slot*.62});t+=slot;
+  });
+  const N=Math.ceil((t+.2)*sr),out=new Float32Array(N);
+  notes.forEach(nt=>{const s0=Math.floor(nt.t*sr),len=Math.min(N-s0,Math.floor((nt.d+.006)*sr)),dt=nt.f/sr;let ph=0;
+    for(let i=0;i<len;i++){const tt=i/sr,env=Math.min(1,tt/.0015)*(tt>nt.d?Math.max(0,1-(tt-nt.d)/.006):1);
+      const v=kind==='click'?(RND()*2-1)*Math.exp(-tt/.002)*.8+blipWave('square',ph,dt)*Math.exp(-tt/.004)*.5:blipWave(kind,ph,dt)*(kind==='tri'?1:.6);
+      ph+=dt;if(ph>=1)ph-=1;out[s0+i]+=v*env*nt.a*.5}});
+  return {pcm:toneFinish(out,o,sr),marks};
+}
+// ---- Droid Chirps: whistles, beeps and warbles that carry the emotion, no syllables ----
+function renderDroid(toks,o,sr){
+  prosody(toks,{...o,engine:'sim'});
+  const ev=[],marks=[],P=o.P*4,X=1.6;let t=.03; // whistles sit two octaves above the voice pitch, with a wider melody
+  toks.forEach((k,i)=>{
+    if(k.type==='gap'){t+=.05/o.S;return}
+    if(k.type==='punct'){t+=(/[.!?…]/.test(k.mark)?.3:(k.mark?.12:0))/o.S;return}
+    if(k.type==='laugh'){marks.push([t,i]);for(let n=0;n<5;n++){ev.push({t,d:.05/o.S,kind:'whistle',f:P*Math.pow(2,(4+n*2)/12),f2:P*Math.pow(2,(7+n*2)/12),a:.8});t+=.06/o.S}return}
+    if(k.type!=='syl')return;
+    marks.push([t,i]);
+    const cl=k.c?(CT[k.c]?CT[k.c][0]:'plo'):'',kind={plo:'blip',fri:'warble',nas:'boop',liq:'trill',h:'sweep'}[cl]||'whistle'; // the consonant picks the kind of chirp
+    const d={blip:.07,warble:.13,boop:.1,trill:.12,sweep:.14,whistle:.11}[kind]*(k.stress?1.15:1)*(k.last?1.5:1)*(.85+k.jit*.3)/o.S;
+    ev.push({t,d,kind,f:P*Math.pow(2,k.semiA*X/12),f2:P*Math.pow(2,k.semiB*X/12),a:k.amp||1});t+=d+.025/o.S;
+  });
+  const N=Math.ceil((t+.25)*sr),out=new Float32Array(N),TP=2*Math.PI,buzz=(o.tone==='zapp'?.35:0)+(o.mood==='boos'?.45:0);
+  ev.forEach(e=>{const s0=Math.floor(e.t*sr),len=Math.min(N-s0,Math.floor((e.d+.015)*sr));let ph=0,bph=0;
+    for(let i=0;i<len;i++){const tt=i/sr,p=Math.min(1,tt/e.d),env=Math.min(1,tt/.004)*(tt>e.d?Math.max(0,1-(tt-e.d)/.015):1);let f;
+      if(e.kind==='blip')f=p<.5?e.f:e.f*1.26; // two quick steps
+      else if(e.kind==='warble')f=(e.f+(e.f2-e.f)*p)*(1+.12*Math.sin(TP*32*tt));
+      else if(e.kind==='boop')f=e.f*.5*(1+.3*(1-p));
+      else if(e.kind==='trill')f=(e.f+(e.f2-e.f)*p)*(Math.sin(TP*19*tt)>0?1.33:1);
+      else if(e.kind==='sweep')f=e.f*.8*Math.pow(e.f2>e.f?2.2:.45,sm(p));
+      else f=e.f*Math.pow(e.f2/e.f,sm(p));
+      ph+=f/sr;bph+=f*.25/sr;
+      let v=o.tone==='rollo'?Math.sin(TP*ph)*.9+.3*Math.sin(TP*ph*.5):Math.sin(TP*ph)+.18*Math.sin(2*TP*ph);
+      if(buzz)v+=buzz*((bph%1)<.5?.5:-.5); // angry or glitchy: a low buzz under the whistle
+      if(o.tone==='zapp'&&RND()<.004)v+=RND()*2-1;
+      out[s0+i]+=v*env*e.a*.45}});
+  return {pcm:toneFinish(out,o,sr),marks};
+}
+// ---- Name Talk: a creature that only says its own name, in pieces ----
+const ONSET2=/^(sh|ch|ph|th|qu|[bcdfgkpt][lr])$/;
+function nameSyls(name){
+  const low=String(name||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z]/g,'');
+  const parts=low.match(/[^aeiouy]*[aeiouy]+(?:[^aeiouy]+$)?/g)||[];
+  for(let i=0;i<parts.length;i++){let on; // a consonant group that can't start a syllable: bul|ba, not bu|lba
+    while((on=parts[i].match(/^[^aeiouy]*/)[0]).length>1&&!ONSET2.test(on)){if(i)parts[i-1]+=on[0];parts[i]=parts[i].slice(1)}}
+  return parts.map(p=>{const s=p.replace(/^s?ch/,'sh').replace(/^ph/,'f').replace(/^th/,'t').replace(/^qu/,'k').replace(/ck/g,'k').replace(/c(?=[eiy])/g,'s').replace(/[cq]/g,'k').replace(/^x/,'z').replace(/x/g,'ks').replace(/^y(?=[aeiou])/,'j');
+    const x=sylFromText(s);if(x.v==='y')x.v='i';return {text:p,c:x.c,v:x.v,k:x.k}});
+}
+function nameTalk(text,name,seed){
+  const S=nameSyls(name),r=rng(hash(name+'|'+seed)),toks=[],parts=String(text).match(/[A-Za-zÀ-ÿ0-9']+|[.,!?;:…]+|\s+|./g)||[];
+  if(!S.length)return toks;
+  const isWord=p=>/[A-Za-zÀ-ÿ0-9]/.test(p)&&!/^[.,!?;:…]+$/.test(p);
+  const endsSentence=pi=>{for(let j=pi+1;j<parts.length;j++){if(/^\s+$/.test(parts[j]))continue;return /[.!?…]/.test(parts[j])&&!isWord(parts[j])}return true};
+  let start=true;
+  parts.forEach((p,pi)=>{
+    if(/^\s+$/.test(p)){toks.push({type:'gap',text:' '});return}
+    if(!isWord(p)){const pm=/^[.,!?;:…]+$/.test(p);toks.push({type:'punct',text:p,mark:pm?p.slice(-1):''});if(pm&&/[.!?…]/.test(p))start=true;return}
+    const want=Math.max(1,Math.round(p.length/3));
+    const pick=S.length===1?[S[0]]:endsSentence(pi)||want>=S.length?S:want===1&&r()<.35?[S[0],'-',S[0]]:S.slice(0,want); // pi-pi, pika, Pikachu!
+    let j=0;pick.forEach(s=>{if(s==='-'){toks.push({type:'punct',text:'-',mark:''});return}
+      let tx=j===0&&start?s.text.charAt(0).toUpperCase()+s.text.slice(1):s.text;
+      toks.push({type:'syl',text:tx,c:s.c,v:s.v,k:s.k,jit:(hash(s.text+j+p.toLowerCase())%1000)/1000,stress:j===0});j++});
+    start=false;
+  });
+  return toks;
+}
+// ---- Grunts & Barks: one sound per sentence that says how it is meant ----
+// per bark: text, then per syllable [consonant, vowel, coda, start and end semitone, extra length in seconds]
+const BARKS={
+  ask:[['Hm?',[['h','u','m',0,6,.06]]],['Huh?',[['h','a','',-1,6,.03]]],['Eh?',[['','e','',0,7,.04]]],['Hmm?',[['h','u','m',-1,5,.12]]]],
+  shout:[['Hah!',[['h','a','',4,0,.02]]],['Hey!',[['h','ay','',5,1,.02]]],['Hoh!',[['h','o','',3,-1,.02]]],['Ha!',[['h','a','',5,2,0]]]],
+  tell:[['Hm.',[['h','u','m',1,-2,.06]]],['Mm-hm.',[['','u','m',0,0,.04],['h','u','m',2,-1,.04]]],['Eh.',[['','e','',0,-3,.03]]],['Hmph.',[['h','u','m',1,-3,.04]]]],
+  blij:[['Heh-heh!',[['h','e','',3,2,0],['h','e','',4,1,.02]]],['Ha-ha!',[['h','a','',4,3,0],['h','a','',5,1,.02]]],['Oh-ho!',[['','o','',2,1,0],['h','o','',5,2,.04]]],['Mm!',[['','u','m',2,5,.06]]]],
+  boos:[['Hrrgh!',[['h','a','r',-1,-4,.06]]],['Grr!',[['g','e','r',-2,-3,.1]]],['Hmph!',[['h','u','m',0,-4,.04]]],['Ugh!',[['','a','g',0,-4,.04]]]],
+  verdrietig:[['Haah…',[['h','a','',0,-5,.2]]],['Oh…',[['','o','',0,-4,.16]]],['Mm…',[['','u','m',-1,-4,.14]]],['Aww…',[['','a','',1,-3,.18]]]],
+  flirterig:[['Mmm~',[['','u','m',0,4,.18]]],['Oh-hoh?',[['','o','',2,0,0],['h','o','',0,5,.06]]],['Heh.',[['h','e','',2,-1,.02]]]],
+  verbaasd:[['Whoa!',[['w','o','',2,6,.08]]],['Oh!',[['','o','',3,7,.04]]],['Huh?!',[['h','a','',0,8,.04]]],['Eek!',[['','i','k',6,8,.02]]]]
+};
+function barkToks(text,mood,seed){
+  const sents=String(text).match(/[^.!?…]*[A-Za-zÀ-ÿ0-9][^.!?…]*[.!?…]*/g)||['.'],r=rng(hash(mood+'|'+seed)),toks=[];
+  sents.forEach((s,si)=>{
+    const mk=(s.match(/[.!?…]+\s*$/)||['.'])[0].trim().slice(-1);
+    const set=mk==='?'?BARKS[mood==='verbaasd'||mood==='flirterig'?mood:'ask']:mood!=='neutraal'&&BARKS[mood]?BARKS[mood]:mk==='!'?BARKS.shout:BARKS.tell;
+    const [txt,syls]=set[Math.floor(r()*set.length)],pieces=txt.replace(/[.!?…~]+$/,'').split('-'),end=txt.slice(pieces.join('-').length);
+    if(si)toks.push({type:'gap',text:' '});
+    syls.forEach(([c,v,k,a,b,h],j)=>{if(j)toks.push({type:'punct',text:'-',mark:''});
+      const x={type:'syl',text:pieces[j]||'',c,v,k,mel:[a,b],hold:h,stress:j===0,jit:r()};if(j)x.barkPart=true;else x.bark=txt;toks.push(x)});
+    if(end)toks.push({type:'punct',text:end,mark:end.replace('~','').slice(-1)||''});
+  });
+  return toks;
+}
+// ---- Spooky Whisper: every syllable played backwards, then a long, dark echo ----
+function ghostFX(r,sr){
+  const pcm=r.pcm,cut=r.marks.map(m=>Math.max(0,Math.floor(m[0]*sr))).concat([pcm.length]);
+  let peak=0;for(const v of pcm)peak=Math.max(peak,Math.abs(v));
+  for(let i=0;i<cut.length-1;i++){const a=cut[i];let e=Math.min(cut[i+1],pcm.length);while(e>a&&Math.abs(pcm[e-1])<peak*.02)e--; // reverse only the sound, not the pause after it
+    for(let x=a,y=e-1;x<y;x++,y--){const s=pcm[x];pcm[x]=pcm[y];pcm[y]=s}}
+  const N=pcm.length+Math.floor(sr*1.6),out=new Float32Array(N);
+  const combs=[.0297,.0371,.0411,.0437].map(s=>({b:new Float32Array(Math.floor(s*sr*1.5)),i:0,lp:0})),aps=[.005,.0017].map(s=>({b:new Float32Array(Math.max(1,Math.floor(s*sr))),i:0}));
+  for(let n=0;n<N;n++){const x=n<pcm.length?pcm[n]:0;let y=0;
+    for(const c of combs){const o=c.b[c.i];c.lp+=.3*(o-c.lp);c.b[c.i]=x+c.lp*.86;c.i=(c.i+1)%c.b.length;y+=o}
+    y*=.25;for(const a of aps){const bo=a.b[a.i],o2=-.5*y+bo;a.b[a.i]=y+.5*o2;a.i=(a.i+1)%a.b.length;y=o2}
+    out[n]=x*.55+y*.75}
+  biquad(out,'lp',4500,.7,sr);
+  let m=0;for(const v of out)m=Math.max(m,Math.abs(v));if(m>0)for(let i=0;i<N;i++)out[i]*=.85/m;
+  return {pcm:out,marks:r.marks};
+}
+// Text to syllables for every style except Bloopa Doopa (which speaks by intent)
+function textToks(engine,text,seed,LANG,x={}){
+  if(engine==='name')return nameTalk(text,x.name,seed+(x.vary||0));
+  if(engine==='bark')return barkToks(text,x.mood||'neutraal',seed+(x.vary||0));
+  const toks=tokenize(text,engine,seed,LANG);return engine==='baby'?babyfy(toks):toks;
+}
+
 // ===== Styles and voices (shared by the app and the web module) =====
 const EMETA={
   animal:{name:'Critter Chatter',rec:true,d:{en:'A sped-up voice: one quick blip per letter.',nl:'Een versnelde stem: één snelle klank per letter.'}},
   sim:{name:'Babblish',rec:true,d:{en:'Made-up syllables carried by emotion, in a language that doesn’t exist.',nl:'Verzonnen lettergrepen gedragen door emotie, in een taal die niet bestaat.'}},
-  vemmo:{name:'Vemmo',rec:true,d:{en:'The language of De Workshopbende: fixed phrases plus improvisation per intent.',nl:'De taal van De Workshopbende: vaste uitdrukkingen plus improvisatie per bedoeling.'}},
+  vemmo:{name:'Bloopa Doopa',rec:true,d:{en:'The cartoon language of De Workshopbende: sound jokes like zip zap zoo, chosen by intent.',nl:'De cartoontaal van De Workshopbende: klankgrapjes als zip zap zoo, gekozen op bedoeling.'}},
   grumble:{name:'Grumble',rec:true,d:{en:'Low mumbling on m, b and g. For monsters, trolls and grumpy farmers.',nl:'Laag gemompel op m, b en g. Voor monsters, trollen en chagrijnige boeren.'}},
   gizmo:{name:'Gizmo',rec:true,d:{en:'Short, stepped robot syllables with a bit-crushed edge. For machines and drones.',nl:'Korte, getrapte robotlettergrepen met een bitcrush-randje. Voor machines en drones.'}},
   sprite:{name:'Sprite',rec:true,d:{en:'High, quick whisper-talk: half breath, half voice. For fairies and tiny creatures.',nl:'Hoog en vlug fluisterpraten: half adem, half stem. Voor feeën en kleine wezentjes.'}},
   echo:{name:'Echo Folk',rec:true,d:{en:'Every line sounds like a small group talking at once. For villages and crowds.',nl:'Elke regel klinkt als een groepje dat door elkaar praat. Voor dorpen en menigtes.'}},
   radio:{name:'Mumble Radio',rec:true,d:{en:'Babble through a walkie-talkie, with hiss and squelch. For missions and dispatch.',nl:'Gebrabbel door een walkietalkie, met ruis en piepjes. Voor missies en meldkamers.'}},
   baby:{name:'Babytalk',rec:true,d:{en:'Toddler babble with doubled syllables (ba-ba, da-da) on the melody of your line.',nl:'Peutergebrabbel met verdubbelde lettergrepen (ba-ba, da-da) op de melodie van je zin.'}},
+  name:{name:'Name Talk',rec:true,d:{en:'The creature only says its own name, in pieces: Moki, mo-mo, Moki!',nl:'Het wezen zegt alleen zijn eigen naam, in stukjes: Moki, mo-mo, Moki!'}},
+  bark:{name:'Grunts & Barks',rec:true,d:{en:'One short sound per sentence that says how it’s meant: hm?, hah!, whoa!',nl:'Eén kort geluid per zin dat zegt hoe het bedoeld is: hm?, hah!, whoa!'}},
+  ghost:{name:'Spooky Whisper',rec:true,d:{en:'Whispered babble with every syllable backwards and a long, dark echo. For ghosts and spirits.',nl:'Gefluisterd gebrabbel met elke lettergreep achterstevoren en een lange, donkere galm. Voor geesten.'}},
+  blip:{name:'Text Blips',rec:false,d:{en:'One short retro beep per letter, like the text box of a pixel-art game.',nl:'Eén kort retropiepje per letter, zoals het tekstvak van een pixelartgame.'}},
+  droid:{name:'Droid Chirps',rec:false,d:{en:'Whistles, beeps and warbles that carry the emotion. For robots and droids.',nl:'Fluitjes, piepjes en trillers die de emotie dragen. Voor robots en droids.'}},
   tone:{name:'Soft Tones',rec:false,d:{en:'No voice: gentle tones that follow the melody of your text.',nl:'Geen stem: zachte tonen die de melodie van je tekst volgen.'}},
   instr:{name:'Talking Instruments',rec:false,d:{en:'A muted horn or a soft choir speaks your text.',nl:'Een gedempte hoorn of een zacht koor spreekt je tekst uit.'}}
 };
-const ENGINE_ORDER=['animal','sim','vemmo','grumble','gizmo','sprite','echo','radio','baby','tone','instr'];
+const ENGINE_ORDER=['animal','sim','vemmo','name','bark','grumble','gizmo','sprite','ghost','echo','radio','baby','blip','droid','tone','instr'];
 const FX={grumble:'grumble',gizmo:'gizmo',sprite:'sprite',radio:'radio'};
 const V=(name,en,nl,p)=>Object.assign({name,d:{en,nl}},p);
 const ENGINES={
@@ -735,9 +969,9 @@ const ENGINES={
     whisper:V('Whisper','breathy, no voice','alleen adem, geen stem',{pitch:180,speed:.9,expr:.6,form:1.05,breath:.3,tilt:.35,oq:.65,jit:1,whisper:true}),
     bubs:V('Bubs','baby, babbling','baby, brabbelend',{pitch:420,speed:.9,expr:.95,form:1.55,breath:.1,tilt:.5,oq:.62,jit:1})}},
   vemmo:{voices:{
-    jesse:V('Jesse','tutorial · warm, lively','tutorial · warm, levendig',{pitch:225,speed:1.05,expr:.7,form:1.12,breath:.16,tilt:.45,oq:.62,jit:1}),
-    bram:V('Farmer Bram','fort · calm, low','fort · rustig, laag',{pitch:105,speed:.86,expr:.45,form:.9,breath:.18,tilt:.35,oq:.58,jit:1.1}),
-    mila:V('Mila','fort · bright, quick','fort · helder, vlot',{pitch:250,speed:1.15,expr:.7,form:1.16,breath:.12,tilt:.55,oq:.6,jit:1})}},
+    jesse:V('Jesse','tutorial · high, bouncy, cheeky','tutorial · hoog, stuiterend, ondeugend',{pitch:255,speed:1.05,expr:.8,form:1.12,breath:.16,tilt:.45,oq:.62,jit:1}),
+    bram:V('Farmer Bram','fort · low, broad, slow','fort · laag, breed, traag',{pitch:95,speed:.86,expr:.45,form:.9,breath:.18,tilt:.35,oq:.58,jit:1.1}),
+    mila:V('Mila','fort · high, bright, giggly','fort · hoog, helder, giechelig',{pitch:275,speed:1.15,expr:.7,form:1.16,breath:.12,tilt:.55,oq:.6,jit:1})}},
   grumble:{voices:{
     grok:V('Grok','troll, very low','trol, heel laag',{pitch:78,speed:.85,expr:.45,form:.78,breath:.22,tilt:.3,oq:.55,jit:1.4}),
     moss:V('Mossbeard','old swamp creature, shaky','oud moeraswezen, beverig',{pitch:96,speed:.75,expr:.4,form:.82,breath:.3,tilt:.28,oq:.62,jit:2.2,vib:true}),
@@ -778,14 +1012,43 @@ const ENGINES={
   instr:{voices:{
     horn:V('Muted Horn','trumpet with a wah mute','trompet met wah-demper',{pitch:330,speed:1,expr:.7,form:1,breath:0,tilt:.55,tone:'horn'}),
     trombone:V('Trombone','low, wobbly wah','laag, wiebelende wah',{pitch:140,speed:.9,expr:.7,form:1,breath:0,tilt:.45,tone:'trombone'}),
-    choir:V('Ooh Choir','three soft voices','drie zachte stemmen',{pitch:262,speed:.9,expr:.5,form:1,breath:0,tilt:.45,tone:'choir'})}}
+    choir:V('Ooh Choir','three soft voices','drie zachte stemmen',{pitch:262,speed:.9,expr:.5,form:1,breath:0,tilt:.45,tone:'choir'}),
+    kazoo:V('Kazoo','buzzy and silly','zoemend en gek',{pitch:300,speed:1,expr:.75,form:1,breath:0,tilt:.6,tone:'kazoo'})}},
+  name:{voices:{
+    moki:V('Moki','small and cheerful','klein en vrolijk',{pitch:420,speed:1.15,expr:.8,form:1.35,breath:.08,tilt:.55,oq:.6,jit:1}),
+    grumbo:V('Grumbo','big and slow','groot en traag',{pitch:95,speed:.85,expr:.55,form:.8,breath:.15,tilt:.35,oq:.56,jit:1.3}),
+    zee:V('Zee','tiny, very fast','piepklein, heel snel',{pitch:640,speed:1.5,expr:.8,form:1.5,breath:.05,tilt:.6,oq:.58,jit:1}),
+    lulu:V('Lulu','sweet and singsong','lief en zangerig',{pitch:330,speed:1,expr:.95,form:1.25,breath:.15,tilt:.5,oq:.64,jit:1}),
+    bonk:V('Bonk','silly, bouncy','gek en stuiterend',{pitch:200,speed:1.2,expr:.9,form:1.05,breath:.1,tilt:.5,oq:.58,jit:1})}},
+  bark:{voices:{
+    hero:V('Hero','young adventurer','jonge avonturier',{pitch:125,speed:1,expr:.75,form:.95,breath:.15,tilt:.45,oq:.58,jit:1}),
+    heroine:V('Heroine','bright and brave','helder en dapper',{pitch:230,speed:1,expr:.75,form:1.12,breath:.15,tilt:.5,oq:.62,jit:1}),
+    elder:V('Elder','old and wise, shaky','oud en wijs, beverig',{pitch:120,speed:.85,expr:.6,form:.92,breath:.3,tilt:.3,oq:.66,jit:2,vib:true}),
+    kid:V('Kid','cheeky child','brutaal kind',{pitch:320,speed:1.1,expr:.85,form:1.3,breath:.12,tilt:.5,oq:.62,jit:1}),
+    brute:V('Brute','big and gruff','groot en nors',{pitch:85,speed:.9,expr:.6,form:.8,breath:.2,tilt:.3,oq:.55,jit:1.3})}},
+  ghost:{voices:{
+    whisper:V('Whisper','breath from the dark','adem uit het donker',{pitch:170,speed:1,expr:.6,form:1,breath:.5,tilt:.35,oq:.65,jit:1.2,whisper:true}),
+    wail:V('Wail','a wailing ghost','een jammerende geest',{pitch:300,speed:.85,expr:.9,form:1.1,breath:.55,tilt:.4,oq:.7,jit:1.5,vib:true}),
+    hollow:V('Hollow','deep and empty','diep en hol',{pitch:80,speed:.9,expr:.4,form:.8,breath:.45,tilt:.25,oq:.65,jit:1.2})}},
+  blip:{voices:{
+    pixel:V('Pixel','classic square beep','klassieke blokgolfpiep',{pitch:440,speed:1,expr:.3,form:1,breath:0,tilt:.5,tone:'square'}),
+    tiny:V('Tiny','thin, high and quick','dun, hoog en vlug',{pitch:760,speed:1.3,expr:.4,form:1,breath:0,tilt:.6,tone:'pulse'}),
+    boss:V('Boss','low buzz, slow','lage zoem, traag',{pitch:110,speed:.75,expr:.25,form:1,breath:0,tilt:.45,tone:'saw'}),
+    soft:V('Soft','round triangle beep','ronde driehoekpiep',{pitch:520,speed:1,expr:.35,form:1,breath:0,tilt:.4,tone:'tri'}),
+    typewriter:V('Typewriter','dry clicks','droge tikjes',{pitch:300,speed:1.1,expr:.2,form:1,breath:0,tilt:.7,tone:'click'})}},
+  droid:{voices:{
+    beebo:V('Beebo','classic whistles and beeps','klassieke fluitjes en piepjes',{pitch:300,speed:1,expr:.75,form:1,breath:0,tilt:.6,tone:'beebo'}),
+    rollo:V('Rollo','round and soft','rond en zacht',{pitch:190,speed:.9,expr:.6,form:1,breath:0,tilt:.45,tone:'rollo'}),
+    zapp:V('Zapp','glitchy and buzzy','glitchy en zoemend',{pitch:260,speed:1.15,expr:.7,form:1,breath:0,tilt:.65,tone:'zapp'}),
+    mini:V('Mini','tiny and fast','piepklein en snel',{pitch:480,speed:1.35,expr:.8,form:1,breath:0,tilt:.7,tone:'mini'})}}
 };
-const wetFor=e=>({tone:.34,instr:.24,echo:.3,sprite:.28,radio:.03,gizmo:.08}[e]??.16);
+const wetFor=e=>({tone:.34,instr:.24,echo:.3,sprite:.28,radio:.03,gizmo:.08,blip:.04,droid:.1,ghost:.05}[e]??.16);
 // Room: half a second of decaying noise, mixed in per style with wetFor.
 function roomIR(sr,rnd=Math.random){const len=Math.floor(sr*.5),out=[];
   for(let c=0;c<2;c++){const d=new Float32Array(len);for(let i=0;i<len;i++){const tt=i/len;d[i]=(rnd()*2-1)*Math.pow(1-tt,3.2)*(i<sr*.008?.2:1)}out.push(d)}return out}
 function styleOpts(engine,preset,{mood,sl,hiss=1,own,steady=1}){
-  const o={engine,mood,P:sl.pitch,S:sl.speed,E:sl.expr,F:sl.form,breath:sl.breath,tilt:sl.tilt,
+  const o={engine,mood,P:sl.pitch,S:sl.speed*(engine==='vemmo'?1.25:1), // Bloopa Doopa talks fast, like a cartoon
+   E:sl.expr,F:sl.form,breath:sl.breath,tilt:sl.tilt,
     hiss,oq:preset.oq,jit:preset.jit,rate:preset.rate||1,vib:!!preset.vib,quant:!!preset.quant,whisper:!!preset.whisper,tone:preset.tone,base:preset.pitch};
   if(own){o.recF0=own.median;o.steady=steady;o.base=ENGINES[engine].voices[Object.keys(ENGINES[engine].voices)[0]].pitch}
   return o;
@@ -795,18 +1058,21 @@ function renderStyle(engine,toks,o,sr,grains){
   const tk=toks.map(x=>({...x}));
   const one=(tk2,o2)=>grains?renderSample(tk2,grains,o2,sr):renderSynth(tk2,o2,sr);
   let r;if(engine==='tone'||engine==='instr')return renderTone(tk,o,sr);
+  if(engine==='blip')return renderBlips(tk,o,sr);
+  if(engine==='droid')return renderDroid(tk,o,sr);
   if(engine==='echo'){ // the same line by four voices, slightly apart in pitch, speed and timing
     const L=[[1,1,0,1],[.84,.97,.021,.7],[1.19,1.03,.037,.62],[.71,.95,.011,.5]],parts=L.map(([pm,sm,off,a],n)=>{const t2=toks.map(x=>({...x,jit:x.jit===undefined?x.jit:(x.jit+n*.29)%1}));return {r:one(t2,{...o,P:o.P*pm,S:o.S*sm}),off,a}});
     const N=Math.max(...parts.map(p=>p.r.pcm.length+Math.ceil(p.off*sr))),mix=new Float32Array(N);
     parts.forEach(p=>{const s0=Math.ceil(p.off*sr);for(let i=0;i<p.r.pcm.length;i++)mix[s0+i]+=p.r.pcm[i]*p.a});
     let m=0;for(const v of mix)m=Math.max(m,Math.abs(v));for(let i=0;i<N;i++)mix[i]*=.85/(m||1);return {pcm:mix,marks:parts[0].r.marks}}
   r=one(tk,o);
+  if(engine==='ghost')r=ghostFX(r,sr);
   if(FX[engine]){const f=postFX(FX[engine],r.pcm,sr,o.hiss);let m=0;for(const v of f.pcm)m=Math.max(m,Math.abs(v));if(m>0)for(let i=0;i<f.pcm.length;i++)f.pcm[i]*=.85/m;r={pcm:f.pcm,marks:r.marks.map(([tt,i])=>[tt+f.shift,i])}}
   return r;
 }
 
 // ===== Web module: Babble.render(text, options) =====
-const BABBLE_VERSION='1.1.0';
+const BABBLE_VERSION='1.2.0';
 const MOOD_ALIAS={neutral:'neutraal',happy:'blij',angry:'boos',sad:'verdrietig',flirty:'flirterig',surprised:'verbaasd'};
 const SLIDER_NAMES={pitch:'pitch',speed:'speed',expression:'expr',throat:'form',breath:'breath',brightness:'tilt'};
 const hasKey=(o,k)=>typeof k==='string'&&Object.prototype.hasOwnProperty.call(o,k);
@@ -824,7 +1090,11 @@ function babbleRender(text,opt={}){
   for(const [k,ik] of Object.entries(SLIDER_NAMES))sl[ik]=Number.isFinite(opt[k])?opt[k]:preset[ik];
   let toks;
   if(style==='vemmo')toks=vemmoClip(intent,opt.length==='medium'?'medium':'short',seed,'auto');
-  else{toks=tokenize(String(text==null?'':text),style,seed,paletteLang(style)||makeLang(seed));if(style==='baby')toks=babyfy(toks)}
+  else{
+    const name=opt.name===undefined?preset.name:String(opt.name).trim().slice(0,40);
+    if(style==='name'&&!nameSyls(name).length)throw new Error('Babble: name needs at least one vowel (a, e, i, o, u or y)');
+    toks=textToks(style,String(text==null?'':text),seed,paletteLang(style)||makeLang(seed),{name,mood});
+  }
   const own=opt.ownVoice||null;
   if(own&&!(own.grains&&own.grains.length))throw new Error('Babble: ownVoice must come from Babble.loadVoice()');
   if(own&&!EMETA[style].rec)throw new Error('Babble: style "'+style+'" has no voice to replace; own voices work with '+ENGINE_ORDER.filter(x=>EMETA[x].rec).join(', '));
@@ -836,7 +1106,7 @@ function babbleRender(text,opt={}){
     syllables:r.marks.map(([time,i])=>({time,text:toks[i]?toks[i].text:''}))};
 }
 // Own voice file, made by the tool's Export button: JSON with every recorded sound as base64 16-bit PCM.
-const GRAIN_KEYS=['c','v','pos','f0','loud'];
+const GRAIN_KEYS=['c','v','k','bark','tail','pos','f0','loud'];
 function b64(bytes){let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));return btoa(s)}
 function voiceToFile(v,sampleRate){
   return {format:'babble-voice',version:1,name:v.name,sampleRate,median:v.median,complete:v.complete!==false,
@@ -885,4 +1155,4 @@ function babbleStyles(){
 const Babble={version:BABBLE_VERSION,render:babbleRender,toWav:babbleWav,play:babblePlay,styles:babbleStyles,loadVoice};
 globalThis.Babble=Babble;
 
-if(typeof module!=='undefined')module.exports={pitchTrack,postFX,paletteLang,babyfy,makeAmbient,analyzeScriptRecording,studioSchedule,estimateF0,renderTone,segmentBySilence,scriptToks,buildScript,labelGrains,vemmoClip,INTENTS,ANCHORS,buildPhones,synthPhones,prosody,tokenize,makeLang,renderSynth,renderSample,analyzeGrains,MOODS,renderStyle,styleOpts,ENGINES,EMETA,ENGINE_ORDER,voiceToFile,Babble,...Babble};
+if(typeof module!=='undefined')module.exports={textToks,splitChunk,soundSpan,nameSyls,nameTalk,barkToks,BARKS,pitchTrack,postFX,paletteLang,babyfy,makeAmbient,analyzeScriptRecording,studioSchedule,estimateF0,renderTone,segmentBySilence,scriptToks,buildScript,labelGrains,vemmoClip,INTENTS,ANCHORS,buildPhones,synthPhones,prosody,tokenize,makeLang,renderSynth,renderSample,analyzeGrains,MOODS,renderStyle,styleOpts,ENGINES,EMETA,ENGINE_ORDER,voiceToFile,Babble,...Babble};

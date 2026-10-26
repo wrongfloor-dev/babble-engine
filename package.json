@@ -1,7 +1,7 @@
 {
   "name": "babble-engine",
-  "version": "1.1.0",
-  "description": "Gibberish speech for game characters: 11 styles, made in the browser or in Node. No dependencies.",
+  "version": "1.2.0",
+  "description": "Gibberish speech for game characters: 16 styles, made in the browser or in Node. No dependencies.",
   "license": "MIT",
   "author": "Wrong Floor (https://wrongfloor.studio)",
   "homepage": "https://babble.wrongfloor.studio/",

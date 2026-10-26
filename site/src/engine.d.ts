@@ -1,8 +1,8 @@
 // Types for the Babble Engine web module (engine.js, babble.mjs).
 
 export type StyleId =
-  | 'animal' | 'sim' | 'vemmo' | 'grumble' | 'gizmo' | 'sprite'
-  | 'echo' | 'radio' | 'baby' | 'tone' | 'instr';
+  | 'animal' | 'sim' | 'vemmo' | 'name' | 'bark' | 'grumble' | 'gizmo' | 'sprite'
+  | 'ghost' | 'echo' | 'radio' | 'baby' | 'blip' | 'droid' | 'tone' | 'instr';
 
 export type Mood = 'neutral' | 'happy' | 'angry' | 'sad' | 'flirty' | 'surprised';
 
@@ -17,10 +17,12 @@ export interface RenderOptions {
   voice?: string;
   /** Emotion, default 'neutral'. Not used by 'vemmo'. */
   mood?: Mood;
-  /** Vemmo only: what the line means, default 'tell'. Vemmo ignores the text. */
+  /** Bloopa Doopa ('vemmo') only: what the line means, default 'tell'. It ignores the text. */
   intent?: Intent;
-  /** Vemmo only: 'short' (default) or 'medium'. */
+  /** Bloopa Doopa ('vemmo') only: 'short' (default, about 0.5 to 1.2 s) or 'medium' (about 1 to 2.5 s). */
   length?: 'short' | 'medium';
+  /** Name Talk only: the name the creature keeps saying. Default the voice's name. Needs a vowel. */
+  name?: string;
   /** Same seed, same text, same options: the same sound. Default 1. */
   seed?: number;
   /** Default 48000. */

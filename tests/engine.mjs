@@ -69,6 +69,56 @@ if (w.getUint32(24, true) !== 22050 || w.getUint32(40, true) !== r.pcm.length * 
   }
 }
 
+// Bloopa Doopa ('vemmo'): anchors keep their words and melody, no real or rude words, clips stay short
+{
+  for (const [k, A] of Object.entries(B.ANCHORS)) {
+    const intent = Object.keys(B.INTENTS).find(i => B.INTENTS[i].anc.includes(k));
+    if (!intent) { fail('bloopa', `anchor ${k} belongs to no intent`); continue }
+    let t; for (let s = 1; s < 60 && !(t && t.some(x => x.anchor === k)); s++) t = B.vemmoClip(intent, 'short', s, 'always');
+    const txt = t.map(x => x.text).join('');
+    if (txt !== A.text) fail('bloopa', `anchor ${k}: "${txt}", expected "${A.text}"`);
+    if (t.some(x => x.type === 'syl' && !x.mel)) fail('bloopa', `anchor ${k}: syllable without melody`);
+  }
+  if (!B.vemmoClip('letdown', 'short', 1, 'always').some(x => x.c === 'fl')) fail('bloopa', 'cluster fl lost in Flibberty-flop');
+  const RUDE = /nig|tit|kak|dik|pik|poo|nipp|dogg|bood|wokka|zoink|yabba|dabba/;
+  let rude = [];
+  for (const i of Object.keys(B.INTENTS)) for (const len of ['short', 'medium']) for (let s = 1; s <= 300; s++) {
+    const txt = B.vemmoClip(i, len, s, 'auto').map(x => x.text).join('').toLowerCase();
+    if (RUDE.test(txt)) rude.push(txt);
+  }
+  if (rude.length) fail('bloopa', `${rude.length} clips with a blocked word, e.g. ${rude.slice(0, 3).join(' | ')}`);
+  for (const voice of ['jesse', 'mila']) for (const [len, med, max] of [['short', 1.2, 1.6], ['medium', 2.1, 2.8]]) {
+    const d = Object.keys(B.INTENTS).flatMap(intent => [1, 2, 3, 4].map(seed => B.render('', { style: 'vemmo', voice, intent, length: len, seed }).duration)).sort((a, b) => a - b);
+    if (d[d.length >> 1] > med || d[d.length - 1] > max) fail('bloopa', `${voice} ${len}: median ${d[d.length >> 1].toFixed(2)} s, max ${d[d.length - 1].toFixed(2)} s`);
+  }
+}
+
+// Styles added in 1.2.0: Name Talk says only the name, barks follow the mood, one blip per letter
+{
+  const name = B.render('Hello there, how are you?', { style: 'name', name: 'Pikachu', seed: 1 }).syllables.map(s => s.text.toLowerCase());
+  if (!name.length || name.some(t => !['pi', 'ka', 'chu'].includes(t))) fail('name talk', `said ${name.join(' ')}`);
+  if (B.nameSyls('Bulbasaur').map(s => s.text).join('|') !== 'bul|ba|saur') fail('name talk', 'Bulbasaur split wrong');
+  let threw = false; try { B.render('hi', { style: 'name', name: '123' }) } catch (e) { threw = /^Babble: /.test(e.message) }
+  if (!threw) fail('name talk', 'no clear error for a name without vowels');
+  const bark = mood => B.render('Go away. Now!', { style: 'bark', mood, seed: 2 }).syllables.map(s => s.text).join(' ');
+  if (bark('sad') === bark('angry')) fail('barks', 'sad and angry give the same bark');
+  const blips = B.render('Hi you', { style: 'blip', seed: 1 }).syllables.length;
+  if (blips !== 5) fail('blips', `${blips} blips for 5 letters`);
+  if (!B.styles().find(s => s.id === 'instr').voices.some(v => v.id === 'kazoo')) fail('kazoo', 'missing from Talking Instruments');
+}
+
+// Optional recording rounds: Bloopa & names (4 syllables with endings per line), barks (one whole sound per line)
+{
+  const bl = B.buildScript('bloopa'), bk = B.buildScript('barks');
+  if (bl.some(l => l.length !== 4 || l.some(x => x.k === undefined))) fail('rounds', 'bloopa lines need 4 sounds with an ending label');
+  if (bk.some(l => l.length !== 1 || !l[0].bark)) fail('rounds', 'barks need one whole sound per line');
+  const names = new Set(Object.values(B.BARKS).flat().map(b => b[0]));
+  if (bk.length !== names.size) fail('rounds', `${bk.length} barks in the script, ${names.size} in BARKS`);
+  if (B.studioSchedule(2, 'relaxed', 'barks').events[0].syl.length !== 1) fail('rounds', 'barks schedule is not one sound per line');
+  const ends = B.buildScript('ends').flat(), combos = new Set(ends.map(x => x.v + x.k));
+  if (ends.length !== 35 || combos.size !== 35 || ends.some(x => x.c || !x.vc)) fail('rounds', 'endings round should be each vowel with each end sound, starting with the vowel');
+}
+
 // ES module entry gives the same API, versions agree
 const M = await import('../site/src/babble.mjs');
 if (M.render !== B.render || M.default !== B.Babble) fail('esm', 'babble.mjs exports differ');

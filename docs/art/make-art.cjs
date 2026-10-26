@@ -17,10 +17,16 @@ const MINI={animal:'<ellipse class="b" cx="11" cy="9" rx="4" ry="7"/><ellipse cl
   echo:'<circle class="b" cx="12" cy="24" r="9"/><circle class="b" cx="28" cy="24" r="9"/><circle class="b" cx="20" cy="17" r="10"/><circle class="e" cx="16" cy="16" r="1.8"/><circle class="e" cx="24" cy="16" r="1.8"/>',
   radio:'<circle class="b" cx="20" cy="23" r="14"/><path class="a" d="M6 22 C6 6 34 6 34 22"/><rect class="h" x="2" y="19" width="6" height="10" rx="2"/><rect class="h" x="32" y="19" width="6" height="10" rx="2"/><circle class="e" cx="15" cy="22" r="2"/><circle class="e" cx="25" cy="22" r="2"/>',
   baby:'<circle class="b" cx="20" cy="22" r="16"/><circle class="e" cx="14" cy="21" r="2.6"/><circle class="e" cx="26" cy="21" r="2.6"/><circle class="h" cx="20" cy="6" r="2.5"/>',
+  name:'<ellipse class="b" cx="9" cy="14" rx="5" ry="8"/><ellipse class="b" cx="31" cy="14" rx="5" ry="8"/><circle class="b" cx="20" cy="23" r="14"/><circle class="e" cx="15" cy="22" r="2.4"/><circle class="e" cx="25" cy="22" r="2.4"/><ellipse class="h" cx="20" cy="29" rx="3" ry="2"/>',
+  bark:'<circle class="b" cx="20" cy="22" r="15"/><path class="h" d="M5 18 Q20 4 35 18 L35 21 L5 21 Z"/><path class="e" d="M13 26h5M22 26h5" stroke-width="2.5"/>',
+  ghost:'<path class="b" d="M8 36 V18 a12 12 0 0 1 24 0 V36 l-4-3 -4 3 -4-3 -4 3 -4-3 z"/><ellipse class="e" cx="15" cy="19" rx="2" ry="3"/><ellipse class="e" cx="25" cy="19" rx="2" ry="3"/><ellipse class="e" cx="20" cy="27" rx="2" ry="2.6"/>',
+  blip:'<rect class="b" x="4" y="8" width="32" height="22" rx="4"/><path class="b" d="M10 29 l0 7 7-7z"/><rect class="h" x="10" y="17" width="4" height="4"/><rect class="h" x="18" y="17" width="4" height="4"/><rect class="h" x="26" y="17" width="4" height="4"/>',
+  droid:'<line class="a" x1="20" y1="9" x2="20" y2="3"/><circle class="h" cx="20" cy="3" r="2.5"/><path class="b" d="M6 24 a14 14 0 0 1 28 0 V34 H6 Z"/><circle class="h" cx="20" cy="21" r="5"/><circle class="e" cx="20" cy="21" r="2"/><rect class="h" x="10" y="28" width="20" height="3" rx="1.5"/>',
   tone:'<circle class="b" cx="20" cy="20" r="11"/><circle class="a" cx="20" cy="20" r="16"/>',
   instr:'<rect class="b" x="9" y="6" width="22" height="28" rx="11"/><line class="a" x1="20" y1="12" x2="20" y2="28"/>'};
 const COL={animal:['#F2B705','#E2553F'],sim:['#E8B98F','#2E9C62'],vemmo:['#D9A47A','#C2601C'],grumble:['#8FA36A','#5E7D2E'],gizmo:['#AFC3DE','#2F6FD6'],
-  sprite:['#D9C4F2','#8A57D1'],echo:['#F0C56B','#B7791F'],radio:['#9CC9BF','#2F8C7E'],baby:['#F6C1D4','#D44F87'],tone:['#9ED6D9','#1E8F96'],instr:['#9ED6D9','#1E8F96']};
+  sprite:['#D9C4F2','#8A57D1'],echo:['#F0C56B','#B7791F'],radio:['#9CC9BF','#2F8C7E'],baby:['#F6C1D4','#D44F87'],tone:['#9ED6D9','#1E8F96'],instr:['#9ED6D9','#1E8F96'],
+  name:['#FFD66B','#E2553F'],bark:['#E3A487','#A33A3A'],ghost:['#E6ECF5','#4B5BA8'],blip:['#B7E4B0','#2E7D32'],droid:['#C9D6E0','#1B6FA0']};
 const CSS=`${FONTS}
 .b{stroke:${INK};stroke-width:1.3}.e{fill:${INK};stroke:${INK}}.a{fill:none;stroke-width:3;stroke-linecap:round}
 ${Object.entries(COL).map(([k,[c,c2]])=>`.s-${k} .b{fill:${c}}.s-${k} .h{fill:${c2};stroke:${INK};stroke-width:1.3}.s-${k} .a{stroke:${c2}}`).join('')}
@@ -45,14 +51,15 @@ const dots=(w,h)=>`<defs><pattern id="dots" width="22" height="22" patternUnits=
 
 // what each style really says for one line (from the engine itself)
 const LINE='Hi! Do you want an apple?';
-const say=k=>{let t=k==='vemmo'?B.vemmoClip('greet','short',3,'auto'):B.tokenize(LINE,k,3,B.paletteLang(k)||B.makeLang(3));if(k==='baby')t=B.babyfy(t);return t.map(x=>x.text).join('').trim()};
+const say=k=>{const t=k==='vemmo'?B.vemmoClip('greet','short',3,'auto'):B.textToks(k,LINE,3,B.paletteLang(k)||B.makeLang(3),{name:'Moki',mood:'neutraal'});return t.map(x=>x.text).join('').trim()};
+const NSTYLE=B.styles().length,NVOICE=B.styles().reduce((n,s)=>n+s.voices.length,0);
 
 // 1. banner
 {
   const W=1400,H=480;let b=dots(W,H);
   b+=`<text x="70" y="168" class="logo" font-size="112" fill="${INK}">Babble</text><text x="70" y="270" class="logo" font-size="112" fill="${CORAL}">Engine</text>`;
   b+=`<text x="74" y="338" class="ui" font-weight="800" font-size="30" fill="${INK}">Gibberish speech for game characters</text>`;
-  b+=`<text x="74" y="378" class="ui" font-weight="600" font-size="22" fill="${MUTED}">11 styles · 47 voices · no voice actors needed</text>`;
+  b+=`<text x="74" y="378" class="ui" font-weight="600" font-size="22" fill="${MUTED}">${NSTYLE} styles · ${NVOICE} voices · no voice actors needed</text>`;
   b+=`<rect x="74" y="408" width="172" height="40" rx="20" fill="${INK}"/><text x="160" y="435" text-anchor="middle" class="ui" font-weight="800" font-size="18" fill="${PAPER}">by Wrong Floor</text>`;
   const short=k=>say(k).split(' ').slice(0,4).join(' ').replace(/[.,!?…]*$/,'?');
   const cast=[['animal',720,'high','Hi! Do you want an apple?'],['grumble',885,'low',short('grumble')],['gizmo',1050,'high',short('gizmo')],['sprite',1215,'low',short('sprite')]];
@@ -62,13 +69,13 @@ const say=k=>{let t=k==='vemmo'?B.vemmoClip('greet','short',3,'auto'):B.tokenize
   }
   fs.writeFileSync(path.join(OUT,'banner.svg'),svg(W,H,b));
 }
-// 2. the eleven styles
+// 2. all styles
 {
-  const ORDER=['animal','sim','vemmo','grumble','gizmo','sprite','echo','radio','baby','tone','instr'];
-  const ICON={tone:'♪ ~ ♫ ~ ♪',instr:'wah-wah wa-wah!',radio:'kshh… '+say('radio').split(' ').slice(0,3).join(' ')+' …kshh',echo:say('echo').split(' ').slice(0,3).join(' ')+' (×4)'};
-  const styles=B.styles(),W=1400,cw=200,ch=212,gap=24,cols=6,H=110+2*(ch+gap)+20;let b=dots(W,H);
-  b+=`<text x="60" y="78" class="logo" font-size="48" fill="${INK}">11 styles</text><text x="300" y="76" class="ui" font-weight="700" font-size="22" fill="${MUTED}">Each one saying “${LINE}”</text>`;
-  ORDER.forEach((k,i)=>{const r=Math.floor(i/cols),c=i%cols,x=60+c*(cw+gap)+(r?(cw+gap)/2:0),y=110+r*(ch+gap),s=styles.find(z=>z.id===k);
+  const ORDER=B.styles().map(s=>s.id);
+  const ICON={tone:'♪ ~ ♫ ~ ♪',instr:'wah-wah wa-wah!',radio:'kshh… '+say('radio').split(' ').slice(0,3).join(' ')+' …kshh',echo:say('echo').split(' ').slice(0,3).join(' ')+' (×4)',blip:'▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪',droid:'bee-doo-wee? wrrp!'};
+  const styles=B.styles(),W=1400,cw=200,ch=212,gap=24,cols=6,rows=Math.ceil(ORDER.length/cols),H=110+rows*(ch+gap)+20;let b=dots(W,H);
+  b+=`<text x="60" y="78" class="logo" font-size="48" fill="${INK}">${NSTYLE} styles</text><text x="300" y="76" class="ui" font-weight="700" font-size="22" fill="${MUTED}">Each one saying “${LINE}”</text>`;
+  ORDER.forEach((k,i)=>{const r=Math.floor(i/cols),c=i%cols,x=60+c*(cw+gap)+(cols-Math.min(cols,ORDER.length-r*cols))*(cw+gap)/2,y=110+r*(ch+gap),s=styles.find(z=>z.id===k);
     const tint=COL[k][0];b+=card(x,y,cw,ch,22,'#fff',5);
     b+=`<rect x="${x+3}" y="${y+3}" width="${cw-6}" height="98" rx="19" fill="${tint}" opacity=".35"/>`;
     b+=critter(k,x+cw/2,y+56,78);
