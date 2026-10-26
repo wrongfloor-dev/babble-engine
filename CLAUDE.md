@@ -73,7 +73,7 @@ Project folder following the Wrong Floor method. Research and decisions live in 
 |---|---|---|
 | 000 Is there something to win? | done (2026-10-25, verdict by Raoul: build pays off) | `dossier/000-kans.md` |
 | 0 Measurement | plan written; Search Console verified for babble.wrongfloor.studio (Domain property, 2026-10-25); jsDelivr stats follow with the engine module | `dossier/meting.md` |
-| 1 Design and build | tool live (2026-10-25). Phase 1 web module: engine API, ES module, types, package.json, README, tests done (2026-10-25); open: release tag v1.0.0, demo web game, own-voice export format. Phase 2 Godot after that | `dossier/bouwbrief.md`, `dossier/ontwerp.md` |
+| 1 Design and build | tool live (2026-10-25). Phase 1 web module: engine API, ES module, types, package.json, README, tests done (2026-10-25); v1.0.0 released (tag, jsDelivr). Demo web game dropped (Raoul, 2026-10-26: the README example is enough). Open: own-voice export format. Phase 2 Godot after that | `dossier/bouwbrief.md`, `dossier/ontwerp.md` |
 | 2 Security, SEO, GEO, EU (domain scan; not a security review of the app) | app security review done; live since 2026-10-25 with enforced CSP; domain scan of babble.wrongfloor.studio 2026-10-25: green (https redirect, privacy page, AI training allowed by choice) | `dossier/beveiliging.md`, `scans/2026-10-25.md` |
 | 3 Performance | first lab measurement 2026-10-25: green, 1 small point (render-blocking scripts, advised to leave); no real-visitor data yet | `metingen/snelheid-2026-10-25.md` |
 | 4 Text and design | done (2026-10-25): redesign D, text check and accessibility check applied | `dossier/ontwerpronde.md`, `dossier/tekstcontrole.md` |

@@ -22,7 +22,7 @@ Your characters want to talk. Your budget doesn't include voice actors. **Babble
 - 🐹 **11 styles, 47 voices**, from Critter Chatter to a talking trombone
 - 😄 **6 moods**: neutral, happy, angry, sad, flirty, surprised
 - 🎛️ **Tune every voice**: pitch, tempo, expression, throat size, breath, brightness
-- 🎤 **Record your own voice** and babble with it. Recordings stay in your browser, nothing is uploaded
+- 🎤 **Record your own voice** and your characters babble with it: a sound no other game has. About 1.5 minutes of reading, and it works with all 9 voice styles. Recordings stay in your browser, nothing is uploaded
 - 🧑‍🤝‍🧑 **Save characters** so Grandpa Hank sounds like Grandpa Hank every time
 - 💾 **Download WAV**, ready for any engine
 
@@ -90,7 +90,6 @@ Returns `{ pcm, sampleRate, duration, syllables, style, voice }`. `pcm` is a mon
 
 ## 🗺️ What's next
 
-- 🎮 A small demo game on the site, with its source in view
 - 🎤 Export your recorded voice for use in your own game
 - 🤖 A Godot 4 addon with a `BabbleSpeaker` node and a signal per syllable
 
