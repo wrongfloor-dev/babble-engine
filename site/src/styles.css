@@ -108,7 +108,6 @@ details[open]>summary::after{transform:rotate(-135deg)}
 .player canvas{flex:1;min-width:0;height:48px;display:block}
 .dur{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px;font-weight:700;flex:0 0 auto}
 .stale{background:var(--surface2);border:2px solid var(--ink);border-left-width:6px;border-left-color:var(--warn);border-radius:12px;padding:10px 12px;margin:0;font-size:14px}
-.stale .link{margin-left:6px}
 .meta{font-size:13px;color:var(--muted);margin:0}
 .busy{display:flex;align-items:center;gap:10px;margin:0;color:var(--muted)}
 .spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--acc);animation:sp .8s linear infinite}

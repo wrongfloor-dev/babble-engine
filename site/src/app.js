@@ -10,7 +10,7 @@ const $=id=>document.getElementById(id);
 const STR={en:{
 'nav.make':'Make babble','nav.voices':'Voices & characters','make.title':'Make babble',
 'make.style':'Style','make.who':'Who speaks','aria.main':'Main','aria.lang':'Language','aria.settings':'Settings','make.say':'What does {name} say?','make.sayV':'What does {name} want to say?','make.tune':'Tune {name}','make.gVoice':'Voice styles','make.gSound':'Sound styles','make.examples':'Choose example text','make.result':'Result',
-'make.speak':'▶ Speak','make.bubbleHint':'Click a voice, an emotion or press Speak.','side.record':'Record your voice','make.stale':'Changed since this result.','make.regen':'Generate again',
+'make.speak':'▶ Speak','make.bubbleHint':'Click a voice, an emotion or press Speak.','side.record':'Record your voice','make.stale':'Changed since this result.',
 'make.takes':'Variants','make.saveChar':'Save as character','char.name':'Name of the character','char.save':'Save','char.cancel':'Cancel',
 'char.saved':'“{name}” saved.','char.title':'Characters',
 'char.empty':'No characters yet.','char.use':'Use','make.takeN':'Variant {i}','make.takeOld':'earlier settings','make.addTake':'+ Save variant','make.delTake':'Remove variant {i}','make.saveHelp':'Save a variant to keep your settings and quickly compare variants. Save your variant as a character once you are happy with the result.','make.helpAria':'About variants and characters','make.download':'Download WAV','make.downloadZip':'Download WAV (.zip)','make.busy':'Generating…',
@@ -83,7 +83,7 @@ const STR={en:{
 nl:{
 'nav.make':'Gebrabbel maken','nav.voices':'Stemmen en personages','make.title':'Gebrabbel maken',
 'make.style':'Stijl','make.who':'Wie spreekt','aria.main':'Hoofdmenu','aria.lang':'Taal','aria.settings':'Instellingen','make.say':'Wat zegt {name}?','make.sayV':'Wat wil {name} zeggen?','make.tune':'{name} bijstellen','make.gVoice':'Stemstijlen','make.gSound':'Klankstijlen','make.examples':'Voorbeeldtekst kiezen','make.result':'Resultaat',
-'make.speak':'▶ Spreek','make.bubbleHint':'Klik op een stem, een emotie of druk op Spreek.','side.record':'Neem je stem op','make.stale':'Gewijzigd sinds dit resultaat.','make.regen':'Opnieuw genereren',
+'make.speak':'▶ Spreek','make.bubbleHint':'Klik op een stem, een emotie of druk op Spreek.','side.record':'Neem je stem op','make.stale':'Gewijzigd sinds dit resultaat.',
 'make.takes':'Varianten','make.saveChar':'Opslaan als personage','char.name':'Naam van het personage','char.save':'Opslaan','char.cancel':'Annuleren',
 'char.saved':'“{name}” opgeslagen.','char.title':'Personages',
 'char.empty':'Nog geen personages.','char.use':'Gebruiken','make.takeN':'Variant {i}','make.takeOld':'eerdere instellingen','make.addTake':'+ Variant opslaan','make.delTake':'Variant {i} weggooien','make.saveHelp':'Sla een variant op om je instellingen te bewaren en snel varianten te kunnen vergelijken. Sla je variant definitief op als personage als je tevreden bent met het resultaat.','make.helpAria':'Over varianten en personages','make.download':'Download WAV','make.downloadZip':'Download WAV (.zip)','make.busy':'Bezig met genereren…',
@@ -279,7 +279,7 @@ async function generate(variant){
     }catch(err){setBusy(false);console.error(err)}
   },30);
 }
-function setBusy(b){st.busy=b;$('busy').hidden=!b;$('pResult').setAttribute('aria-busy',b?'true':'false');['genBtn','playBtn','regen','dlBtn'].forEach(id=>{const el=$(id);if(el)el.disabled=b});$('takeChips').querySelectorAll('button').forEach(x=>x.disabled=b)}
+function setBusy(b){st.busy=b;$('busy').hidden=!b;$('pResult').setAttribute('aria-busy',b?'true':'false');['genBtn','playBtn','dlBtn'].forEach(id=>{const el=$(id);if(el)el.disabled=b});$('takeChips').querySelectorAll('button').forEach(x=>x.disabled=b);const r=cur();$('stale').hidden=b||!r||r.key===settingsKey()}
 // results and saved variants are kept per style
 function cur(){return st.resBy[st.engine]}
 const SV=()=>st.savedBy[st.engine]||(st.savedBy[st.engine]=[]);
@@ -343,7 +343,7 @@ function playCur(){
     onend:()=>{setPlayLabel(false);r.toks.forEach(k=>k.el&&k.el.classList.remove('on'));drawWave($('wave'),r.pcm,0)}});
   ambUp(r.buf.duration); // after pPlay: pPlay stops the previous player first, which also fades the background out
 }
-function checkStale(){const r=cur();$('stale').hidden=!r||r.key===settingsKey();renderTakes()}
+function checkStale(){const r=cur();$('stale').hidden=!r||st.busy||r.key===settingsKey();renderTakes()}
 // ---------- WAV export: a plain .wav download; inside a claude.ai artifact via the downloads capability, zipped (its allowlist has zip, not wav) ----------
 let DL=null;
 (async()=>{try{if(window.claude&&window.claude.use){DL=await window.claude.use('downloads')}}catch(e){DL=null}if(DL){$('dlBtn').dataset.t='make.downloadZip';$('dlBtn').textContent=t('make.downloadZip')}})();
@@ -479,7 +479,7 @@ $('ambLvl').addEventListener('input',e=>{AMB.lvl=+e.target.value;outs();if(AMB.g
 $('dice').addEventListener('click',()=>{st.langSeed=Math.floor(Math.random()*1e6);LANG=makeLang(st.langSeed);refreshSide();checkStale()});
 $('txt').addEventListener('input',checkStale);
 $('txt').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();$('genBtn').click()}});
-$('genBtn').onclick=async()=>{if(st.busy)return;if(P.owner==='result'){pStop();return}if(cur()&&cur().key===settingsKey()){await ready();playCur()}else generate(false)};$('regen').onclick=()=>generate(false);
+$('genBtn').onclick=async()=>{if(st.busy)return;if(P.owner==='result'){pStop();return}if(cur()&&cur().key===settingsKey()){await ready();playCur()}else generate(false)};
 $('playBtn').onclick=async()=>{await ready();if(P.owner==='result'){pStop()}else playCur()};
 
 $('dlBtn').onclick=()=>exportWav();
