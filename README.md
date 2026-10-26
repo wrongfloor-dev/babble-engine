@@ -94,7 +94,7 @@ The file holds every recorded sound as 16-bit audio in JSON, including the extra
 
 ## 🎮 Godot 4
 
-Copy `addons/babble_engine` into your project. There is no plugin to enable: you get the `BabbleSpeaker` node and `BabbleEngine`.
+**[Download babble-engine-godot.zip](https://github.com/wrongfloor-dev/babble-engine/releases/latest/download/babble-engine-godot.zip)** and unzip it in your project folder (or copy `addons/babble_engine` from this repo). There is no plugin to enable: you get the `BabbleSpeaker` node and `BabbleEngine`.
 
 ```gdscript
 # BabbleSpeaker is an AudioStreamPlayer: pick style, voice and mood in the Inspector
@@ -106,6 +106,7 @@ $Speaker.syllable.connect(func(index, text): $Mouth.flap())
 - 🧵 **No stutter:** the speaker renders on a background thread and starts the line when it's ready
 - 🎤 **Your own voice:** set *Own Voice File* to the `.babble-voice.json` from Export
 - 🏛️ **Room:** add a Reverb effect to the speaker's audio bus
+- 🧪 **Demo:** open `addons/babble_engine/demo/demo.tscn` and press F6: pick a style, voice and mood, and watch a mouth move on every syllable
 - 🔧 **Without the node:** `BabbleEngine.render(text, options)` takes the same options in snake_case (`sample_rate`, `own_voice`) and returns `{ pcm, sample_rate, duration, syllables }`. `BabbleEngine.load_voice(text)` reads a voice file. A bad option prints an error and returns `{}`
 
 Same text, options and seed give the same sound as the web module, sample for sample (`tests/godot.mjs` checks all 16 styles). GDScript renders about 15 times slower than the browser, which is why the speaker uses a thread.

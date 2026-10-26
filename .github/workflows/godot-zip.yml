@@ -1,0 +1,39 @@
+# On every version tag: zip the Godot addon (with the license) and attach it to that tag's GitHub release.
+# The file name never changes, so releases/latest/download/babble-engine-godot.zip always gives the newest addon.
+name: Godot addon zip
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to (re)build the zip for, like v1.3.1
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - name: Build babble-engine-godot.zip
+        run: |
+          mkdir -p out/addons
+          cp -r addons/babble_engine out/addons/
+          cp LICENSE out/addons/babble_engine/LICENSE
+          (cd out && zip -r ../babble-engine-godot.zip addons)
+      - name: Attach it to the release
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" babble-engine-godot.zip --clobber
+          else
+            gh release create "$TAG" babble-engine-godot.zip --title "Babble Engine ${TAG#v}" --generate-notes
+          fi

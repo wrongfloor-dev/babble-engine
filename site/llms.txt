@@ -44,7 +44,7 @@ Unknown styles, voices, moods or intents throw an Error whose message starts wit
 
 ## Godot 4 addon
 
-Copy addons/babble_engine from the GitHub repo into the project; no plugin to enable. A BabbleSpeaker node (an AudioStreamPlayer with style, voice, mood, babble_seed, options and own_voice_file) renders on a background thread and plays the line: speak(text), stop_line(), signals line_started(text), syllable(index, text) and line_finished. BabbleEngine.render(text, options) takes the same options in snake_case (sample_rate, own_voice) and gives the same samples as the web module; a bad option prints an error and returns {}. BabbleEngine.load_voice(text) reads a .babble-voice.json.
+Download https://github.com/wrongfloor-dev/babble-engine/releases/latest/download/babble-engine-godot.zip and unzip it in the project folder (or copy addons/babble_engine from the GitHub repo); no plugin to enable. A BabbleSpeaker node (an AudioStreamPlayer with style, voice, mood, babble_seed, options and own_voice_file) renders on a background thread and plays the line: speak(text), stop_line(), signals line_started(text), syllable(index, text) and line_finished. BabbleEngine.render(text, options) takes the same options in snake_case (sample_rate, own_voice) and gives the same samples as the web module; a bad option prints an error and returns {}. BabbleEngine.load_voice(text) reads a .babble-voice.json.
 
 ## Style and voice ids
 
