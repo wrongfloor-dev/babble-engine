@@ -7,8 +7,15 @@ const Babble := preload("res://addons/babble_engine/babble_engine.gd")
 func _init() -> void:
 	var cases: Array = JSON.parse_string(FileAccess.get_file_as_string("res://cases.json"))
 	var summary := []
+	var voices := {}
 	for i in cases.size():
 		var c: Dictionary = cases[i]
+		if c.has("load_voice"):  # a file that is no voice: load_voice must refuse it
+			summary.append({"error": Babble.load_voice(c.load_voice).is_empty(), "ms": 0.0}); continue
+		if c.has("voice"):  # one loaded voice per file, reused like the web module does
+			if not voices.has(c.voice): voices[c.voice] = Babble.load_voice(FileAccess.get_file_as_string("res://voice_%s.json" % c.voice))
+			c.options.own_voice = voices[c.voice]
+		if c.get("bad_voice", false): c.options.own_voice = {}
 		var t0 := Time.get_ticks_usec()
 		var r: Dictionary = Babble.render(c.text, c.options)
 		var ms := (Time.get_ticks_usec() - t0) / 1000.0

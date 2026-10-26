@@ -42,6 +42,10 @@ render(text, options) returns { pcm (Float32Array, mono, dry), sampleRate, durat
 
 Unknown styles, voices, moods or intents throw an Error whose message starts with 'Babble: ' and lists the valid values.
 
+## Godot 4 addon
+
+Copy addons/babble_engine from the GitHub repo into the project; no plugin to enable. A BabbleSpeaker node (an AudioStreamPlayer with style, voice, mood, babble_seed, options and own_voice_file) renders on a background thread and plays the line: speak(text), stop_line(), signals line_started(text), syllable(index, text) and line_finished. BabbleEngine.render(text, options) takes the same options in snake_case (sample_rate, own_voice) and gives the same samples as the web module; a bad option prints an error and returns {}. BabbleEngine.load_voice(text) reads a .babble-voice.json.
+
 ## Style and voice ids
 
 - `animal` Critter Chatter: `fern`, `burt`, `pip`, `lowell`, `bleep`

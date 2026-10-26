@@ -5,6 +5,7 @@
 <p align="center">
   <a href="https://babble.wrongfloor.studio/"><b>🎙️ Try the tool</b></a> &nbsp;·&nbsp;
   <a href="#-web-module"><b>🧩 Web module</b></a> &nbsp;·&nbsp;
+  <a href="#-godot-4"><b>🎮 Godot</b></a> &nbsp;·&nbsp;
   <a href="#-styles-and-voices"><b>🐾 Styles</b></a> &nbsp;·&nbsp;
   <a href="#-license"><b>📜 MIT</b></a>
 </p>
@@ -90,6 +91,24 @@ The file holds every recorded sound as 16-bit audio in JSON, including the extra
 - 📋 `styles()`: every style with its voices, moods and intents
 - 🎤 `loadVoice(file)`: a `.babble-voice.json` from the tool, as text or parsed JSON
 
+## 🎮 Godot 4
+
+Copy `addons/babble_engine` into your project. There is no plugin to enable: you get the `BabbleSpeaker` node and `BabbleEngine`.
+
+```gdscript
+# BabbleSpeaker is an AudioStreamPlayer: pick style, voice and mood in the Inspector
+$Speaker.speak("Hi! Do you want an apple?")
+$Speaker.syllable.connect(func(index, text): $Mouth.flap())
+```
+
+- 📣 **Signals:** `line_started(text)`, `syllable(index, text)` and `line_finished`
+- 🧵 **No stutter:** the speaker renders on a background thread and starts the line when it's ready
+- 🎤 **Your own voice:** set *Own Voice File* to the `.babble-voice.json` from Export
+- 🏛️ **Room:** add a Reverb effect to the speaker's audio bus
+- 🔧 **Without the node:** `BabbleEngine.render(text, options)` takes the same options in snake_case (`sample_rate`, `own_voice`) and returns `{ pcm, sample_rate, duration, syllables }`. `BabbleEngine.load_voice(text)` reads a voice file. A bad option prints an error and returns `{}`
+
+Same text, options and seed give the same sound as the web module, sample for sample (`tests/godot.mjs` checks all 16 styles). GDScript renders about 15 times slower than the browser, which is why the speaker uses a thread.
+
 ## 🐾 Styles and voices
 
 <p align="center"><img src="docs/art/styles.svg" alt="The 16 styles as cards, each with its critter and what it says for 'Hi! Do you want an apple?'" width="100%"></p>
@@ -115,12 +134,13 @@ The file holds every recorded sound as 16-bit audio in JSON, including the extra
 
 ## 🗺️ What's next
 
-- 🤖 A Godot 4 addon with a `BabbleSpeaker` node and a signal per syllable
+- 📦 The Godot addon in the Godot Asset Library
 
 ## 🛠️ Repository
 
 - `site/`: the tool as published on babble.wrongfloor.studio. Plain HTML and JavaScript, no build step. `site/src/engine.js` is the engine, shared by the tool and the web module
-- `tests/`: `node tests/check.mjs` (copy, links, headers) and `node tests/engine.mjs` (every voice renders, seeds repeat, WAV is valid). Or just `npm test`
+- `addons/babble_engine/`: the Godot 4 addon
+- `tests/`: `node tests/check.mjs` (copy, links, headers) and `node tests/engine.mjs` (every voice renders, seeds repeat, WAV is valid). Or just `npm test`. With Godot installed, `GODOT=<path to the console exe> node tests/godot.mjs` compares the addon with the web module
 - `docs/art/`: the pictures in this README
 
 ## 📜 License
