@@ -32,6 +32,12 @@ for (const s of line.syllables) setTimeout(() =&gt; flapMouth(s.text), s.time * 
 const me = loadVoice(await (await fetch('me.babble-voice.json')).text());
 play(render('Welcome to my game!', { style: 'sim', ownVoice: me }));</code></pre>
 
+  <h2>Lines from a script</h2>
+  <p>In the tool, Script › Export › For your game gives a zip with a WAV per line and <code>script.json</code>. Play a line by its id:</p>
+  <pre class="code"><code>const script = await (await fetch('voice/script.json')).json();
+const line = id =&gt; new Audio('voice/' + script.lines.find(l =&gt; l.id === id).file).play();</code></pre>
+  <p class="hint">Godot: <code>load("res://voice/" + line.file)</code> for each line of <code>script.json</code>. Format: <a href="/llms.txt">llms.txt</a>.</p>
+
   <h2>4. Or let your AI add it</h2>
   <p>A prompt for ChatGPT, Claude, Gemini, Cursor or Copilot. Fill in the last line.</p>
   <details class="aiprompt"><summary>Show prompt</summary>

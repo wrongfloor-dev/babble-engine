@@ -23,6 +23,6 @@
   ],
   "keywords": ["gibberish", "voice", "speech", "animalese", "game", "audio", "web-audio"],
   "scripts": {
-    "test": "node tests/check.mjs && node tests/engine.mjs"
+    "test": "node tests/check.mjs && node tests/engine.mjs && node tests/script.mjs"
   }
 }

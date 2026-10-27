@@ -4,16 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Babble Engine: free gibberish voice generator for games</title>
-<meta name="description" content="Turn a line of text into gibberish speech for your game characters. 16 styles, record your own voice, export WAV. Free, runs in your browser.">
+<meta name="description" content="Turn a line of text into gibberish speech for your game characters. 16 styles, your own voice, a dialogue script, WAV export. Free, in your browser.">
 <link rel="canonical" href="https://babble.wrongfloor.studio/">
 <meta property="og:title" content="Babble Engine: free gibberish voice generator for games">
-<meta property="og:description" content="Turn a line of text into gibberish speech for your game characters. 16 styles, record your own voice, export WAV. Free, runs in your browser.">
+<meta property="og:description" content="Turn a line of text into gibberish speech for your game characters. 16 styles, your own voice, a dialogue script, WAV export. Free, in your browser.">
 <meta property="og:url" content="https://babble.wrongfloor.studio/">
 <meta property="og:type" content="website">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preload" href="fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="src/styles.css">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://wrongfloor.studio/#org","name":"Wrong Floor","url":"https://wrongfloor.studio/"},{"@type":"WebSite","@id":"https://babble.wrongfloor.studio/#site","name":"Babble Engine","url":"https://babble.wrongfloor.studio/","inLanguage":"en","publisher":{"@id":"https://wrongfloor.studio/#org"}},{"@type":"SoftwareApplication","name":"Babble Engine","url":"https://babble.wrongfloor.studio/","applicationCategory":"MultimediaApplication","operatingSystem":"Web browser","description":"Turn a line of text into gibberish speech for your game characters. 16 styles, record your own voice, export WAV. Free, runs in your browser.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"license":"https://github.com/wrongfloor-dev/babble-engine/blob/main/LICENSE","creator":{"@id":"https://wrongfloor.studio/#org"},"isPartOf":{"@id":"https://babble.wrongfloor.studio/#site"}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://wrongfloor.studio/#org","name":"Wrong Floor","url":"https://wrongfloor.studio/"},{"@type":"WebSite","@id":"https://babble.wrongfloor.studio/#site","name":"Babble Engine","url":"https://babble.wrongfloor.studio/","inLanguage":"en","publisher":{"@id":"https://wrongfloor.studio/#org"}},{"@type":"SoftwareApplication","name":"Babble Engine","url":"https://babble.wrongfloor.studio/","applicationCategory":"MultimediaApplication","operatingSystem":"Web browser","description":"Turn a line of text into gibberish speech for your game characters. 16 styles, your own voice, a dialogue script, WAV export. Free, in your browser.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"license":"https://github.com/wrongfloor-dev/babble-engine/blob/main/LICENSE","creator":{"@id":"https://wrongfloor.studio/#org"},"isPartOf":{"@id":"https://babble.wrongfloor.studio/#site"}}]}</script>
 </head>
 <body>
 <div id="sr" class="sr" aria-live="polite"></div>
@@ -25,6 +25,7 @@
     <nav class="nav" aria-label="Main" data-t-aria="aria.main">
       <button id="navMake" aria-current="page" data-t="nav.make">Make babble</button>
       <button id="navVoices" data-t="nav.voices">My voices</button>
+      <button id="navScript" data-t="nav.script">Script</button>
     </nav>
     <button class="topcta" id="addVoiceTop"><span class="rd" aria-hidden="true"></span><span data-t="side.record">Record your voice</span></button>
     <div class="lang" role="group" aria-label="Language" data-t-aria="aria.lang"><button data-lang="en" aria-pressed="true">EN</button><button data-lang="nl" aria-pressed="false">NL</button></div>
@@ -141,6 +142,72 @@
     <p class="hint" id="storeNote"></p>
     <div class="panel"><div class="vlist" id="vlist"></div><p class="hint" id="vEmpty" hidden data-t="voices.empty">You don't have any voices of your own yet. Add one to hear your text in your own voice.</p></div>
   </section>
+</section>
+
+<!-- ===== Script (design A4): overview left, the script as a document in the middle, the prompter right; panes resize ===== -->
+<section id="viewScript" hidden>
+  <div class="sc-head">
+    <h1 class="sc-h1"><label for="scTitle" class="sr" data-t="sc.titleLbl">Title</label><input type="text" id="scTitle" class="sc-ttl" autocomplete="off"><span class="sc-pen" aria-hidden="true">✎</span></h1>
+    <span class="mwrap"><button class="more" type="button" id="scMore" aria-haspopup="menu" aria-expanded="false" data-menu="scMenu" data-t-aria="sc.scriptMenu">⋯</button>
+      <div class="menu" id="scMenu" role="menu">
+        <button role="menuitem" type="button" id="scRename" data-t="sc.rename">Rename</button>
+        <button role="menuitem" type="button" id="scDup" data-t="sc.dup">Duplicate</button>
+        <button role="menuitem" type="button" id="scNew">+ <span data-t="sc.new">New script</span></button>
+        <button role="menuitem" type="button" id="scImportBtn" data-t="io.importDots">Import…</button>
+        <button role="menuitem" type="button" id="scExport" data-t="io.exportDots">Export…</button>
+        <hr><p class="menu-h" data-t="sc.lang">Language of the lines</p>
+        <button role="menuitemradio" type="button" data-sclang="en" aria-checked="false">English</button>
+        <button role="menuitemradio" type="button" data-sclang="nl" aria-checked="false">Nederlands</button>
+        <hr><button role="menuitem" type="button" class="danger" id="scDelete" data-t="sc.deleteDots">Delete script…</button>
+      </div></span>
+    <label for="scSel" class="sr" data-t="sc.pick">Open script</label><select id="scSel" class="sc-sel"></select>
+    <div class="sc-prog" id="scProg"></div>
+    <span class="sc-sp"></span><button class="link sc-xp" type="button" id="scExport2" data-t="io.export">Export</button>
+  </div>
+  <p class="err sc-err" id="scStoreErr" role="alert" hidden></p>
+  <div class="sc-ws" id="scWs">
+    <aside class="sc-ov" aria-labelledby="hScOv">
+      <h2 class="sr" id="hScOv" data-t="sc.overview">Overview</h2>
+      <div><div class="sc-h2row"><h3 data-t="sc.scenes">Scenes</h3><button class="sc-plus" type="button" id="scAddScene2" data-t-aria="sc.addSceneLbl">+</button></div><ul class="sc-scenes" id="scScenes"></ul></div>
+      <div class="sc-whos"><div class="sc-h2row"><h3 data-t="sc.chars">Characters</h3><button class="sc-plus" type="button" id="scAddChar" data-t-aria="sc.addCharLbl">+</button></div><div id="scWho"></div></div>
+      <label class="sc-filter"><input type="checkbox" id="scOnly"> <span data-t="sc.onlyTodo">Only to record</span></label>
+      <p class="sc-private" id="scPrivate" data-t="sc.private">Scripts and recordings stay in this browser. Nothing is uploaded.</p>
+    </aside>
+    <div class="sc-split" id="scSplitOv" role="separator" aria-orientation="vertical" tabindex="0" data-t-aria="sc.widthOv"></div>
+    <section class="sc-docw" aria-labelledby="hScDoc">
+      <h2 class="sr" id="hScDoc" data-t="sc.doc">Lines</h2>
+      <div class="sc-empty" id="scEmpty" hidden><p data-t="sc.empty">Write the spoken lines of your game, one per line.</p><button class="sc-pill" type="button" id="scFirst">+ <span data-t="sc.addLine">Line</span></button></div>
+      <div id="scDoc"></div>
+      <button class="sc-pill sc-addsc" type="button" id="scAddScene">+ <span data-t="sc.addScene">Scene</span></button>
+    </section>
+    <div class="sc-split" id="scSplitPm" role="separator" aria-orientation="vertical" tabindex="0" data-t-aria="sc.widthPm"></div>
+    <section class="sc-pm" id="scPm" aria-labelledby="hPrompt">
+      <h2 class="sr" id="hPrompt" data-t="sc.prompter">Prompter</h2>
+      <div class="pm-top"><span class="pm-state" id="pmStat"><span class="dot" aria-hidden="true"></span><span id="pmStatTxt"></span></span><span class="pm-mode" id="pmMode"></span><span class="sp"></span>
+        <span class="pm-size"><button class="pm-tb" type="button" id="pmSmaller" data-t-aria="sc.smaller">A−</button><button class="pm-tb" type="button" id="pmBigger" data-t-aria="sc.bigger">A+</button></span>
+        <button class="pm-tb" type="button" id="pmBig" aria-pressed="false"><span id="pmBigTxt"></span><kbd>F</kbd></button><button class="pm-tb" type="button" id="pmStop" hidden>■ <span data-t="sc.stop">Stop</span><kbd>Esc</kbd></button></div>
+      <p class="pm-cue" id="pmCue"></p>
+      <div class="pm-body">
+        <p class="pm-who" id="pmWho"></p>
+        <p class="pm-line" id="pmLine"></p>
+        <p class="pm-next" id="pmNext"></p>
+      </div>
+      <p class="pm-note" id="pmNote" role="status"></p>
+      <div class="meterrow" id="pmMeterRow" hidden><span class="mini" data-t="prep.micLabel">Microphone</span><div class="meter" id="meter3" aria-hidden="true"></div></div>
+      <div class="pm-ctl">
+        <button type="button" id="pmPrev" data-t-aria="sc.prev">‹</button>
+        <button type="button" class="pm-rec" id="pmRec"><span id="pmRecTxt"></span><kbd data-t="sc.space">Space</kbd></button>
+        <button type="button" id="pmSkip" data-t-aria="sc.skip"><span class="pm-skipt" data-t="sc.skip">Skip</span> ›</button>
+      </div>
+      <p class="pm-hint" id="pmPhones" hidden data-t="sc.phones">Babble lines play before yours. Use headphones.</p>
+      <button class="link pm-install" id="pmInstall" hidden></button>
+      <p class="err" id="pmErr" hidden></p>
+      <div class="pm-takes" id="pmTakes"></div>
+    </section>
+  </div>
+  <input type="file" id="scFile" accept="audio/*,.wav,.mp3,.ogg,.flac,.m4a" hidden>
+  <input type="file" id="ioPick1" accept=".json,.txt,.zip,application/json,text/plain,application/zip" hidden>
+  <input type="file" id="ioPick2" accept="audio/*,.wav,.mp3,.ogg,.flac,.m4a" multiple hidden>
 </section>
 
 <!-- ===== Studio (screens 2–4) ===== -->
@@ -268,6 +335,49 @@
     <p class="hint"><span data-t="code.note">Same voice and settings. Each take varies a little.</span> <a href="/game" data-t="code.more">How it works</a> · <a href="https://github.com/wrongfloor-dev/babble-engine">GitHub</a></p>
   </div>
 </dialog>
+<dialog id="chDlg" aria-labelledby="chTitle">
+  <div class="dlg">
+    <div class="dlg-head"><h2 id="chTitle" data-t="sc.chars">Characters</h2><button class="btn" id="chClose" data-t="ex.close">Close</button></div>
+    <ul class="chlist" id="chList"></ul>
+    <p class="hint" id="chEmpty" hidden data-t="sc.noChars">No characters yet.</p>
+    <div><button class="btn" id="chAdd">+ <span data-t="sc.addChar">Character</span></button></div>
+  </div>
+</dialog>
+<dialog id="ioDlg" aria-labelledby="ioTitle">
+  <div class="dlg">
+    <div class="dlg-head"><h2 id="ioTitle" data-t="io.import">Import</h2><button class="btn" id="ioClose" data-t="ex.close">Close</button></div>
+    <div class="io-pick" id="ioPick">
+      <p class="hint" data-t="io.importHint">A script file (.json), a backup (.zip), or text below.</p>
+      <div><button class="btn" id="ioFile" data-t="io.chooseScript">Script or backup…</button></div>
+      <label for="ioText" class="sr" data-t="io.pasteLbl">Text of the script</label><textarea id="ioText" rows="6" spellcheck="false"></textarea>
+      <div><button class="btn" id="ioRead" data-t="io.read">Read text</button></div>
+      <p class="hint" data-t="io.audioHint">Audio files named by line id become takes.</p>
+      <div><button class="btn" id="ioAudio" data-t="io.chooseAudio">Audio files…</button></div>
+    </div>
+    <div class="io-plan" id="ioPlan" hidden>
+      <p id="ioSum"></p>
+      <label class="io-check" id="ioGoneRow"><input type="checkbox" id="ioGone"> <span id="ioGoneTxt"></span></label>
+      <div class="duo"><button class="btn" id="ioBack" data-t="io.back">Back</button><button class="btn primary" id="ioApply" data-t="io.apply">Apply</button></div>
+    </div>
+    <p class="err" id="ioErr" role="status" hidden></p>
+  </div>
+</dialog>
+<dialog id="xpDlg" aria-labelledby="xpTitle">
+  <div class="dlg">
+    <div class="dlg-head"><h2 id="xpTitle" data-t="io.export">Export</h2><button class="btn" id="xpClose" data-t="ex.close">Close</button></div>
+    <div class="xp-row"><button class="btn primary" id="xpGame" data-t="io.game">For your game (.zip)</button><p class="hint" data-t="io.gameHint">One WAV per line, plus script.json.</p></div>
+    <div class="xp-row"><button class="btn" id="xpScript" data-t="io.script">Script file (.json)</button><p class="hint" data-t="io.scriptHint">Text, characters and scenes.</p></div>
+    <div class="xp-row"><button class="btn" id="xpBackup" data-t="io.backup">Backup with takes (.zip)</button><p class="hint" data-t="io.backupHint">Your takes live only in this browser.</p></div>
+    <p class="hint" id="xpNote" role="status"></p>
+  </div>
+</dialog>
+<dialog id="scDelDlg" aria-labelledby="sdTitle">
+  <div class="dlg">
+    <h2 id="sdTitle"></h2>
+    <p id="sdText" class="hint"></p>
+    <div class="sc-dlgrow"><button class="btn" id="sdNo" data-t="voices.cancel">Cancel</button><button class="btn" id="sdMerge"></button><button class="btn sc-danger" id="sdAll" data-t="sc.delAll">Delete everything</button></div>
+  </div>
+</dialog>
 <dialog id="cfDlg" aria-labelledby="cfTitle">
   <div class="dlg">
     <h2 id="cfTitle"></h2>
@@ -276,6 +386,7 @@
   </div>
 </dialog>
 <script src="src/engine.js"></script>
+<script src="src/script.js"></script>
 <script src="src/app.js"></script>
 </body>
 </html>

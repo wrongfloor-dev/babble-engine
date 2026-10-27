@@ -26,6 +26,7 @@ Your characters want to talk. Your budget doesn't include voice actors. **Babble
 - 🎛️ **Tune every voice**: pitch, tempo, expression, throat size, breath, brightness
 - 🎤 **Record your own voice** and your characters babble with it: a sound no other game has. The basic round is under 2 minutes of reading and works with all 12 voice styles. Optional short rounds add double consonants (bl, kr), word endings (ahp, ohm) and barks, and you can redo any round. Recordings stay in your browser, nothing is uploaded. Export a voice to use it in your own game
 - 🧑‍🤝‍🧑 **Save characters** so Grandpa Hank sounds like Grandpa Hank every time
+- 📜 **Script your dialogue**: scenes, characters and lines in one place. Record your lines hands-free with a prompter that follows your voice, let babble characters answer in between, speak one word yourself inside a babble line, and give each character its own sound (radio, robot, fairy, giant). Record as many takes as you like and pick the one that goes in. Export one zip for your game (a WAV per line plus `script.json`, see [lines from a script](#-lines-from-a-script)), or a single line. Import a script from your writer or AI assistant as a file or plain text, and back up your takes
 - 💾 **Download WAV**, ready for any engine
 
 ## 🧩 Web module
@@ -91,6 +92,24 @@ The file holds every recorded sound as 16-bit audio in JSON, including the extra
 - 💾 `toWav(result)`: a 16-bit mono WAV as an `ArrayBuffer`, dry
 - 📋 `styles()`: every style with its voices, moods and intents
 - 🎤 `loadVoice(file)`: a `.babble-voice.json` from the tool, as text or parsed JSON
+
+### 📜 Lines from a script
+
+The Script tab in the tool exports a zip for your game: one `<line id>.wav` per line and `script.json` (format in [llms.txt](site/llms.txt)). Play a line by its id:
+
+```js
+const script = await (await fetch('voice/script.json')).json();
+const line = id => new Audio('voice/' + script.lines.find(l => l.id === id).file).play();
+```
+
+In Godot 4, put the folder in `res://voice/`:
+
+```gdscript
+var script_data = JSON.parse_string(FileAccess.get_file_as_string("res://voice/script.json"))
+for line in script_data.lines:
+    if line.file:
+        $Player.stream = load("res://voice/" + line.file)
+```
 
 ## 🎮 Godot 4
 

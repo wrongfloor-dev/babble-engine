@@ -2,7 +2,7 @@
 
 > Babble Engine turns a line of text into gibberish speech for game characters: made-up language, critter chatter, robot beeps and soft tones. It runs in the browser, is free, and is made by Wrong Floor.
 
-Babble Engine is for game developers who want characters to "talk" without voice acting. You type a line, pick a style and a voice, listen, and export a WAV file. You can also record your own voice in the studio and use it as the source for the babble. Recordings stay in the browser (IndexedDB); nothing is uploaded and there are no accounts.
+Babble Engine is for game developers who want characters to "talk" without voice acting. You type a line, pick a style and a voice, listen, and export a WAV file. You can also record your own voice in the studio and use it as the source for the babble. The Script tab keeps a game's dialogue (scenes, characters, recorded and babble lines) and exports a zip with a WAV per line plus script.json. Recordings stay in the browser (IndexedDB); nothing is uploaded and there are no accounts.
 
 ## Use it
 
@@ -64,6 +64,35 @@ Download https://github.com/wrongfloor-dev/babble-engine/releases/latest/downloa
 - `droid` Droid Chirps (no own voice): `beebo`, `rollo`, `zapp`, `mini`
 - `tone` Soft Tones (no own voice): `clouds`, `softbubble`, `rain`, `breeze`, `hum`, `purr`, `wood`, `droplet`, `kalimba`, `felt`, `bubble`, `glass`
 - `instr` Talking Instruments (no own voice): `horn`, `trombone`, `choir`, `kazoo`
+
+## Script files (the Script tab of the tool)
+
+The Script tab keeps a game's dialogue: scenes, characters, lines, recorded takes and babble lines. Import a script file there (⋯ › Import), or paste plain text: `# Scene` starts a scene, `Name: text` is a line, `Name (direction): text` adds a direction.
+
+A script file `<title>.babble-script.json`:
+
+```json
+{ "format": "babble-script", "version": 1, "title": "Tutorial", "lang": "en",
+  "scenes": ["Arrival"],
+  "characters": [
+    { "id": "guide", "name": "Guide", "kind": "record" },
+    { "id": "shop", "name": "Shopkeeper", "kind": "babble", "style": "animal", "voice": "burt", "mood": "happy",
+      "fx": { "pitch": 0, "effect": "", "room": "none" } }
+  ],
+  "lines": [
+    { "id": "l1", "scene": "Arrival", "character": "guide", "dir": "cheerful", "text": "Hello there!" },
+    { "id": "l2", "scene": "Arrival", "character": "shop", "text": "[Welcome!] What can I get you?" }
+  ] }
+```
+
+- `kind`: `record` (you speak the lines) or `babble` (`style`, `voice`, `mood`, or `intent` for `vemmo`, as in the web module)
+- `character` in a line: a character id or name. Keep line ids when you change a file: importing syncs on `id`, a changed text puts the line on "redo" and keeps its takes; lines without an id are matched on character and text
+- A babble line can have one part in [square brackets] that is spoken or recorded; the rest babbles
+- `fx` (optional, sound of the takes): `pitch` -12 to 12 semitones (higher also plays faster), `effect` `""`, `radio`, `gizmo` (robot), `sprite` (fairy) or `grumble` (troll), `room` `none`, `small` or `big`
+
+Export › For your game gives a zip: one `<line id>.wav` per line (sound and room included) and `script.json`:
+`{ format: "babble-script-export", version: 1, title, lang, sampleRate, lines: [{ id, scene, character, characterId, text, dir?, file, duration, babble?, mixed?, spoken?, syllables? }] }`.
+`file` is null for a line without a take. `babble` holds the web module options (with `seed`), so a game can also render that line live; `syllables` is `[{ time, text }]` for a babble line.
 
 ## License
 
