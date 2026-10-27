@@ -53,6 +53,13 @@ await pg.goto(BASE + '/#script'); await pg.waitForSelector('#viewScript:not([hid
 // the first visit shows an example script: lines to record, babble lines and a mixed line
 const exs = await ev(() => ({ n: SC.doc.lines.length, scenes: SC.doc.scenes.length, kinds: [...new Set(SC.doc.lines.map(l => SCR.lineStatus(l, SC.takes, SC.doc)))].sort(), mixed: SC.doc.lines.some(l => SCR.partsOf(l.text).has), title: SC.doc.title }));
 check('example', exs.n === 6 && exs.scenes === 2 && exs.kinds.join() === 'babble,todo' && exs.mixed && /Voorbeeld|Example/.test(exs.title), `example script ${JSON.stringify(exs)}`);
+// a browser that got an empty script before the example existed gets the example too
+{ const c2 = await browser.newContext(), p2 = await c2.newPage();
+  await p2.goto(BASE + '/robots.txt'); await p2.evaluate(() => localStorage.setItem('bm.scExample', '1'));
+  await p2.goto(BASE + '/#script'); await p2.waitForSelector('#scEmpty:not([hidden])', { timeout: 5000 });
+  await p2.evaluate(() => localStorage.removeItem('bm.scExample')); await p2.reload(); await p2.waitForSelector('#scDoc .ln', { timeout: 5000 });
+  const r = await p2.evaluate(() => ({ n: SC.list.length, lines: SC.doc.lines.length }));
+  check('example', r.n === 1 && r.lines === 6, `empty script not replaced by the example ${JSON.stringify(r)}`); await c2.close() }
 await pg.click('#scMore'); await pg.click('#scNew'); await pg.waitForSelector('#scEmpty:not([hidden])');
 const up = await ev(() => new Promise(res => { const r = indexedDB.open('babble-machine'); r.onsuccess = () => { const db = r.result; res({ v: db.version, stores: [...db.objectStoreNames].sort() }); db.close() } }));
 check('upgrade', up.v === 2 && up.stores.join() === 'scripts,takes,voices', `db ${JSON.stringify(up)}`);

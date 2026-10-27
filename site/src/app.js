@@ -954,7 +954,10 @@ function saveDoc(now){const s=SC.doc;if(!s)return;s.updated=Date.now();clearTime
 const delTakes=ids=>DB.db&&ids.length?dbReq('takes','readwrite',o=>{ids.forEach(id=>o.delete(id))}).catch(storeErr):Promise.resolve();
 function scLoad(){return SC.loaded||(SC.loaded=(async()=>{await DB.wait;
   if(DB.db){try{SC.list=(await dbReq('scripts','readonly',o=>o.getAll()))||[]}catch(e){SC.list=[]}}else SC.mem=true;
-  SC.list.sort((a,b)=>a.created-b.created);let id=null;try{id=localStorage.getItem('bm.script')}catch(e){}
+  SC.list.sort((a,b)=>a.created-b.created);let id=null,seen=true;try{id=localStorage.getItem('bm.script');seen=!!localStorage.getItem('bm.scExample')}catch(e){}
+  // scripts left empty before the example existed make way for it
+  if(!seen&&SC.list.length&&SC.list.every(x=>!norm(x.title)&&!(x.lines||[]).some(l=>norm(l.text)))){
+    if(DB.db){try{await dbReq('scripts','readwrite',o=>SC.list.forEach(x=>o.delete(x.id)))}catch(e){}}SC.list=[]}
     const s=SC.list.find(x=>x.id===id)||SC.list[SC.list.length-1];if(s)await scOpenDoc(s);else await scExampleDoc()})())}
 // the first visit opens a short example script instead of an empty page: your lines, babble lines and a mixed one; once per browser
 const EXAMPLE={
