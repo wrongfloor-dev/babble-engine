@@ -638,7 +638,7 @@ body.sc-focus .pm-takes,body.sc-focus .pm-install{display:none}
 }
 @media (max-width:760px){
   .sc-ws{grid-template-columns:minmax(0,1fr)}.sc-split{display:none}
-  .sc-head{padding:8px 16px 12px}.sc-prog{margin-left:0;min-width:0;width:100%;max-width:none;order:5}.sc-err{margin:10px 16px 0}
+  .sc-head{padding:8px 16px 12px}.sc-prog{margin-left:0;min-width:0;flex:1 1 100%;max-width:none;order:5}.sc-err{margin:10px 16px 0}
   .sc-ov{padding:14px 16px;gap:16px;flex-direction:column}.sc-ov>div{width:100%}.sc-filter{align-self:start}
   .sc-docw{padding:0 16px 24px;min-height:0}
   .sc-pm{position:static;margin:16px;min-height:0}

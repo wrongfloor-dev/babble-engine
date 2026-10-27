@@ -49,7 +49,11 @@ await ev(() => new Promise((res, rej) => { const r = indexedDB.open('babble-mach
   r.onsuccess = () => { const db = r.result, tx = db.transaction('voices', 'readwrite');
     tx.objectStore('voices').put({ id: 'vOld', name: 'Old voice', created: 1, script: 'basis', median: 200, labeled: true, complete: true, linesDone: 23, linesTotal: 23, grains: [{ d: new Float32Array(480), c: 'k', v: 'a', pos: 0, f0: 200 }] });
     tx.oncomplete = () => { db.close(); res() } }; r.onerror = () => rej(r.error) }));
-await pg.goto(BASE + '/#script'); await pg.waitForSelector('#viewScript:not([hidden]) .sc-empty:not([hidden])', { timeout: 5000 });
+await pg.goto(BASE + '/#script'); await pg.waitForSelector('#viewScript:not([hidden]) #scDoc .ln', { timeout: 5000 });
+// the first visit shows an example script: lines to record, babble lines and a mixed line
+const exs = await ev(() => ({ n: SC.doc.lines.length, scenes: SC.doc.scenes.length, kinds: [...new Set(SC.doc.lines.map(l => SCR.lineStatus(l, SC.takes, SC.doc)))].sort(), mixed: SC.doc.lines.some(l => SCR.partsOf(l.text).has), title: SC.doc.title }));
+check('example', exs.n === 6 && exs.scenes === 2 && exs.kinds.join() === 'babble,todo' && exs.mixed && /Voorbeeld|Example/.test(exs.title), `example script ${JSON.stringify(exs)}`);
+await pg.click('#scMore'); await pg.click('#scNew'); await pg.waitForSelector('#scEmpty:not([hidden])');
 const up = await ev(() => new Promise(res => { const r = indexedDB.open('babble-machine'); r.onsuccess = () => { const db = r.result; res({ v: db.version, stores: [...db.objectStoreNames].sort() }); db.close() } }));
 check('upgrade', up.v === 2 && up.stores.join() === 'scripts,takes,voices', `db ${JSON.stringify(up)}`);
 await pg.click('#navVoices'); await pg.waitForTimeout(200);
@@ -244,6 +248,7 @@ await pg.keyboard.press('Escape'); check('big', await ev(() => !document.body.cl
 await pg.setViewportSize({ width: 360, height: 760 }); await pg.waitForTimeout(200);
 const sw = await ev(() => document.documentElement.scrollWidth);
 check('360px', sw <= 360, `page is ${sw}px wide`);
+if (sw > 360) console.log(await ev(() => [...document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > 361 && e.offsetParent).slice(0, 8).map(e => e.tagName + '#' + e.id + '.' + e.className + ' ' + Math.round(e.getBoundingClientRect().left) + '-' + Math.round(e.getBoundingClientRect().right) + ' ' + e.textContent.slice(0, 40) + ' in ' + e.parentElement.id + '.' + e.parentElement.className)));
 await pg.screenshot({ path: path.join(os.tmpdir(), 'babble-script-360.png'), fullPage: true });
 await pg.setViewportSize({ width: 1366, height: 900 });
 await pg.screenshot({ path: path.join(os.tmpdir(), 'babble-script-desktop.png'), fullPage: true });
@@ -251,4 +256,4 @@ await pg.screenshot({ path: path.join(os.tmpdir(), 'babble-script-desktop.png'),
 errs.forEach(e => fail('page error', e));
 await browser.close(); server.close();
 if (problems) { console.log(`\n${problems} problem(s)`); process.exit(1) }
-console.log(`script browser ok: upgrade keeps voices, flow 1 (2 takes: ${durs.map(d => d.dur.toFixed(2)).join(', ')} s), another take, choose none, reload, flow 3, keyboard move, flow 4 with cue, mixed line, audio file as take, scene merge, duplicate, sound per character, export/import/backup, Big, 360px. Screenshots in ${os.tmpdir()}`);
+console.log(`script browser ok: upgrade keeps voices, example script, flow 1 (2 takes: ${durs.map(d => d.dur.toFixed(2)).join(', ')} s), another take, choose none, reload, flow 3, keyboard move, flow 4 with cue, mixed line, audio file as take, scene merge, duplicate, sound per character, export/import/backup, Big, 360px. Screenshots in ${os.tmpdir()}`);

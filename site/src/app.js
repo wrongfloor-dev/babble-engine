@@ -955,7 +955,21 @@ const delTakes=ids=>DB.db&&ids.length?dbReq('takes','readwrite',o=>{ids.forEach(
 function scLoad(){return SC.loaded||(SC.loaded=(async()=>{await DB.wait;
   if(DB.db){try{SC.list=(await dbReq('scripts','readonly',o=>o.getAll()))||[]}catch(e){SC.list=[]}}else SC.mem=true;
   SC.list.sort((a,b)=>a.created-b.created);let id=null;try{id=localStorage.getItem('bm.script')}catch(e){}
-  const s=SC.list.find(x=>x.id===id)||SC.list[SC.list.length-1];if(s)await scOpenDoc(s);else await scNewDoc()})())}
+    const s=SC.list.find(x=>x.id===id)||SC.list[SC.list.length-1];if(s)await scOpenDoc(s);else await scExampleDoc()})())}
+// the first visit opens a short example script instead of an empty page: your lines, babble lines and a mixed one; once per browser
+const EXAMPLE={
+  en:{title:'Example: the market',scenes:['At the market','At the gate'],characters:[{id:'you',name:'You',kind:'record'},{id:'fern',name:'Fern',kind:'babble',style:'animal',voice:'fern',mood:'blij'},
+      {id:'trader',name:'Trader',kind:'babble',style:'sim',voice:'hank',mood:'neutraal'},{id:'guard',name:'Guard',kind:'babble',style:'grumble',voice:'grok',mood:'boos'}],
+    lines:[['At the market','fern','','Hey hey! Look what I found!'],['At the market','you','surprised','A key? Where did you get that?'],['At the market','trader','','That one is mine! [Thank you!] Here, an apple for you both.'],
+      ['At the market','you','','Come on Fern, let’s go.'],['At the gate','guard','','Halt! Who goes there?'],['At the gate','you','calm','It’s just us. We have the key.']]},
+  nl:{title:'Voorbeeld: de markt',scenes:['Op de markt','Bij de poort'],characters:[{id:'you',name:'Jij',kind:'record'},{id:'fern',name:'Fern',kind:'babble',style:'animal',voice:'fern',mood:'blij'},
+      {id:'trader',name:'Koopman',kind:'babble',style:'sim',voice:'hank',mood:'neutraal'},{id:'guard',name:'Wachter',kind:'babble',style:'grumble',voice:'grok',mood:'boos'}],
+    lines:[['Op de markt','fern','','Hoi hoi! Kijk eens wat ik gevonden heb!'],['Op de markt','you','verbaasd','Een sleutel? Waar heb je die vandaan?'],['Op de markt','trader','','Die is van mij! [Dank je wel!] Hier, een appel voor jullie.'],
+      ['Op de markt','you','','Kom Fern, we gaan verder.'],['Bij de poort','guard','','Halt! Wie gaat daar?'],['Bij de poort','you','rustig','Wij zijn het maar. We hebben de sleutel.']]}};
+async function scExampleDoc(){let seen=false;try{seen=!!localStorage.getItem('bm.scExample');localStorage.setItem('bm.scExample','1')}catch(e){}if(seen)return scNewDoc();
+  const ex=EXAMPLE[LANGUI]||EXAMPLE.en,s=SCR.newScript('',LANGUI,'');s.scenes=[];
+  SCR.applyImport(s,{title:ex.title,lang:LANGUI,scenes:ex.scenes,characters:ex.characters.map(c=>({...c,id:''})),lines:ex.lines.map(([scene,c,dir,text])=>({id:'',scene,character:ex.characters.find(x=>x.id===c).name,dir,text,seed:0}))},true);
+  SC.list.push(s);await scOpenDoc(s);scCleanChars();saveDoc(true)}
 async function scOpenDoc(s){scStop();SCR.tidy(s);SC.doc=s;SC.takes={};try{localStorage.setItem('bm.script',s.id)}catch(e){}
   if(DB.db){try{((await dbReq('takes','readonly',o=>o.index('script').getAll(s.id)))||[]).forEach(x=>SC.takes[x.id]=x)}catch(e){}}
   const L=SCR.ordered(s);SC.cur=(L.find(l=>SCR.needsTake(l,SC.takes,s))||L[0]||{}).id||null}
