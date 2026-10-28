@@ -54,7 +54,7 @@ Making a web game? Use the same engine straight from your code. One file, no bui
 
 ### `render(text, options)`
 
-Returns `{ pcm, sampleRate, duration, syllables, style, voice }`. `pcm` is a mono `Float32Array`, dry (no room).
+Returns `{ pcm, sampleRate, duration, syllables, reveal, style, voice }`. `pcm` is a mono `Float32Array`, dry (no room).
 
 | Option | Default | |
 |---|---|---|
@@ -69,7 +69,13 @@ Returns `{ pcm, sampleRate, duration, syllables, style, voice }`. `pcm` is a mon
 | `name` | the voice's name | Name Talk only: the name the creature keeps saying, like `'Pikachu'` |
 | `intent`, `length` | `'tell'`, `'short'` | Bloopa Doopa only: it speaks by intent (`greet`, `ask`, `joy`, `letdown`…) and ignores the text |
 
-👄 `syllables` is a list of `{ time, text }`: the start of every syllable in seconds. Flap a mouth, bounce a sprite or reveal subtitles in sync.
+👄 `syllables` is a list of `{ time, text }`: the start of every syllable in seconds. Flap a mouth or bounce a sprite in sync.
+
+⌨️ `reveal` has one time per character of your text: when it should show in a text box that types along. Each word types out while it is spoken and waits through the pauses, so the text never runs ahead of the voice. `play` does the timing for you:
+
+```js
+play(line, { onReveal: n => box.textContent = text.slice(0, n) });
+```
 
 ### 🎤 Your own voice in your game
 
@@ -88,7 +94,7 @@ The file holds every recorded sound as 16-bit audio in JSON, including the extra
 
 ### More
 
-- ▶️ `play(result, { room = true, context })`: browser only. Plays the line with the style's room, like the tool. Returns `{ stop(), ended, context }`
+- ▶️ `play(result, { room = true, context, onReveal })`: browser only. Plays the line with the style's room, like the tool. `onReveal(n)` is called whenever the first `n` characters should show. Returns `{ stop(), ended, context }`
 - 💾 `toWav(result)`: a 16-bit mono WAV as an `ArrayBuffer`, dry
 - 📋 `styles()`: every style with its voices, moods and intents
 - 🎤 `loadVoice(file)`: a `.babble-voice.json` from the tool, as text or parsed JSON
@@ -121,14 +127,15 @@ $Speaker.speak("Hi! Do you want an apple?")
 $Speaker.syllable.connect(func(index, text): $Mouth.flap())
 ```
 
-- 📣 **Signals:** `line_started(text)`, `syllable(index, text)` and `line_finished`
+- ⌨️ **Typing text box:** set *Type Label* to a `Label` or `RichTextLabel` and the line types itself into it, in step with the voice
+- 📣 **Signals:** `line_started(text)`, `syllable(index, text)`, `revealed(count)` and `line_finished`
 - 🧵 **No stutter:** the speaker renders on a background thread and starts the line when it's ready
 - 🎤 **Your own voice:** set *Own Voice File* to the `.babble-voice.json` from Export
 - 🏛️ **Room:** add a Reverb effect to the speaker's audio bus
 - 🧪 **Demo:** open `addons/babble_engine/demo/demo.tscn` and press F6: pick a style, voice and mood, and watch a mouth move on every syllable
-- 🔧 **Without the node:** `BabbleEngine.render(text, options)` takes the same options in snake_case (`sample_rate`, `own_voice`) and returns `{ pcm, sample_rate, duration, syllables }`. `BabbleEngine.load_voice(text)` reads a voice file. A bad option prints an error and returns `{}`
+- 🔧 **Without the node:** `BabbleEngine.render(text, options)` takes the same options in snake_case (`sample_rate`, `own_voice`) and returns `{ pcm, sample_rate, duration, syllables, reveal }`. `BabbleEngine.load_voice(text)` reads a voice file. A bad option prints an error and returns `{}`
 
-Same text, options and seed give the same sound as the web module, sample for sample (`tests/godot.mjs` checks all 16 styles). GDScript renders about 15 times slower than the browser, which is why the speaker uses a thread.
+Same text, options and seed give the same sound as the web module, sample for sample (`tests/godot.mjs` checks all 16 styles on every push). GDScript renders about 15 times slower than the browser, which is why the speaker uses a thread.
 
 ## 🐾 Styles and voices
 

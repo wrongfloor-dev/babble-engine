@@ -3,6 +3,8 @@
 ##   $Speaker.speak("Hi! Do you want an apple?")
 ##   $Speaker.syllable.connect(func(index, text): $Mouth.flap())
 ##
+## Set Type Label to a Label or RichTextLabel and the line types itself into it, in step with the voice.
+##
 ## It renders on a background thread, so a long line does not stall the game; the line starts when it is ready.
 ## For the room the web tool adds, put a Reverb effect on the speaker's audio bus.
 class_name BabbleSpeaker
@@ -12,6 +14,8 @@ extends AudioStreamPlayer
 signal line_started(text: String)
 ## A syllable starts being heard (corrected for audio latency).
 signal syllable(index: int, text: String)
+## The first count characters of the line should show now (corrected for audio latency), for a text box that types along.
+signal revealed(count: int)
 ## The line has played to the end. Not sent after stop_line() or a new speak().
 signal line_finished
 
@@ -26,12 +30,16 @@ var style: String = "animal"
 @export var options := {}
 ## A .babble-voice.json from the tool's Export button (Voices & characters). Voice styles only.
 @export_file("*.json") var own_voice_file := ""
+## A Label or RichTextLabel: speak() puts the line in it and shows it character by character with the voice.
+@export var type_label: Control
 
 var _job := 0
 var _task := -1
 var _pending = null
 var _syllables := []
 var _next := 0
+var _reveal := PackedFloat64Array()
+var _shown := 0
 var _text := ""
 var _voice := {}
 var _voice_path := ""
@@ -60,7 +68,7 @@ func speak(text: String) -> void:
 
 ## Stop the current line; a line still rendering will not start.
 func stop_line() -> void:
-	_job += 1; _syllables = []; _pending = null
+	_job += 1; _syllables = []; _reveal = PackedFloat64Array(); _pending = null
 	stop()
 
 func _done(job: int, text: String, r: Dictionary, wav) -> void:
@@ -69,19 +77,32 @@ func _done(job: int, text: String, r: Dictionary, wav) -> void:
 		var next: String = _pending; _pending = null; speak(next); return
 	if job != _job or wav == null: return
 	stream = wav; _text = text; _syllables = r.syllables; _next = 0
+	_reveal = r.reveal; _shown = 0
+	if type_label:
+		type_label.text = text; type_label.visible_characters = 0
 	play()
 	line_started.emit(text)
 
 func _process(_delta: float) -> void:
-	if _syllables.is_empty() or not playing: return
+	if (_syllables.is_empty() and _reveal.is_empty()) or not playing: return
 	var t := get_playback_position() + AudioServer.get_time_since_last_mix() - AudioServer.get_output_latency()
 	while _next < _syllables.size() and _syllables[_next].time <= t:
 		syllable.emit(_next, _syllables[_next].text); _next += 1
+	var n := _shown
+	while n < _reveal.size() and _reveal[n] <= t: n += 1
+	_show(n)
+
+func _show(n: int) -> void:
+	if n == _shown: return
+	_shown = n
+	if type_label: type_label.visible_characters = n
+	revealed.emit(n)
 
 func _on_finished() -> void:
 	while _next < _syllables.size():
 		syllable.emit(_next, _syllables[_next].text); _next += 1
-	_syllables = []
+	_show(_reveal.size())
+	_syllables = []; _reveal = PackedFloat64Array()
 	line_finished.emit()
 
 ## 16-bit mono, like the web module's toWav

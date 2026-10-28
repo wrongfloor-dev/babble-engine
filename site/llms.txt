@@ -22,13 +22,14 @@ One ES module, no build step, no dependencies, no server. Works in the browser; 
 import { render, play, toWav, styles, loadVoice } from 'https://cdn.jsdelivr.net/gh/wrongfloor-dev/babble-engine@1/site/src/babble.mjs';
 
 const line = render('Hi! Do you want an apple?', { style: 'animal', voice: 'fern', mood: 'happy' });
-const p = play(line);   // browser only, with the style's room; returns { stop(), ended, context }
+const p = play(line, { onReveal: n => box.textContent = line_text.slice(0, n) });   // browser only, with the style's room; onReveal types the text along; returns { stop(), ended, context }
 p.stop();               // stop it, e.g. when the next dialogue line starts
-line.syllables;         // [{ time, text }]: syllable start times in seconds, for mouth flaps or subtitles
+line.syllables;         // [{ time, text }]: syllable start times in seconds, for mouth flaps
+line.reveal;            // one time in seconds per character of the text: when it shows in a text box that types along
 toWav(line);            // ArrayBuffer, 16-bit mono WAV, dry
 ```
 
-render(text, options) returns { pcm (Float32Array, mono, dry), sampleRate, duration, syllables, style, voice }. Options:
+render(text, options) returns { pcm (Float32Array, mono, dry), sampleRate, duration, syllables, reveal, style, voice }. Options:
 
 - style: default 'animal'. voice: default the style's first voice
 - mood: neutral, happy, angry, sad, flirty, surprised (default neutral)
@@ -44,7 +45,7 @@ Unknown styles, voices, moods or intents throw an Error whose message starts wit
 
 ## Godot 4 addon
 
-Download https://github.com/wrongfloor-dev/babble-engine/releases/latest/download/babble-engine-godot.zip and unzip it in the project folder, or install it from the Godot Asset Library (https://godotengine.org/asset-library/asset/5567, AssetLib tab: search "Babble Engine"), or copy addons/babble_engine from the GitHub repo; no plugin to enable. A BabbleSpeaker node (an AudioStreamPlayer with style, voice, mood, babble_seed, options and own_voice_file) renders on a background thread and plays the line: speak(text), stop_line(), signals line_started(text), syllable(index, text) and line_finished. BabbleEngine.render(text, options) takes the same options in snake_case (sample_rate, own_voice) and gives the same samples as the web module; a bad option prints an error and returns {}. BabbleEngine.load_voice(text) reads a .babble-voice.json.
+Download https://github.com/wrongfloor-dev/babble-engine/releases/latest/download/babble-engine-godot.zip and unzip it in the project folder, or install it from the Godot Asset Library (https://godotengine.org/asset-library/asset/5567, AssetLib tab: search "Babble Engine"), or copy addons/babble_engine from the GitHub repo; no plugin to enable. A BabbleSpeaker node (an AudioStreamPlayer with style, voice, mood, babble_seed, options and own_voice_file) renders on a background thread and plays the line: speak(text), stop_line(), signals line_started(text), syllable(index, text), revealed(count) and line_finished. Set type_label to a Label or RichTextLabel and the line types itself into it in step with the voice. BabbleEngine.render(text, options) takes the same options in snake_case (sample_rate, own_voice) and gives the same samples as the web module; a bad option prints an error and returns {}. BabbleEngine.load_voice(text) reads a .babble-voice.json.
 
 ## Style and voice ids
 

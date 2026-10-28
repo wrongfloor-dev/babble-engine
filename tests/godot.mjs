@@ -89,6 +89,8 @@ cases.forEach((c, i) => {
   if (d > 1e-4) fail('samples', `${id}: max difference ${d.toExponential(2)}`);
   if (g.syllables.length !== j.syllables.length || g.syllables.some((s, k) => s.text !== j.syllables[k].text || Math.abs(s.time - j.syllables[k].time) > 1e-9))
     fail('syllables', `${id}: ${JSON.stringify(g.syllables.slice(0, 4))} vs ${JSON.stringify(j.syllables.slice(0, 4))}`);
+  if (g.reveal.length !== j.reveal.length || g.reveal.some((x, k) => Math.abs(x - j.reveal[k]) > 1e-9))
+    fail('reveal', `${id}: ${JSON.stringify(g.reveal.slice(0, 6))} vs ${JSON.stringify(j.reveal.slice(0, 6))}`);
 });
 // BabbleSpeaker: the replaced line never plays, every syllable is signalled once, in order, near its time (headless audio runs ~70 ms ahead)
 const sp = JSON.parse(fs.readFileSync(path.join(dir, 'out/speaker.json'), 'utf8'));
@@ -96,8 +98,11 @@ if (sp.started.length !== 1 || sp.started[0] !== 'Hi there! Wait, wrong line.') 
 if (!sp.finished) fail('speaker', 'line_finished never came');
 if (sp.syllables.length !== sp.expected.length || sp.syllables.some(([i, t, at], n) => i !== n || t !== sp.expected[n].text || Math.abs(at - sp.expected[n].time) > 0.15))
   fail('speaker', `syllables ${JSON.stringify(sp.syllables)} vs ${JSON.stringify(sp.expected)}`);
+const line = 'Hi there! Wait, wrong line.';
+if (!sp.label || sp.label[0] !== line || sp.label[1] !== line.length || sp.revealed.at(-1) !== line.length || sp.revealed.some((n, k) => k && n <= sp.revealed[k - 1]))
+  fail('speaker', `type label ${JSON.stringify(sp.label)}, revealed ${JSON.stringify(sp.revealed)}`);
 const gdVersion = (fs.readFileSync(path.join(root, 'addons/babble_engine/babble_engine.gd'), 'utf8').match(/const VERSION := "([^"]+)"/) || [])[1];
 if (gdVersion !== B.version) fail('version', `addon ${gdVersion}, web module ${B.version}`);
 fs.rmSync(dir, { recursive: true, force: true });
 if (problems) { console.log(`\n${problems} problem(s)`); process.exit(1) }
-console.log(`godot ok: BabbleSpeaker signals every syllable; ${cases.length} cases match the web module (max difference ${worst.toExponential(1)}); Godot ${(gdMs / 1000).toFixed(1)} s, web ${(jsMs / 1000).toFixed(1)} s`);
+console.log(`godot ok: BabbleSpeaker signals every syllable and types the line; ${cases.length} cases match the web module (max difference ${worst.toExponential(1)}); Godot ${(gdMs / 1000).toFixed(1)} s, web ${(jsMs / 1000).toFixed(1)} s`);

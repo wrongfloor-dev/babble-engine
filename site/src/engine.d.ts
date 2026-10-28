@@ -70,6 +70,8 @@ export interface RenderResult {
   style: StyleId;
   voice: string;
   syllables: Syllable[];
+  /** Seconds at which each character of the text shows, for a text box that types along (one entry per character of text). */
+  reveal: number[];
 }
 
 export interface StyleInfo {
@@ -95,7 +97,12 @@ export function render(text: string, options?: RenderOptions): RenderResult;
 /** 16-bit mono WAV of a render, dry. */
 export function toWav(result: RenderResult | Float32Array, sampleRate?: number): ArrayBuffer;
 /** Browser only. Plays a render like the site does, with the style's room unless room is false. */
-export function play(result: RenderResult, options?: { context?: AudioContext; room?: boolean }): Playback;
+export function play(result: RenderResult, options?: {
+  context?: AudioContext;
+  room?: boolean;
+  /** Called whenever more of the line should show: n is how many characters, from the start of the text. */
+  onReveal?: (n: number) => void;
+}): Playback;
 export function styles(): StyleInfo[];
 /** Load a .babble-voice.json file (exported from Voices & characters in the tool), as text or parsed JSON. */
 export function loadVoice(file: string | object): OwnVoice;

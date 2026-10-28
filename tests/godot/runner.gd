@@ -23,7 +23,7 @@ func _init() -> void:
 			summary.append({"error": true, "ms": ms}); continue
 		var f := FileAccess.open("res://out/%d.f32" % i, FileAccess.WRITE)
 		f.store_buffer(r.pcm.to_byte_array()); f.close()
-		summary.append({"sample_rate": r.sample_rate, "duration": r.duration, "syllables": r.syllables, "ms": ms})
+		summary.append({"sample_rate": r.sample_rate, "duration": r.duration, "syllables": r.syllables, "reveal": Array(r.reveal), "ms": ms})
 	var f := FileAccess.open("res://out/summary.json", FileAccess.WRITE)
 	f.store_string(JSON.stringify(summary)); f.close()
 	quit()

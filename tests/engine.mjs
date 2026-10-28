@@ -18,6 +18,15 @@ for (const s of B.styles()) for (const v of s.voices) {
   if (bad) fail('render', `${id}: ${bad} non-finite samples`);
   if (peak < 0.01 || peak > 1.5) fail('render', `${id}: peak ${peak.toFixed(3)}`);
   if (!r.syllables.length || r.syllables.some((x, i) => i && x.time < r.syllables[i - 1].time)) fail('render', `${id}: syllable times`);
+  // reveal: one time per character, never going back, all within the sound
+  if (r.reveal.length !== TEXT.length || r.reveal.some((x, i) => !Number.isFinite(x) || x < 0 || x > r.duration || (i && x < r.reveal[i - 1])))
+    fail('reveal', `${id}: ${r.reveal.length} times, not in order or outside the sound`);
+}
+// reveal: a word shows while it is spoken, so "apples" starts at its own syllable, not at a fixed letter rate
+{
+  const r = B.render(TEXT, { style: 'sim', seed: 5 }), at = TEXT.indexOf('apples');
+  if (!r.syllables.some(s => Math.abs(s.time - r.reveal[at]) < 1e-9)) fail('reveal', 'a word does not start on a syllable');
+  if (B.render('', { style: 'animal' }).reveal.length !== 0) fail('reveal', 'empty text');
 }
 
 // seed: same seed same sound, other seed other sound

@@ -1,5 +1,5 @@
 ## Babble Engine demo: type a line, pick a style, voice and mood, press Speak.
-## Fern's mouth opens on every syllable and the text appears in time with it.
+## Fern's mouth opens on every syllable and the line types itself out in time with the voice (Type Label).
 extends Control
 
 const SKIN := Color("#F2B705")
@@ -32,7 +32,7 @@ func _ready() -> void:
 	face.custom_minimum_size = Vector2(220, 220); face.size_flags_horizontal = SIZE_SHRINK_CENTER
 	face.draw.connect(_draw_face); box.add_child(face)
 	said.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; said.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; box.add_child(said)
-	speaker.line_started.connect(func(_t): said.text = "")
+	speaker.type_label = said
 	speaker.syllable.connect(_on_syllable)
 	speaker.line_finished.connect(func(): open = 0.0)
 	_fill_voices()
@@ -46,8 +46,7 @@ func _speak() -> void:
 	speaker.style = s.id; speaker.voice = s.voices[voices.selected].id; speaker.mood = mood_ids[moods.selected]
 	speaker.speak(line.text)
 
-func _on_syllable(_index: int, text: String) -> void:
-	said.text += ("" if said.text == "" else " ") + text
+func _on_syllable(_index: int, _text: String) -> void:
 	open = 1.0  # open on the syllable, then close again over a tenth of a second
 	create_tween().tween_property(self, "open", 0.0, 0.1)
 

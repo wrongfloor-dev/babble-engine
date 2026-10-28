@@ -39,7 +39,10 @@ function sylFromText(t){
 }
 function tokenize(text,engine,seed,LANG){
   const toks=[],parts=text.match(/[A-Za-zÀ-ÿ0-9']+|[.,!?;:…]+|\s+|./g)||[];
-  parts.forEach(p=>{
+  let at=0;
+  parts.forEach(p=>{const n0=toks.length;part(p);for(let j=n0;j<toks.length;j++)if(toks[j].at===undefined){toks[j].at=at;toks[j].len=p.length}at+=p.length});
+  return toks;
+  function part(p){
     if(/^\s+$/.test(p)){toks.push({type:'gap',text:' '});return}
     if(/^[.,!?;:…]+$/.test(p)){toks.push({type:'punct',text:p,mark:p.slice(-1)});return}
     if(!/[A-Za-zÀ-ÿ0-9]/.test(p)){toks.push({type:'punct',text:p,mark:''});return}
@@ -49,7 +52,7 @@ function tokenize(text,engine,seed,LANG){
         const l=ch.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
         let c='',v='a';
         if(VF[l]&&l!=='y')v=l;else if(LETTER[l])[c,v]=LETTER[l];else v='aeiou'[l.charCodeAt(0)%5];
-        toks.push({type:'syl',text:ch,c,v,k:'',jit:((l.charCodeAt(0)*37)%100)/100,stress:ci===0});
+        toks.push({type:'syl',text:ch,c,v,k:'',jit:((l.charCodeAt(0)*37)%100)/100,stress:ci===0,at:at+ci,len:1});
       });
       return;
     }
@@ -72,8 +75,7 @@ function tokenize(text,engine,seed,LANG){
       let t=c+v+k;if(i===0&&cap)t=t.charAt(0).toUpperCase()+t.slice(1);
       toks.push({type:'syl',text:t,c,v,k,jit:(hash(t+i+low)%1000)/1000,stress:i===0});
     }
-  });
-  return toks;
+  }
 }
 
 
@@ -1071,6 +1073,27 @@ function renderStyle(engine,toks,o,sr,grains){
   return r;
 }
 
+// When each character of the line shows, for a text box that types along with the voice. A word's letters spread over
+// its syllables; spaces and punctuation show when the word before them ends. Styles that don't speak the text itself
+// (Bloopa Doopa, Name Talk, Grunts & Barks) spread the whole line over the sound.
+function revealTimes(len,toks,marks,dur){
+  const out=[];if(!len)return out;
+  const d=[];for(let j=1;j<marks.length;j++)d.push(marks[j][0]-marks[j-1][0]);d.sort((x,y)=>x-y);
+  const syl=Math.min(.4,Math.max(.05,d.length?d[d.length>>1]:.12));
+  const words=new Map();
+  marks.forEach(([t,i])=>{const k=toks[i];if(!k||k.at===undefined)return;const w=words.get(k.at);
+    if(w){w.s=Math.min(w.s,t);w.e=Math.max(w.e,t)}else words.set(k.at,{at:k.at,len:k.len,s:t,e:t})});
+  let W=[...words.values()].sort((x,y)=>x.at-y.at);
+  if(!W.length){const s0=marks.length?marks[0][0]:0;W=[{at:0,len,s:s0,e:Math.max(s0,marks.length?marks[marks.length-1][0]:0,dur*.75-syl)}]}
+  W.forEach((w,j)=>{w.e=Math.max(w.s,j+1<W.length?Math.min(w.e+syl,W[j+1].s):w.e+syl)});
+  let t=W[0].s,j=0;
+  for(let c=0;c<len;c++){
+    while(j<W.length&&W[j].at+W[j].len<=c){t=W[j].e;j++}
+    out.push(j<W.length&&c>=W[j].at?W[j].s+(W[j].e-W[j].s)*(c-W[j].at)/W[j].len:t);
+  }
+  return out;
+}
+
 // ===== Web module: Babble.render(text, options) =====
 const BABBLE_VERSION='1.3.2';
 const MOOD_ALIAS={neutral:'neutraal',happy:'blij',angry:'boos',sad:'verdrietig',flirty:'flirterig',surprised:'verbaasd'};
@@ -1103,7 +1126,8 @@ function babbleRender(text,opt={}){
   try{r=renderStyle(style,toks,o,sr,own&&grainsAt(own,sr))}finally{RND=prev}
   for(let i=0;i<r.pcm.length;i++)if(!isFinite(r.pcm[i]))r.pcm[i]=0;
   return {pcm:r.pcm,sampleRate:sr,duration:r.pcm.length/sr,style,voice,
-    syllables:r.marks.map(([time,i])=>({time,text:toks[i]?toks[i].text:''}))};
+    syllables:r.marks.map(([time,i])=>({time,text:toks[i]?toks[i].text:''})),
+    reveal:revealTimes(String(text==null?'':text).length,toks,r.marks,r.pcm.length/sr)};
 }
 // Own voice file, made by the tool's Export button: JSON with every recorded sound as base64 16-bit PCM.
 const GRAIN_KEYS=['c','v','k','bark','tail','pos','f0','loud'];
@@ -1135,7 +1159,7 @@ function babbleWav(res,sampleRate){
   return b;
 }
 // Browser only: plays a render the way the site does (soft high shelf plus the style's room).
-function babblePlay(res,{context,room=true}={}){
+function babblePlay(res,{context,room=true,onReveal}={}){
   const AC=globalThis.AudioContext||globalThis.webkitAudioContext;
   const ctx=context||babblePlay.ctx||(babblePlay.ctx=new AC());if(ctx.state==='suspended')ctx.resume();
   const b=ctx.createBuffer(1,res.pcm.length,res.sampleRate);b.getChannelData(0).set(res.pcm);
@@ -1145,7 +1169,12 @@ function babblePlay(res,{context,room=true}={}){
   if(room){const d=roomIR(ctx.sampleRate),ir=ctx.createBuffer(2,d[0].length,ctx.sampleRate);d.forEach((x,c)=>ir.getChannelData(c).set(x));
     const cv=ctx.createConvolver();cv.buffer=ir;const g=ctx.createGain();g.gain.value=wetFor(res.style);shelf.connect(cv);cv.connect(g);g.connect(ctx.destination)}
   const ended=new Promise(r=>{src.onended=()=>r()});src.start();
-  return {stop(){try{src.stop()}catch(e){}},ended,context:ctx};
+  // onReveal(n): the first n characters of the line should show now (res.reveal, corrected for output latency)
+  let live=true,shown=-1;const rv=res.reveal||[],t0=ctx.currentTime,tick=()=>{if(!live)return;
+    const t=ctx.currentTime-t0-(ctx.outputLatency||0);let n=shown<0?0:shown;while(n<rv.length&&rv[n]<=t)n++;
+    if(n!==shown){shown=n;onReveal(n)}if(n<rv.length)(globalThis.requestAnimationFrame||(f=>setTimeout(f,16)))(tick)};
+  if(onReveal){tick();ended.then(()=>{if(live&&shown<rv.length){shown=rv.length;onReveal(rv.length)}live=false})}
+  return {stop(){live=false;try{src.stop()}catch(e){}},ended,context:ctx};
 }
 function babbleStyles(){
   return ENGINE_ORDER.map(id=>({id,name:EMETA[id].name,description:EMETA[id].d.en,ownVoice:EMETA[id].rec,

@@ -20,10 +20,11 @@
 play(render('Hi! Do you want an apple?', { style: 'animal', voice: 'fern', mood: 'happy' }));</code></pre>
   <p>Tip: in the <a href="/">tool</a>, click <b>‹/›</b> next to Download for the line with your settings.</p>
 
-  <h2>2. Sync a mouth</h2>
+  <h2>2. Sync a mouth and the text</h2>
   <pre class="code"><code>const line = render('Welcome, traveller!', { style: 'sim', voice: 'hank' });
-play(line);
+play(line, { onReveal: n =&gt; box.textContent = 'Welcome, traveller!'.slice(0, n) });
 for (const s of line.syllables) setTimeout(() =&gt; flapMouth(s.text), s.time * 1000);</code></pre>
+  <p>The text types along with the voice, word by word. Godot: set <b>Type Label</b> on the BabbleSpeaker.</p>
 
   <h2>3. Your own voice</h2>
   <p>Record it in the tool and click <b>Export</b> under My voices.</p>
@@ -52,7 +53,8 @@ Speak a line:
 const line = render(text, { style: 'animal', voice: 'fern', mood: 'happy' });
 const p = play(line); // returns { stop(), ended } (ended is a Promise)
 
-- render returns { pcm, sampleRate, duration, syllables }; syllables is [{ time, text }] with start times in seconds
+- render returns { pcm, sampleRate, duration, syllables, reveal }; syllables is [{ time, text }] with start times in seconds; reveal has one time in seconds per character of the text
+- play(line, { onReveal: n =&gt; ... }) calls onReveal whenever the first n characters of the text should show
 - Styles: animal, sim, vemmo, name, bark, grumble, gizmo, sprite, ghost, echo, radio, baby, blip, droid, tone, instr
 - Moods: neutral, happy, angry, sad, flirty, surprised
 - Use seed (a number) per character so a character keeps the same made-up language
@@ -61,7 +63,7 @@ const p = play(line); // returns { stop(), ended } (ended is a Promise)
 Please:
 1. Give each character its own style and voice
 2. Stop the previous line when a new one starts
-3. Use syllables to animate the mouth or reveal the text
+3. Use syllables to animate the mouth and onReveal to type the text in the dialogue box
 
 My game is made with: [your engine or framework, e.g. Phaser, PixiJS, plain canvas]</code></pre>
   </details>

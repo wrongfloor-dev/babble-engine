@@ -278,7 +278,40 @@ func _render(text: String, opt: Dictionary) -> Dictionary:
 		if not is_finite(pcm[i]): pcm[i] = 0.0
 	var syl := []
 	for m in r.marks: syl.append({"time": m[0], "text": toks[m[1]].get("text", "")})
-	return {"pcm": pcm, "sample_rate": sr, "duration": pcm.size() / float(sr), "style": style, "voice": voice, "syllables": syl}
+	return {"pcm": pcm, "sample_rate": sr, "duration": pcm.size() / float(sr), "style": style, "voice": voice, "syllables": syl,
+		"reveal": reveal_times(text.length(), toks, r.marks, pcm.size() / float(sr))}
+
+## When each character of the line shows, for a text box that types along with the voice. A word's letters spread over
+## its syllables; spaces and punctuation show when the word before them ends. Styles that don't speak the text itself
+## (Bloopa Doopa, Name Talk, Grunts & Barks) spread the whole line over the sound.
+static func reveal_times(n: int, toks: Array, marks: Array, dur: float) -> PackedFloat64Array:
+	var out := PackedFloat64Array()
+	if n == 0: return out
+	var d := []
+	for j in range(1, marks.size()): d.append(marks[j][0] - marks[j - 1][0])
+	d.sort()
+	var syl: float = min(0.4, max(0.05, d[d.size() >> 1] if d.size() > 0 else 0.12))
+	var words := {}
+	for m in marks:
+		var k = toks[m[1]] if m[1] < toks.size() else null
+		if k == null or not k.has("at"): continue
+		if words.has(k.at):
+			var w: Dictionary = words[k.at]; w.s = min(w.s, m[0]); w.e = max(w.e, m[0])
+		else: words[k.at] = {"at": k.at, "len": k.len, "s": m[0], "e": m[0]}
+	var W: Array = words.values()
+	W.sort_custom(func(a, b): return a.at < b.at)
+	if W.is_empty():
+		var s0: float = marks[0][0] if marks.size() > 0 else 0.0
+		W = [{"at": 0, "len": n, "s": s0, "e": max(s0, max(marks[-1][0] if marks.size() > 0 else 0.0, dur * 0.75 - syl))}]
+	for j in W.size():
+		var w: Dictionary = W[j]
+		w.e = max(w.s, min(w.e + syl, W[j + 1].s) if j + 1 < W.size() else w.e + syl)
+	var t: float = W[0].s; var j := 0
+	for c in n:
+		while j < W.size() and W[j].at + W[j].len <= c:
+			t = W[j].e; j += 1
+		out.append(W[j].s + (W[j].e - W[j].s) * (c - W[j].at) / float(W[j].len) if j < W.size() and c >= W[j].at else t)
+	return out
 
 ## Godot has no exceptions: a bad option prints an error and render() returns {} (check with is_empty()).
 static func _fail(msg: String) -> Dictionary:
@@ -397,42 +430,50 @@ static func _parts(text: String) -> Array:
 	for m in _rx("parts").search_all(text): out.append(m.get_string())
 	return out
 
+## every token also gets at/len: where its word sits in the text, for reveal_times
 static func tokenize(text: String, engine: String, sd: int, lang: Dictionary) -> Array:
 	var toks := []
-	for p in _parts(text):
-		var c0: int = p.unicode_at(0)
-		if _all_space(p):
-			toks.append({"type": "gap", "text": " "}); continue
-		if _all_punct(p):
-			toks.append({"type": "punct", "text": p, "mark": p.right(1)}); continue
-		if not _has_wordchar(p):
-			toks.append({"type": "punct", "text": p, "mark": ""}); continue
-		if engine == "tone" or engine == "instr":
-			toks.append({"type": "syl", "text": p, "n": int(max(1, js_round(p.length() / 3.0))), "c": "", "v": "a", "k": "", "jit": (js_hash(p.to_lower()) % 1000) / 1000.0, "stress": true}); continue
-		if engine == "animal" or engine == "blip":
-			for ci in p.length():
-				var ch: String = p.substr(ci, 1); var l := _plain_lower(ch)
-				var c := ""; var v := "a"
-				if VF.has(l) and l != "y": v = l
-				elif LETTER.has(l):
-					c = LETTER[l][0]; v = LETTER[l][1]
-				else: v = "aeiou"[l.unicode_at(0) % 5]
-				toks.append({"type": "syl", "text": ch, "c": c, "v": v, "k": "", "jit": ((l.unicode_at(0) * 37) % 100) / 100.0, "stress": ci == 0})
-			continue
-		var low: String = p.to_lower()
-		var cap: bool = (c0 >= 65 and c0 <= 90) or (c0 >= 0xC0 and c0 <= 0xDD)
-		if _rx("laugh").search(low) != null:
-			toks.append({"type": "laugh", "text": "Hoohoo" if cap else "hoohoo", "n": int(min(6, max(3, js_round(p.length() / 2.0))))}); continue
-		var n := int(max(1, js_round(p.length() / 2.6)))
-		var r := rng(js_hash(low + "|" + str(sd)))
-		for i in n:
-			var c: String = "" if r.call() < 0.12 else lang.cons[int(floor(r.call() * lang.cons.size()))]
-			var v: String = lang.vow[int(floor(r.call() * lang.vow.size()))]
-			var k: String = lang.codas[int(floor(r.call() * lang.codas.size()))] if (i == n - 1 and r.call() < 0.55) else ""
-			var t := c + v + k
-			if i == 0 and cap: t = cap_first(t)
-			toks.append({"type": "syl", "text": t, "c": c, "v": v, "k": k, "jit": (js_hash(t + str(i) + low) % 1000) / 1000.0, "stress": i == 0})
+	for m in _rx("parts").search_all(text):
+		var n0 := toks.size()
+		_tokenize_part(toks, m.get_string(), m.get_start(), engine, sd, lang)
+		for j in range(n0, toks.size()):
+			if not toks[j].has("at"):
+				toks[j].at = m.get_start(); toks[j].len = m.get_string().length()
 	return toks
+
+static func _tokenize_part(toks: Array, p: String, at: int, engine: String, sd: int, lang: Dictionary) -> void:
+	var c0: int = p.unicode_at(0)
+	if _all_space(p):
+		toks.append({"type": "gap", "text": " "}); return
+	if _all_punct(p):
+		toks.append({"type": "punct", "text": p, "mark": p.right(1)}); return
+	if not _has_wordchar(p):
+		toks.append({"type": "punct", "text": p, "mark": ""}); return
+	if engine == "tone" or engine == "instr":
+		toks.append({"type": "syl", "text": p, "n": int(max(1, js_round(p.length() / 3.0))), "c": "", "v": "a", "k": "", "jit": (js_hash(p.to_lower()) % 1000) / 1000.0, "stress": true}); return
+	if engine == "animal" or engine == "blip":
+		for ci in p.length():
+			var ch: String = p.substr(ci, 1); var l := _plain_lower(ch)
+			var c := ""; var v := "a"
+			if VF.has(l) and l != "y": v = l
+			elif LETTER.has(l):
+				c = LETTER[l][0]; v = LETTER[l][1]
+			else: v = "aeiou"[l.unicode_at(0) % 5]
+			toks.append({"type": "syl", "text": ch, "c": c, "v": v, "k": "", "jit": ((l.unicode_at(0) * 37) % 100) / 100.0, "stress": ci == 0, "at": at + ci, "len": 1})
+		return
+	var low: String = p.to_lower()
+	var cap: bool = (c0 >= 65 and c0 <= 90) or (c0 >= 0xC0 and c0 <= 0xDD)
+	if _rx("laugh").search(low) != null:
+		toks.append({"type": "laugh", "text": "Hoohoo" if cap else "hoohoo", "n": int(min(6, max(3, js_round(p.length() / 2.0))))}); return
+	var n := int(max(1, js_round(p.length() / 2.6)))
+	var r := rng(js_hash(low + "|" + str(sd)))
+	for i in n:
+		var c: String = "" if r.call() < 0.12 else lang.cons[int(floor(r.call() * lang.cons.size()))]
+		var v: String = lang.vow[int(floor(r.call() * lang.vow.size()))]
+		var k: String = lang.codas[int(floor(r.call() * lang.codas.size()))] if (i == n - 1 and r.call() < 0.55) else ""
+		var t := c + v + k
+		if i == 0 and cap: t = cap_first(t)
+		toks.append({"type": "syl", "text": t, "c": c, "v": v, "k": k, "jit": (js_hash(t + str(i) + low) % 1000) / 1000.0, "stress": i == 0})
 
 static func _all_space(p: String) -> bool:
 	for i in p.length():
