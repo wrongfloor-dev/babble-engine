@@ -8,7 +8,7 @@
 class_name BabbleEngine
 extends RefCounted
 
-const VERSION := "1.3.2"
+const VERSION := "1.4.0"
 
 # ---- tables (engine.js) ----
 const VF := {"a": [780.0, 1250.0, 2550.0, 3500.0], "e": [460.0, 1950.0, 2650.0, 3600.0], "i": [290.0, 2280.0, 3050.0, 3700.0],

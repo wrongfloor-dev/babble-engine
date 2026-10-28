@@ -1095,7 +1095,7 @@ function revealTimes(len,toks,marks,dur){
 }
 
 // ===== Web module: Babble.render(text, options) =====
-const BABBLE_VERSION='1.3.2';
+const BABBLE_VERSION='1.4.0';
 const MOOD_ALIAS={neutral:'neutraal',happy:'blij',angry:'boos',sad:'verdrietig',flirty:'flirterig',surprised:'verbaasd'};
 const SLIDER_NAMES={pitch:'pitch',speed:'speed',expression:'expr',throat:'form',breath:'breath',brightness:'tilt'};
 const hasKey=(o,k)=>typeof k==='string'&&Object.prototype.hasOwnProperty.call(o,k);
