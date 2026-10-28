@@ -113,7 +113,7 @@ for line in script_data.lines:
 
 ## 🎮 Godot 4
 
-**[Download babble-engine-godot.zip](https://github.com/wrongfloor-dev/babble-engine/releases/latest/download/babble-engine-godot.zip)** and unzip it in your project folder (or copy `addons/babble_engine` from this repo). There is no plugin to enable: you get the `BabbleSpeaker` node and `BabbleEngine`.
+**[Download babble-engine-godot.zip](https://github.com/wrongfloor-dev/babble-engine/releases/latest/download/babble-engine-godot.zip)** and unzip it in your project folder, or install it from the [Godot Asset Library](https://godotengine.org/asset-library/asset/5567) (AssetLib tab in the editor, search "Babble Engine"), or copy `addons/babble_engine` from this repo. There is no plugin to enable: you get the `BabbleSpeaker` node and `BabbleEngine`.
 
 ```gdscript
 # BabbleSpeaker is an AudioStreamPlayer: pick style, voice and mood in the Inspector
@@ -152,10 +152,6 @@ Same text, options and seed give the same sound as the web module, sample for sa
 | 💬 | `blip` | Text Blips | `pixel`, `tiny`, `boss`, `soft`, `typewriter` |
 | 🛰️ | `droid` | Droid Chirps | `beebo`, `rollo`, `zapp`, `mini` |
 | 🎺 | `instr` | Talking Instruments | `horn`, `trombone`, `choir`, `kazoo` |
-
-## 🗺️ What's next
-
-- 📦 The Godot addon in the Godot Asset Library
 
 ## 🛠️ Repository
 
