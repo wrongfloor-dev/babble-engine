@@ -11,6 +11,8 @@
   <a href="#-license"><b>📜 MIT</b></a>
 </p>
 
+<p align="center"><a href="https://github.com/wrongfloor-dev/babble-engine/actions/workflows/test.yml"><img src="https://github.com/wrongfloor-dev/babble-engine/actions/workflows/test.yml/badge.svg" alt="Tests: web module and Godot addon, sample for sample"></a></p>
+
 Your characters want to talk. Your budget doesn't include voice actors. **Babble Engine** turns any line of text into gibberish speech: critter chatter, made-up languages, grumbling trolls, beeping robots, whispering fairies and soft musical tones.
 
 🚫 No voice actors &nbsp; 🚫 No server &nbsp; 🚫 No dependencies &nbsp; ✅ Free, also for commercial games
